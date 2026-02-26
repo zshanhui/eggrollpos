@@ -68,13 +68,6 @@ export default class Menu extends React.Component {
 
         <Container>
           <section style={{ padding: "1rem" }} className="Menu__menu-items">
-            {/* <menu>
-            <ul>
-              <li>Aa</li>
-              <li>Bb</li>
-              <li>Cc</li>
-            </ul>
-          </menu> */}
             {menuItems.map((item, i) => (
               <MenuItem
                 key={i}
@@ -158,8 +151,6 @@ function MenuItemOptions({ orderUuid, menuItem, handleClose, show }) {
       quantity,
     });
 
-    console.log('createLineItem response >> ', res);
-    
     // After adding item
     setTimeout(() => {
       if (!res) {
@@ -232,7 +223,6 @@ function SelectQuantity({ handleSetQuantity, quantity }) {
 }
 
 function CartPopover({menuItems, cart}) {
-  console.log('menuItems >> ', menuItems)
   if (!menuItems || !menuItems.length || !cart) {
     return null;
   }

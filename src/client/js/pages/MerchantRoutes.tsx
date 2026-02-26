@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import {Grid, Button, ButtonGroup, ButtonToolbar, Card, Table, Container} from 'react-bootstrap';
+import {Button, ButtonToolbar, Card, Table, Container} from 'react-bootstrap';
 import {getOrders, updateOrderStatus} from '../api/index';
 
 import {Status} from '../../../shared/orders';
@@ -28,25 +28,10 @@ function MerchantOrders() {
     fetchOrders();
   }, []);
 
-  console.log('READY ORDERS >> ', orders);
   return <>
-        {/* <div>
-            <div class='user-profile'>
-              <a class="user-account">Merchant Dashboard</a>
-            </div>
-            <ul class="navbar-nav">
-              <li class="nav-item">
-                  <a class="nav-link" href="#">Orders</a>
-              </li>
-              <li class="nav-item">
-                  <a class="nav-link" href="#">Settings</a>
-              </li>
-            </ul>
-        </div> */}
-
         <Container>
           {orders && Object.keys(orders).map(k => {
-            return <OrderCard order={orders[k]} />;
+            return <OrderCard key={k} order={orders[k]} />;
           })}
         </Container>
   </>
@@ -69,11 +54,10 @@ function OrderCard({
     location.reload();
   }, [isSendingRequest]);
 
-  console.log('orders >> ', order);
   return <Card style={{marginBottom: '1rem'}}>
     <Card.Header>Pickup ETA (needs formating): {order.pickupEta}</Card.Header>
     <Card.Body>
-        <div class="main-panel">
+        <div className="main-panel">
           <h4 id="order-id">ORDER #{order.orderId}</h4>
           <ul className="Order__meta-list">
             <li>CUSTOMER: <span>{order.customerName}</span></li>
@@ -84,15 +68,10 @@ function OrderCard({
 
           <Table size="sm">
             <thead>
-              {/* <tr>
-                <th>Qty #</th>
-                <th>Item name</th>
-                <th>Price</th>
-              </tr> */}
             </thead>
             <tbody>
-              {order.lineItems.map(line => {
-                return <tr>
+              {order.lineItems.map((line, i) => {
+                return <tr key={line.id || i}>
                   <td>{line.quantity}</td>
                   <td>
                     <strong>{line.name}</strong><br/>
@@ -134,22 +113,4 @@ function OrderCard({
     </ButtonToolbar>
     </Card.Footer>
   </Card>
-}
-
-// @todo: @geno
-function CountdownTimer() {
-  return <section>
-
-  </section>
-}
-
-function StatusUpdates() {
-
-}
-
-function AcceptOrDeclineOrder({status}) {
-  if (status !== Status.CONFIRMED) return null;
-  <ButtonToolbar>
-    
-  </ButtonToolbar>
 }

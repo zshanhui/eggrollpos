@@ -33,8 +33,6 @@ const SERVER_DATA = window.__VARS__ ? window.__VARS__ : null;
 }(document, 'script', 'Messenger'));
 
 function App() {
-  // Data from express.js
-  console.log('SERVER_DATA >> ', SERVER_DATA);
   return <div>
     <Router history={history}>
 
