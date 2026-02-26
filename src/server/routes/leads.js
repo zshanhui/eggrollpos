@@ -16,7 +16,7 @@ router.post('/', async (req, res, _next) => {
       business_website: website,
       project_description: description,
     }
-  }, 'apprGh6ClNnx85B8m', 'Contact Form');
+  }, process.env.AIRTABLE_BASE_ID || 'apprGh6ClNnx85B8m', 'Contact Form');
   console.log('Saved to airtable... ', results);
   res.redirect('/');
 });

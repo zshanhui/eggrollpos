@@ -1,5 +1,5 @@
 const axios = require("axios");
-const config = require("../constants");
+const config = require("./config");
 
 module.exports = class GraphAPIs {
   static async callSendAPI(requestBody) {

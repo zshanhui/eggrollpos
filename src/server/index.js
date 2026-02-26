@@ -6,7 +6,6 @@ const cookieParser = require("cookie-parser");
 const logger = require("morgan");
 
 const ReactRouter = require("./routes/index");
-const usersRouter = require("./routes/users");
 const leadsRouter = require("./routes/leads");
 const merchantsRouter = require("./routes/merchants");
 const ordersRouter = require("./routes/orders");
@@ -30,7 +29,6 @@ app.use("/dist", express.static(path.join(__dirname, "../../dist")));
 // Serve assets from Vite build output
 app.use("/assets", express.static(path.join(__dirname, "../../dist/assets")));
 
-app.use("/api/users", usersRouter);
 app.use("/api/contact", leadsRouter);
 app.use("/api/merchants", merchantsRouter);
 app.use("/api/orders", ordersRouter);
@@ -41,27 +39,20 @@ app.post("/webhook", async (req, res) => {
 
   if (body.object === "page") {
     // iterates over each entry
-    body.entry.forEach(async (entry) => {
-      // console.log('ENTRY >> ', entry);
-
-      // handles events
+    for (const entry of body.entry) {
       let webhook_event = entry.messaging[0];
-      // console.log(webhook_event);
 
-      // get the sender PSID
       let sender_psid = webhook_event.sender.id;
       console.log("Sender PSID: " + sender_psid);
 
-      // NLP entities:
       console.log("NLP entities >> ", webhook_event.message.nlp.entities);
-      // console.log('NLP datetime values >> ', entities.datetime[0].values);
 
       if (webhook_event.message) {
         await handleMessage(sender_psid, webhook_event.message);
       } else if (webhook_event.postback) {
         await handlePostback(sender_psid, webhook_event.postback);
       }
-    });
+    }
 
     res.status(200).send("EVENT_RECEIVED");
   } else {
@@ -75,9 +66,6 @@ async function handleMessage(psid, message) {
       console.log("Confident is first contact... ", psid);
       return Actions.startOrderingChat(psid);
     }
-    // if (isZipCode(message.text)) {
-    //   return Actions.getNearbyShops(psid, message.text);
-    // }
     if (isMerchantHashCode(message)) {
       console.log("Is merchant hash code ", message.text);
       return Actions.initOrderProcess(psid, message.text);
@@ -105,7 +93,6 @@ async function handleMessage(psid, message) {
 }
 
 function isFirstContact(message) {
-  let valid = false;
   const m = message.text.toLowerCase().trim();
   if (m.indexOf("start") > -1) return true;
   if (m.indexOf("order") > -1) return true;
@@ -160,7 +147,8 @@ function isCustomerProvidedMobileNumber({ quick_reply, text, nlp }) {
   return true;
 }
 
-function isPaymentMethodReply(quick_reply, text, nlp) {
+function isPaymentMethodReply(message) {
+  const { quick_reply } = message;
   if (
     (quick_reply && quick_reply.payload === PaymentMethods.IN_STORE) ||
     quick_reply.payload === PaymentMethods.FACEBOOK_PAY
@@ -195,16 +183,6 @@ app.get("/r/:receiptId", async (req, res) => {
   const lineItems = await Actions.getLineItems({ orderId });
   res.json({ receipt: receipts, lineItems: lineItems });
 });
-
-// @note: test routes, will be deleted once integrated with chatbot
-
-app.get("/t", async (req, res) => {
-  const params = { psid: "1005" };
-  Dialog.askForOrderConfirmation("2855059271270323");
-  res.send(`SENDING MESSAGE...`);
-});
-
-// curl -H "Content-Type: application/json" -X POST "localhost:3000/webhook" -d '{"object": "page", "entry": [{"messaging": [{"message": "TEST_MESSAGE"}]}]}'
 
 /* This should come after all other routes */
 app.use("/*", ReactRouter);

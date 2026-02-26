@@ -1,4 +1,3 @@
-const _ = require('lodash');
 const db = require('./db');
 const uuid = require('uuid');
 const camelcaseKeys = require('camelcase-keys');
@@ -28,7 +27,6 @@ class Order {
       menuItems = await MenuItemsTable()
         .select()
         .where('merchant_id', order.merchant_id)
-        // console.log('menu results >> ', menuItems);
     }
 
     // Get line items of order
@@ -41,7 +39,6 @@ class Order {
       console.log('line items >> ', lineItems);
     }
 
-    // console.log('order results >> ', order);
     return {
       order,
       menuItems,
@@ -105,7 +102,6 @@ class Order {
       status: Status.STARTED,
       uuid: uuid.v4(),
     }).returning('uuid');
-    // console.log('Order.create res >> ', res);
     return res[0];
   }
 
@@ -121,7 +117,6 @@ class Order {
       .update({...params})
       .where('id', id)
       .returning('*');
-    // console.log('update res: ', res);
     return res[0];
   }
 

@@ -8,6 +8,8 @@ const CONFIG = {
 
 const standardResponses = require('../services/response')
 
+const SERVER_URL = process.env.APP_URL || '';
+
 const ResponseTemplates = {
   Introduction: name => `Hey there ${name || ''}, let\'s get you started with ordering. Please type the #mhash (Merchant Hash Code Eg. #1122)?`,
   ShowListOfMerchants: `Here's a list of available Merchants near you`,
@@ -75,7 +77,7 @@ const ResponseTemplates = {
     ],
   },
   OrderHasBeenPlaced: (orderId, minutes) => `Your order #${orderId} has been placed. Should ready for pickup in ${minutes} minutes`,
-  OrderIsBeingPrepared: (orderId, merchantName) => `Your order #${orderId} is has been accepted by ${merchantName}!`,
+  OrderAccepted: (orderId, merchantName) => `Your order #${orderId} is has been accepted by ${merchantName}!`,
   OrderIsBeingPrepared: orderId => `Your order #${orderId} is being prepared!`,
   OrderIsReadyForPickup: orderId => `Your order #${orderId} is now ready for pickup!`,
   ViewReceipt: (name, receiptId) => standardResponses.genButtonTemplate(
@@ -115,13 +117,13 @@ async function respondWithMerchantMenu(psid, merchant, uuid) {
       subtitle: merchant.description || '',
       default_action: {
         type: 'web_url',
-        url: `https://0175863f.ngrok.io/orders/${uuid}/menus`,
+        url: `${SERVER_URL}/orders/${uuid}/menus`,
         webview_height_ratio: 'FULL',
       },
       buttons: [
         {
           type: 'web_url',
-          url: `https://0175863f.ngrok.io/orders/${uuid}/menus`,
+          url: `${SERVER_URL}/orders/${uuid}/menus`,
           title: 'View Menu',
           webview_height_ratio: 'FULL',
         }
@@ -187,7 +189,7 @@ async function askForOrderConfirmation(psid, {subTotal, totalWithTax}) {
   await Client.sendQuickReplies(recipient, quickReplies, text);
 }
 
-async function respondWithReceipt(psid, receiptId) {
+async function respondWithReceipt(psid, receiptId, customer) {
   // @todo Sends the receipt to customer, opened in a Webview
   // we already have the Receipt implmented in PR: https://github.com/adrienshen/facebook-bizchat-hackathon/pull/13/files
   const recipient = {'id': psid};

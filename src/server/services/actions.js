@@ -1,5 +1,3 @@
-const _ = require('lodash');
-
 const Orders = require('../models/orders');
 const Customers = require('../models/customers');
 const Merchants = require('../models/merchants');
@@ -46,7 +44,7 @@ async function initOrderProcess(psid, mhash) {
 
   const merchant = await Merchants.getByHash(mhash);
   if (!merchant || !merchant.id) {
-    throw Error(`Merchant with id ${m.id} not founded!`);
+    throw Error(`Merchant with id ${mhash} not founded!`);
   }
 
   console.log('merchant >> ', merchant);
@@ -116,10 +114,6 @@ async function requestNearbyZomato(lat, lon) {
   return nearbyRestaurants;
 }
 
-module.exports = {
-  requestNearbyZomato,
-};
-
 async function getMerchantMenu(merchantId) {
   const menu = await MenuItems.getByMerchantId(merchantId);
   if (!menu) {
@@ -130,15 +124,8 @@ async function getMerchantMenu(merchantId) {
 }
 
 async function getMerchantOrders(merchantId, filter) {
-  // Don't paginate for now since data is now indexed object, need to rethink how
-  // const pageOffset = filter.offset && filter.offset >= 0 ? filter.offset : 0;
-  // const pageLimit = filter.limit && filter.limit > 0 ? filter.limit : 20;
-
   try {
-    // const startIndex = Math.min(pageOffset * pageLimit, orders.length)
-    // const endIndex = Math.min(startIndex + pageLimit, orders.length);
     let orders = await Orders.list(merchantId, filter);
-    // return orders.slice(startIndex, endIndex);
     return orders;
   } catch(err) {
     console.log("failed to get orders: ", err);
@@ -277,7 +264,7 @@ async function updatePaymentMethod(psid, params) {
  * @param {*} params
  */
 async function sendCustomerDirectMessageFromMerchant(params) {
-  console.into('@todo');
+  console.log('@todo');
 }
 
 /**
@@ -300,7 +287,7 @@ async function createReceipt({orderId, paymentMethod}) {
     taxRate: 0.07
   };
 
-  const params = await Orders.orderCost(orderCostParams);
+  const params = await Orders.calculateSubtotal(orderCostParams);
 
   // Creates new receipt
   const receiptId = await Receipts.create({orderId, paymentMethod, params});

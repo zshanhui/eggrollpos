@@ -1,4 +1,3 @@
-const _ = require('lodash');
 const db = require('./db');
 
 const T = () => db('merchants');
@@ -16,7 +15,6 @@ class Merchants {
       .select()
       .where('id', id)
       .first();
-    // console.log('merchant res: ', res);
     return res;
   }
 
@@ -65,7 +63,6 @@ class Merchants {
       .where('merchants.id', id)
       .distinct();
 
-    // console.log('merchant customers: ', res);
     return res;
   }
 
@@ -76,7 +73,6 @@ class Merchants {
       .joinRaw('LEFT JOIN orders ON merchants.id = orders.merchant_id')
       .where('merchants.id', id);
 
-    // console.log('merchants orders: ', res);
     return res;
   }
 }

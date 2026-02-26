@@ -1,6 +1,6 @@
 const Airtable = require('airtable');
 
-const airtableClient = new Airtable({apiKey: 'keyESJMR4uxh9Rpqz'});
+const airtableClient = new Airtable({apiKey: process.env.AIRTABLE_API_KEY || ''});
 
 function getById(base, view, id) {
   const airtableBase = airtableClient.base(base);
