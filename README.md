@@ -1,84 +1,222 @@
 # eggroll-pos
 
-Restaurant margins are slim enough already, typically between 5% and 10%. And now SaaS companies and tech platforms want a piece of that as well. The opensource project, eggroll-pos will be a completely free restaurant pos and online ordering solution that you can self host and not have to pay a dime to platforms. Restaurants will have control of their customer data and market however they see fit whether that is email or sms marketing.
+A free, self-hosted restaurant POS (Point-of-Sale) and online ordering system. Restaurant margins are slim enough already — eggroll-pos gives you a complete ordering and kitchen management solution without paying a dime to SaaS platforms. Self-host it, own your customer data, and market however you see fit.
 
-## Getting started
+## Features
 
-Project is based on:
+- **Merchant Dashboard** — Accept, prepare, and fulfill incoming orders in real time
+- **Online Menu & Ordering** — Customers browse menus and place orders from a web view
+- **Receipt System** — Auto-generated receipts with line items, tax, and totals
+- **Facebook Messenger Chatbot** — Take orders through Messenger (optional)
+- **Contact/Lead Form** — Capture beta signup leads via Airtable (optional)
+- **Nearby Restaurant Search** — Zomato API integration (optional)
 
-- Express: http://expressjs.com/
-- Postgres using Knex: http://knexjs.org/
-- React: https://reactjs.org/
-- Vite: https://vitejs.dev/ (Build tool)
-- TypeScript: https://www.typescriptlang.org/ (Type safety)
+## Tech Stack
 
-Requirements:
+| Layer | Technology |
+|-------|-----------|
+| Frontend | React 16, React Router v5, React Bootstrap |
+| Backend | Express.js 4 (Node.js) |
+| Database | PostgreSQL with Knex.js query builder |
+| Build Tool | Vite 7 with TypeScript |
+| Dev Tools | tsx, nodemon, concurrently |
 
-- `postgresql` running on local machine
-- `node 22.14.0+` and `pnpm`
-- `knex-cli`
+## Prerequisites
 
-1. Change database settings in `knexfile.js`
-2. `cd` into `/db` and run migrations with `knex migrate:latest` or `knex migrate:up $filename`
-3. Run application with `pnpm run dev`
-4. Develop server-side code in `/src/server` and client code in `/src/client`
-5. Messenger chat templates in `/src/messenger/templates`
+- **Node.js** >= 22.14.0
+- **pnpm** (pinned to 10.17.0 via `packageManager` field)
+- **PostgreSQL** running locally
 
-## Development Experience Updates (2025)
+## Getting Started
 
-This project has been modernized with cutting-edge development tools and practices:
-
-### 🚀 **Build System Migration: Webpack → Vite**
-
-- **Faster builds**: Vite's esbuild-based bundling is 10-100x faster than Webpack
-- **Instant dev server**: Hot Module Replacement (HMR) starts in milliseconds
-- **Modern tooling**: Built-in TypeScript support, CSS preprocessing, and asset handling
-- **Better developer experience**: Faster feedback loop and smoother development workflow
-
-### 📘 **TypeScript Integration**
-
-- **Type safety**: Catch errors at compile time instead of runtime
-- **Enhanced IDE support**: Better autocomplete, refactoring, and navigation
-- **Self-documenting code**: Types serve as inline documentation
-- **Gradual migration**: Can add stricter types incrementally
-- **Modern standards**: Aligned with 2025 development practices
-
-### 🛠 **Development Scripts**
+### 1. Clone and install dependencies
 
 ```bash
-# Development
-pnpm run dev              # Start Vite dev server + Node.js server
-pnpm run build            # Build for production with Vite
-pnpm run build:server     # Compile server-side TypeScript
-pnpm run build:all        # Build both client and server
-pnpm run type-check       # TypeScript type checking
-pnpm run preview          # Preview production build locally
+git clone <repo-url>
+cd eggroll-pos
+pnpm install
 ```
 
-### 🎯 **Key Improvements**
+### 2. Set up PostgreSQL
 
-- **Path aliases**: Clean imports with `@/`, `@/client`, `@/server`, `@/shared`
-- **Type definitions**: Comprehensive types for all dependencies
-- **Global types**: Proper Window interface extensions
-- **Modern React**: Updated to use latest React patterns and TypeScript
-- **Faster feedback**: Instant compilation and hot reloading
-- **Better debugging**: Source maps and improved error messages
+Create the database:
 
-### 📁 **Project Structure**
-
-```
-src/
-├── client/           # React frontend (TypeScript)
-│   ├── js/          # Components and pages
-│   └── css/         # Stylesheets
-├── server/          # Express backend (JavaScript)
-├── shared/          # Shared utilities (TypeScript)
-└── types/           # Global type definitions
+```bash
+createdb eggrollpos
 ```
 
-### 🔧 **Configuration Files**
+The default connection settings (in `db/knexfile.js`) are:
 
-- `vite.config.ts` - Vite configuration with TypeScript support
-- `tsconfig.json` - TypeScript configuration for client-side code
-- `tsconfig.server.json` - TypeScript configuration for server-side code
-- `package.json` - Updated with modern dependencies and scripts
+| Setting | Value |
+|---------|-------|
+| Host | `127.0.0.1` |
+| Database | `eggrollpos` |
+| User | `postgres` |
+| Password | _(empty)_ |
+
+> If your PostgreSQL setup requires a password or different user, edit `db/knexfile.js` accordingly.
+
+### 3. Run database migrations and seeds
+
+```bash
+npx knex migrate:latest --knexfile db/knexfile.js
+npx knex seed:run --knexfile db/knexfile.js
+```
+
+This creates all tables (merchants, customers, orders, menu_items, line_items, receipts) and populates sample data for development.
+
+### 4. Start the development servers
+
+The app runs two servers in development:
+
+| Server | Port | Purpose |
+|--------|------|---------|
+| Express API | 3000 | REST API, webhook handlers, SSR views |
+| Vite Dev Server | 3001 | React frontend with HMR |
+
+**Option A — Start both together:**
+
+```bash
+NODE_OPTIONS='--import tsx/esm' pnpm run dev
+```
+
+**Option B — Start separately (recommended):**
+
+```bash
+# Terminal 1: Express backend
+NODE_ENV=development npx tsx ./bin/www
+
+# Terminal 2: Vite frontend
+npx vite
+```
+
+> **Why `tsx`?** The server-side JavaScript uses `require()` to import shared TypeScript modules from `src/shared/`. Plain `node` cannot resolve `.ts` extensions for CJS require calls, so `tsx` is needed to bridge this gap.
+
+Open [http://localhost:3001](http://localhost:3001) in your browser.
+
+### 5. Explore the app
+
+| URL | Page |
+|-----|------|
+| `/` | Homepage with beta signup form |
+| `/about` | About page |
+| `/merchant` | Merchant POS dashboard (hardcoded to merchant ID 3) |
+| `/orders/:uuid/menus` | Customer menu ordering view |
+| `/receipts/:id` | Receipt view |
+
+## Available Scripts
+
+```bash
+pnpm run dev          # Start Vite + Express concurrently
+pnpm run build        # Production build (Vite)
+pnpm run build:server # Compile server-side TypeScript
+pnpm run build:all    # Build both client and server
+pnpm run type-check   # TypeScript type checking (has pre-existing errors)
+pnpm run preview      # Preview production build locally
+pnpm test             # Run mocha tests
+```
+
+## Project Structure
+
+```
+├── bin/www                  # Express HTTP server entry point
+├── index.html               # Vite entry HTML (development)
+├── db/
+│   ├── knexfile.js          # Database connection config
+│   ├── knex.js              # Knex instance
+│   ├── migrations/          # Database schema migrations
+│   └── seeds/               # Development seed data
+├── src/
+│   ├── client/              # React frontend (TypeScript)
+│   │   ├── js/
+│   │   │   ├── index.tsx    # React entry point
+│   │   │   ├── App.tsx      # Router and page layout
+│   │   │   ├── api/         # API client functions
+│   │   │   ├── components/  # Reusable components (ContactForm, Spinner, Lazy)
+│   │   │   └── pages/       # Page components (HomeLanding, MerchantRoutes, Menus, Receipts)
+│   │   ├── css/             # Stylesheets
+│   │   └── assets/          # Static images
+│   ├── server/              # Express backend (JavaScript)
+│   │   ├── index.js         # Express app setup, routes, webhook handler
+│   │   ├── constants.js     # App constants (tax rates, config)
+│   │   ├── routes/          # API route handlers
+│   │   ├── models/          # Database models (Orders, Customers, Merchants, etc.)
+│   │   ├── services/        # Business logic (Actions, Dialog, GraphAPI, Airtable)
+│   │   └── views/           # EJS templates (SSR fallback)
+│   ├── shared/              # Shared TypeScript modules (order statuses, payment types)
+│   └── types/               # Global TypeScript type definitions
+├── specs/                   # Mocha test specs
+├── vite.config.ts           # Vite configuration
+├── tsconfig.json            # TypeScript config (client)
+└── tsconfig.server.json     # TypeScript config (server)
+```
+
+## Environment Variables
+
+Create a `.env` file in the project root for optional integrations:
+
+```env
+# Server
+PORT=3000
+NODE_ENV=development
+
+# PostgreSQL (production only — dev uses knexfile.js defaults)
+DATABASE_URL=postgres://user:pass@host:5432/eggrollpos
+
+# Facebook Messenger (optional)
+PAGE_ID=
+APP_ID=
+PAGE_ACCESS_TOKEN=
+APP_SECRET=
+VERIFY_TOKEN=
+APP_URL=https://your-app.example.com
+SHOP_URL=https://your-shop.example.com
+
+# Airtable lead capture (optional)
+AIRTABLE_API_KEY=
+AIRTABLE_BASE_ID=
+
+# Zomato nearby search (optional)
+ZOMATO_API_KEY=
+ZOMATO_API_URL=
+```
+
+## API Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/merchants/:id/orders` | Get merchant orders (with date/status filters) |
+| POST | `/api/merchants/:id/orders` | Update order status |
+| GET | `/api/merchants/:id/menu` | Get merchant menu items |
+| GET | `/api/orders/:uuid` | Get order with menus and line items |
+| POST | `/api/orders/lineitems` | Add line item to order |
+| POST | `/api/orders/complete` | Complete order selection |
+| POST | `/api/contact` | Submit contact/lead form |
+| GET | `/r/:receiptId` | Get receipt data |
+| GET/POST | `/webhook` | Facebook Messenger webhook |
+
+## Database Migrations
+
+```bash
+# Run all pending migrations
+npx knex migrate:latest --knexfile db/knexfile.js
+
+# Roll back the last batch
+npx knex migrate:rollback --knexfile db/knexfile.js
+
+# Run seeds (development data)
+npx knex seed:run --knexfile db/knexfile.js
+```
+
+## Production Build
+
+```bash
+pnpm run build        # Builds client assets to dist/
+pnpm run start        # Starts Express in production mode
+```
+
+In production, the Express server serves the built static assets from `/dist`.
+
+## License
+
+Open source — free for restaurants to self-host and customize.
