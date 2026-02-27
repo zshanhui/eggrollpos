@@ -46,4 +46,4 @@ Do NOT use `pnpm run dev` directly (it uses `nodemon` which invokes `node`, not 
 
 ### Optional integrations
 
-Airtable, Facebook Messenger, and Zomato are optional. The app starts and runs fine without their env vars set. If `AIRTABLE_API_KEY` is missing, the lead-capture form silently no-ops.
+Airtable and Zomato are optional. The app starts and runs fine without their env vars set. If `AIRTABLE_API_KEY` is missing, the lead-capture form silently no-ops.
