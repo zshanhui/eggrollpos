@@ -18,7 +18,6 @@
     "node": ">=22.14.0"
   },
   "dependencies": {
-    "airtable": "^0.12.2",
     "axios": "^1.13.5",
     "camelcase-keys": "^6.2.2",
     "chai": "^4.5.0",

@@ -7,7 +7,7 @@ A free, self-hosted restaurant POS (Point-of-Sale) and online ordering system. R
 - **Merchant Dashboard** — Accept, prepare, and fulfill incoming orders in real time
 - **Online Menu & Ordering** — Customers browse menus and place orders from a web view
 - **Receipt System** — Auto-generated receipts with line items, tax, and totals
-- **Contact/Lead Form** — Capture beta signup leads via Airtable (optional)
+- **Contact/Lead Form** — Capture beta signup leads
 - **Nearby Restaurant Search** — Zomato API integration (optional)
 
 ## Tech Stack
@@ -140,7 +140,7 @@ pnpm test             # Run mocha tests
 │   │   ├── constants.js     # App constants (tax rates, config)
 │   │   ├── routes/          # API route handlers
 │   │   ├── models/          # Database models (Orders, Customers, Merchants, etc.)
-│   │   ├── services/        # Business logic (Actions, Airtable)
+│   │   ├── services/        # Business logic (Actions)
 │   │   └── views/           # EJS templates (SSR fallback)
 │   ├── shared/              # Shared TypeScript modules (order statuses, payment types)
 │   └── types/               # Global TypeScript type definitions
@@ -161,10 +161,6 @@ NODE_ENV=development
 
 # PostgreSQL (production only — dev uses knexfile.js defaults)
 DATABASE_URL=postgres://user:pass@host:5432/eggrollpos
-
-# Airtable lead capture (optional)
-AIRTABLE_API_KEY=
-AIRTABLE_BASE_ID=
 
 # Zomato nearby search (optional)
 ZOMATO_API_KEY=
