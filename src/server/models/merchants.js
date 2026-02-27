@@ -6,7 +6,7 @@ class Merchants {
   constructor(merchants) { this.merchants = merchants }
 
   static async list() {
-    // @todo: list all merchants for admin or nearby merchants for messenger
+    // @todo: list all merchants for admin or nearby merchants
     return T().select();
   }
 

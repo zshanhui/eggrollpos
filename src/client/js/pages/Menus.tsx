@@ -21,7 +21,6 @@ export default class Menu extends React.Component {
   }
 
   async componentDidMount() {
-    // console.log('IS M EXT RUNNING? ', MessengerExtensions);
     const { orderUuid } = this.props.match.params;
     console.log("order uuid >> ", orderUuid);
 
@@ -116,12 +115,7 @@ function MenuItem({ orderUuid, item }) {
 
 function PageActions({orderUuid}) {
   const closeWebView = () => {
-
-    // Trigger 'confirmOrder' on backend
     completeAddingLineItems(orderUuid);
-
-    const text = 'You may now close this window if it does not close automatically';
-    location.href = `https://www.messenger.com/closeWindow/?image_url=https://placekitten.com/g/300/200&display_text=${text}`;
   }
 
   return <footer className="MenuPageActions">

@@ -36,7 +36,7 @@ router.post('/:merchantId/orders', async (req, res) => {
      * - update status -> accepted
      * - add accepted_at timestamp
      * - return success or failure to update to Merchant UI
-     * - respond through FB Messenger the "Order has been accepted/declined/ready/delivering !"
+
      */
 
     const params = _.pick(req.body, ['status']);
@@ -48,7 +48,6 @@ router.post('/:merchantId/orders', async (req, res) => {
 
     const results = await Orders.update(req.body.orderId, params);
 
-    // @todo: Send response to FB Messenger
     res.json({
         message: 'Updated',
         orderId: req.body.orderId,
