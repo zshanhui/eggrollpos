@@ -32,7 +32,6 @@
     "http-errors": "~2.0.1",
     "knex": "^0.20.15",
     "lodash": "^4.17.23",
-    "messenger-node": "^0.3.2",
     "mocha": "^8.4.0",
     "morgan": "~1.9.1",
     "pg": "^8.19.0",

@@ -7,7 +7,6 @@ A free, self-hosted restaurant POS (Point-of-Sale) and online ordering system. R
 - **Merchant Dashboard** — Accept, prepare, and fulfill incoming orders in real time
 - **Online Menu & Ordering** — Customers browse menus and place orders from a web view
 - **Receipt System** — Auto-generated receipts with line items, tax, and totals
-- **Facebook Messenger Chatbot** — Take orders through Messenger (optional)
 - **Contact/Lead Form** — Capture beta signup leads via Airtable (optional)
 - **Nearby Restaurant Search** — Zomato API integration (optional)
 
@@ -71,7 +70,7 @@ The app runs two servers in development:
 
 | Server | Port | Purpose |
 |--------|------|---------|
-| Express API | 3000 | REST API, webhook handlers, SSR views |
+| Express API | 3000 | REST API, SSR views |
 | Vite Dev Server | 3001 | React frontend with HMR |
 
 **Option A — Start both together:**
@@ -137,11 +136,11 @@ pnpm test             # Run mocha tests
 │   │   ├── css/             # Stylesheets
 │   │   └── assets/          # Static images
 │   ├── server/              # Express backend (JavaScript)
-│   │   ├── index.js         # Express app setup, routes, webhook handler
+│   │   ├── index.js         # Express app setup and routes
 │   │   ├── constants.js     # App constants (tax rates, config)
 │   │   ├── routes/          # API route handlers
 │   │   ├── models/          # Database models (Orders, Customers, Merchants, etc.)
-│   │   ├── services/        # Business logic (Actions, Dialog, GraphAPI, Airtable)
+│   │   ├── services/        # Business logic (Actions, Airtable)
 │   │   └── views/           # EJS templates (SSR fallback)
 │   ├── shared/              # Shared TypeScript modules (order statuses, payment types)
 │   └── types/               # Global TypeScript type definitions
@@ -162,15 +161,6 @@ NODE_ENV=development
 
 # PostgreSQL (production only — dev uses knexfile.js defaults)
 DATABASE_URL=postgres://user:pass@host:5432/eggrollpos
-
-# Facebook Messenger (optional)
-PAGE_ID=
-APP_ID=
-PAGE_ACCESS_TOKEN=
-APP_SECRET=
-VERIFY_TOKEN=
-APP_URL=https://your-app.example.com
-SHOP_URL=https://your-shop.example.com
 
 # Airtable lead capture (optional)
 AIRTABLE_API_KEY=
@@ -193,7 +183,6 @@ ZOMATO_API_URL=
 | POST | `/api/orders/complete` | Complete order selection |
 | POST | `/api/contact` | Submit contact/lead form |
 | GET | `/r/:receiptId` | Get receipt data |
-| GET/POST | `/webhook` | Facebook Messenger webhook |
 
 ## Database Migrations
 
