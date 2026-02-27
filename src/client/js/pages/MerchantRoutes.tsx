@@ -1,13 +1,12 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { Route, Switch, useHistory, useParams, useRouteMatch } from 'react-router-dom';
 import { Status, STATUS_LABELS, getNextStatus, canCancel, canRefund } from '../../../shared/orders';
 import type { OrderStatus, OrderType } from '../../../shared/orders';
 import '../../css/pages/MerchantRoutes.css';
 
 const MERCHANT_ID = 3;
 
-function fetchApi(url: string, options?: any) {
-  return fetch(url, { credentials: 'same-origin' as const, ...options }).then(r => r.json());
+function fetchApi(url: string) {
+  return fetch(url, { credentials: 'same-origin' as const }).then(r => r.json());
 }
 
 function postApi(url: string, body: any) {
@@ -19,25 +18,29 @@ function postApi(url: string, body: any) {
   }).then(r => r.json());
 }
 
-// ─── Main Router ───
+// ─── Main Container ───
 
 export default function MerchantRoutes() {
-  const { path } = useRouteMatch();
+  const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
+
   return (
     <div className="Merchant">
-      <Switch>
-        <Route exact path={path} component={OrdersListPage} />
-        <Route path={`${path}/orders/:orderId`} component={OrderDetailPage} />
-      </Switch>
+      {selectedOrderId === null ? (
+        <OrdersListPage onSelectOrder={setSelectedOrderId} />
+      ) : (
+        <OrderDetailPage
+          orderId={selectedOrderId}
+          onBack={() => setSelectedOrderId(null)}
+        />
+      )}
     </div>
   );
 }
 
 // ─── Orders List (Grid) ───
 
-function OrdersListPage() {
+function OrdersListPage({ onSelectOrder }: { onSelectOrder: (id: number) => void }) {
   const [orders, setOrders] = useState<any>(null);
-  const history = useHistory();
 
   useEffect(() => {
     fetchApi(`/api/merchants/${MERCHANT_ID}/orders`).then(setOrders);
@@ -58,7 +61,7 @@ function OrdersListPage() {
         <OrderCard
           key={order.orderId}
           order={order}
-          onClick={() => history.push(`/merchant/orders/${order.orderId}`)}
+          onClick={() => onSelectOrder(order.orderId)}
         />
       ))}
     </div>
@@ -105,9 +108,7 @@ function OrderCard({ order, onClick }: { order: any; onClick: () => void }) {
 
 // ─── Order Detail Page ───
 
-function OrderDetailPage() {
-  const { orderId } = useParams<{ orderId: string }>();
-  const history = useHistory();
+function OrderDetailPage({ orderId, onBack }: { orderId: number; onBack: () => void }) {
   const [order, setOrder] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [reasonModal, setReasonModal] = useState<'cancel' | 'refund' | null>(null);
@@ -146,7 +147,11 @@ function OrderDetailPage() {
   }, [order, loading, reasonModal, loadOrder]);
 
   if (!order) {
-    return <div className="OrderDetail" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', color: '#666' }}>Loading...</div>;
+    return (
+      <div className="OrderDetail" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', color: '#666' }}>
+        Loading...
+      </div>
+    );
   }
 
   const status: OrderStatus = order.status;
@@ -160,7 +165,7 @@ function OrderDetailPage() {
 
   return (
     <div className="OrderDetail">
-      <button className="OrderDetail__back" onClick={() => history.push('/merchant')}>
+      <button className="OrderDetail__back" onClick={onBack}>
         ← Back to Orders
       </button>
 
@@ -225,7 +230,7 @@ function OrderDetailPage() {
 
       {order.cancelReason && (
         <div style={{ background: '#1a1a1a', borderRadius: 16, padding: 20, marginBottom: 32, borderLeft: '4px solid #FF1744' }}>
-          <div style={{ color: '#888', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 4 }}>
+          <div style={{ color: '#888', fontSize: '0.8rem', textTransform: 'uppercase' as const, letterSpacing: 1, marginBottom: 4 }}>
             {status === 'refunded' ? 'Refund Reason' : 'Cancel Reason'}
           </div>
           <div style={{ color: '#fff', fontSize: '1.1rem' }}>{order.cancelReason}</div>

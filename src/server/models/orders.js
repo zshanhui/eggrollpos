@@ -134,7 +134,7 @@ class Order {
     return camelcaseKeys({
       ...order,
       line_items: lineItems,
-    });
+    }, {deep: true});
   }
 
   static async lineItems(id) {
