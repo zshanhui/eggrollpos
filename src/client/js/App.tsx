@@ -33,7 +33,7 @@ function App() {
         <Route path="/receipts/:id" exact component={Pages.Receipts} />
 
         {/* Merchant dashboard entry point */}
-        <Route path="/merchant" exact component={Pages.MerchantRoutes} />
+        <Route path="/merchant" component={Pages.MerchantRoutes} />
 
         {/* Ordering and Menu routes */}
         <Route path="/orders/:orderUuid/menus" exact component={Pages.Menus} />
