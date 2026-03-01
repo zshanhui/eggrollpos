@@ -1,4 +1,3 @@
-const _ = require('lodash');
 const db = require('./db');
 
 const Table = () => db('customers');
@@ -39,7 +38,7 @@ class Customers {
   }
 
   static async updateLatestCustomerOrderWithPSID(psid, params) {
-    const customer = await this.getWithPSID(psid, params);
+    const customer = await this.getWithPSID(psid);
     const currentOrder = await OrderTable()
       .select()
       .where('customer_id', customer.id)

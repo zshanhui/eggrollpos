@@ -1,4 +1,3 @@
-const _ = require('lodash');
 const db = require('./db');
 
 const T = () => db('line_items');
@@ -18,7 +17,7 @@ class LineItems {
   }
 
   static async update(id, params) {
-    const results = await T()
+    return await T()
       .update({...params})
       .where('id', id)
       .returning('id')

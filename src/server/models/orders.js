@@ -1,4 +1,3 @@
-const _ = require('lodash');
 const db = require('./db');
 const uuid = require('uuid');
 const camelcaseKeys = require('camelcase-keys');
@@ -13,35 +12,25 @@ class Order {
   constructor(order) { this.order = order }
 
   static async getByUuid(uuid, extras = {}) {
-    
     let order = await Table()
       .select()
       .where('uuid', uuid)
       .first()
 
-    // Get menus if status=`started` and not yet confirmed
     let menuItems;
-    if (order.id
-      && !order.confirmed_at
-      && order.status === Status.STARTED
-      && extras.withMenus) {
+    if (order.id && extras.withMenus) {
       menuItems = await MenuItemsTable()
         .select()
         .where('merchant_id', order.merchant_id)
-        // console.log('menu results >> ', menuItems);
     }
 
-    // Get line items of order
     let lineItems;
     if (order.id && extras.withLineItems) {
       lineItems = await LineItemsTable()
         .select()
         .where('order_id', order.id)
-
-      console.log('line items >> ', lineItems);
     }
 
-    // console.log('order results >> ', order);
     return {
       order,
       menuItems,
@@ -52,6 +41,11 @@ class Order {
   }
 
   static async list(merchantId, filter) {
+    const isSqlite = db.client.config.client === 'sqlite3';
+    const pickupEtaExpr = isSqlite
+      ? `datetime(orders.confirmed_at, '+' || orders.pickup_in || ' minutes') as pickup_eta`
+      : `orders.confirmed_at + (orders.pickup_in * interval '1 minute') as pickup_eta`;
+
     let query = db
       .with('t1', db.raw(`
           select orders.id as order_id
@@ -60,9 +54,11 @@ class Order {
           , orders.customer_id
           , orders.confirmed_at
           , orders.created_at
-          , orders.confirmed_at + (orders.pickup_in * interval '1 minute') as pickup_eta
+          , ${pickupEtaExpr}
           , orders.pickup_in
           , orders.status
+          , orders.order_type
+          , orders.cancel_reason
           , line_items.id as line_item_id
           , line_items.comments
           , line_items.quantity
@@ -88,31 +84,25 @@ class Order {
       query = query.andWhere('created_at', '<=', filter.endDate);
     }
 
-    query = query.andWhereNot("status", 'started')
     if (filter.status) {
       query = query.andWhere("status", filter.status);
     }
-    const res = await query.orderBy('pickup_eta', 'customer_id');
+    const res = await query.orderBy('created_at', 'desc');
     return this._groupMenuItemsByOrder(camelcaseKeys(res));
   }
 
-  static async create({merchantId, customerId}) {
-    console.log('customerID >> ', customerId);
-    // Customer: creates new order
+  static async create({merchantId, customerId, orderType = 'pickup'}) {
     const res = await Table().insert({
       merchant_id: merchantId,
       customer_id: customerId,
-      status: Status.STARTED,
+      status: Status.WAITING_FOR_ACCEPTANCE,
+      order_type: orderType,
       uuid: uuid.v4(),
     }).returning('uuid');
-    // console.log('Order.create res >> ', res);
     return res[0];
   }
 
   static async update(id, params) {
-
-    // @todo: ideally should check that the status is `confirmed` first
-    // as it only makes sense to transition from `confirmed` -> `accepted`
     if (params.status === Status.ACCEPTED) {
       params.accepted_at = db.fn.now();
     }
@@ -121,7 +111,6 @@ class Order {
       .update({...params})
       .where('id', id)
       .returning('*');
-    // console.log('update res: ', res);
     return res[0];
   }
 
@@ -130,6 +119,27 @@ class Order {
       .select()
       .where('id', id)
       .first();
+  }
+
+  static async getDetailWithID(id) {
+    const order = await Table()
+      .select('orders.*', 'customers.name as customer_name', 'customers.mobile_phone', 'merchants.business_name as merchant_name')
+      .join('customers', {'orders.customer_id': 'customers.id'})
+      .join('merchants', {'orders.merchant_id': 'merchants.id'})
+      .where('orders.id', id)
+      .first();
+
+    if (!order) return null;
+
+    const lineItems = await LineItemsTable()
+      .select('line_items.*', 'menu_items.name', 'menu_items.description', 'menu_items.price_cents')
+      .join('menu_items', {'line_items.menu_item_id': 'menu_items.id'})
+      .where('line_items.order_id', id);
+
+    return camelcaseKeys({
+      ...order,
+      line_items: lineItems,
+    }, {deep: true});
   }
 
   static async lineItems(id) {
@@ -154,17 +164,16 @@ class Order {
     };
   }
 
-  static async calculateSubtotal({id,taxRate}) {
+  static async calculateSubtotal({id, taxRate}) {
     const lineItems = await(this.lineItems(id));
-    const subtotalCents = lineItems.reduce((a,c) => a+ parseInt(c.price_cents), 0);
+    const subtotalCents = lineItems.reduce((a,c) => a + parseInt(c.price_cents), 0);
     const taxCents = Math.ceil(subtotalCents * taxRate);
     const totalCents = subtotalCents + taxCents;
-    const params = {
-      subtotalCents: subtotalCents,
-      taxCents: taxCents,
-      totalCents: totalCents
+    return {
+      subtotalCents,
+      taxCents,
+      totalCents,
     };
-    return params;
   }
 
   static async _groupMenuItemsByOrder(order) {
@@ -172,7 +181,7 @@ class Order {
 
     order.forEach(ord => {
       const lineItem = {
-        id: ord.line_item_id,
+        id: ord.lineItemId,
         comments: ord.comments,
         quantity: ord.quantity,
         menuItemId: ord.menuItemId,
@@ -187,7 +196,6 @@ class Order {
           ...ord,
           lineItems: [lineItem],
         };
-        // @note: should refactor later when have time
         delete grouped[ord.uuid].lineItemId;
         delete grouped[ord.uuid].comments;
         delete grouped[ord.uuid].quantity;
