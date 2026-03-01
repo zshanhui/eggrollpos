@@ -38,10 +38,6 @@ export default defineConfig({
         target: "http://localhost:3000",
         changeOrigin: true,
       },
-      "/webhook": {
-        target: "http://localhost:3000",
-        changeOrigin: true,
-      },
       "/r": {
         target: "http://localhost:3000",
         changeOrigin: true,

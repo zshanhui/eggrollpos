@@ -1,4 +1,3 @@
-const _ = require('lodash');
 const db = require('./db');
 
 const Table = () => db('receipts');

@@ -1,5 +1,5 @@
 import React from 'react';
-import {Grid, Card, Row, Col, ListGroup, Container} from 'react-bootstrap';
+import {Card, Row, Col, ListGroup, Container} from 'react-bootstrap';
 
 class Receipt extends React.Component{
   constructor(props) {

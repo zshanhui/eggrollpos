@@ -2,16 +2,24 @@ const express = require('express');
 const router = express.Router();
 const _ = require('lodash');
 const Actions = require('../services/actions');
-
 const Orders = require('../models/orders');
+const Merchants = require('../models/merchants');
+const {getNextStatus, canCancel, canRefund, Status} = require('../../shared/orders');
 
-/* GET orders */
+router.get('/by-uuid/:uuid', async (req, res) => {
+    const merchant = await Merchants.getByUuid(req.params.uuid);
+    if (merchant) {
+        res.json(merchant);
+    } else {
+        res.sendStatus(404);
+    }
+});
+
 router.get('/:merchantId/orders', async (req, res) => {
     const merchantId = req.params.merchantId;
-    if(!merchantId || parseInt(merchantId) != merchantId) {
-        res.sendStatus(400);
+    if (!merchantId || parseInt(merchantId) != merchantId) {
+        return res.sendStatus(400);
     }
-    // parse query params
     const filter = {
         startDate: req.query['startdate'],
         endDate: req.query['enddate'],
@@ -20,52 +28,81 @@ router.get('/:merchantId/orders', async (req, res) => {
         offset: req.query['offset']
     };
     const orders = await Actions.getMerchantOrders(merchantId, filter);
-    if(orders) {
+    if (orders) {
         res.json(orders);
     } else {
         res.sendStatus(500);
     }
-  });
+});
+
+router.get('/:merchantId/orders/:orderId', async (req, res) => {
+    const orderId = req.params.orderId;
+    if (!orderId || parseInt(orderId) != orderId) {
+        return res.sendStatus(400);
+    }
+    const order = await Orders.getDetailWithID(parseInt(orderId));
+    if (order) {
+        res.json(order);
+    } else {
+        res.sendStatus(404);
+    }
+});
 
 router.post('/:merchantId/orders', async (req, res) => {
     if (!req.body.orderId) {
         return res.json({error: 'no order id provided'});
     }
 
-    /**
-     * - update status -> accepted
-     * - add accepted_at timestamp
-     * - return success or failure to update to Merchant UI
-     * - respond through FB Messenger the "Order has been accepted/declined/ready/delivering !"
-     */
+    const { orderId, status, cancelReason } = req.body;
 
-    const params = _.pick(req.body, ['status']);
-    if (['accepted', 'declined', 'preparing', 'ready'].indexOf(params.status) === -1) {
-        return res.json({error: 'invalid params'});
+    if (status === Status.CANCELED) {
+        if (!cancelReason) {
+            return res.status(400).json({ error: 'Cancel reason is required' });
+        }
+        const results = await Orders.update(orderId, {
+            status: Status.CANCELED,
+            cancel_reason: cancelReason,
+        });
+        return res.json({ message: 'Order canceled', orderId });
     }
 
-    console.log('params >> ', params);
+    if (status === Status.REFUNDED) {
+        if (!cancelReason) {
+            return res.status(400).json({ error: 'Refund reason is required' });
+        }
+        const results = await Orders.update(orderId, {
+            status: Status.REFUNDED,
+            cancel_reason: cancelReason,
+        });
+        return res.json({ message: 'Order refunded', orderId });
+    }
 
-    const results = await Orders.update(req.body.orderId, params);
+    const validStatuses = [
+        Status.ACCEPTED,
+        Status.PREPARING,
+        Status.READY_FOR_PICKUP,
+        Status.READY_FOR_DELIVERY,
+        Status.PICKUP_SUCCESS,
+        Status.DELIVERY_IN_PROGRESS,
+        Status.DELIVERED,
+    ];
 
-    // @todo: Send response to FB Messenger
-    res.json({
-        message: 'Updated',
-        orderId: req.body.orderId,
-    });
+    if (!validStatuses.includes(status)) {
+        return res.status(400).json({ error: 'Invalid status' });
+    }
+
+    const results = await Orders.update(orderId, { status });
+    res.json({ message: 'Updated', orderId });
 });
 
-router.get('/:merchantId/menu', async (req,res) => {
+router.get('/:merchantId/menu', async (req, res) => {
     const merchantId = req.params.merchantId;
-    if(!merchantId || parseInt(merchantId) != merchantId) {
-        res.sendStatus(400);
+    if (!merchantId || parseInt(merchantId) != merchantId) {
+        return res.sendStatus(400);
     }
 
     const menu = await Actions.getMerchantMenu(merchantId);
-    console.log(menu)
-    res.json({
-      menu:menu
-    })
+    res.json({ menu });
 });
 
 module.exports = router;

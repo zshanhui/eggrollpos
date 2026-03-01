@@ -18,46 +18,51 @@
     "node": ">=22.14.0"
   },
   "dependencies": {
-    "airtable": "^0.8.1",
-    "axios": "^1.12.2",
     "camelcase-keys": "^6.2.2",
     "chai": "^4.5.0",
     "cookie-parser": "~1.4.7",
     "date-fns": "^2.30.0",
-    "debug": "~2.6.9",
-    "dotenv": "^8.6.0",
+    "debug": "~4.4.3",
+    "dotenv": "^17.3.1",
     "ejs": "^3.1.10",
     "express": "~4.16.4",
     "history": "^5.3.0",
-    "http-errors": "~1.6.3",
+    "http-errors": "~2.0.1",
     "knex": "^0.20.15",
-    "lodash": "^4.17.21",
-    "messenger-node": "^0.3.2",
+    "lodash": "^4.17.23",
     "mocha": "^8.4.0",
     "morgan": "~1.9.1",
-    "pg": "^8.16.3",
+    "pg": "^8.19.0",
     "react": "^16.14.0",
     "react-bootstrap": "^1.6.8",
     "react-dom": "^16.14.0",
     "react-router-dom": "^5.3.4",
-    "uuid": "^7.0.3"
+    "sqlite3": "^5.1.7",
+    "uuid": "^13.0.0"
   },
   "devDependencies": {
-    "@types/cookie-parser": "^1.4.9",
+    "@types/cookie-parser": "^1.4.10",
     "@types/debug": "^4.1.12",
-    "@types/express": "^5.0.3",
-    "@types/lodash": "^4.17.20",
+    "@types/express": "^5.0.6",
+    "@types/lodash": "^4.17.24",
     "@types/morgan": "^1.9.10",
-    "@types/node": "^24.5.2",
-    "@types/pg": "^8.15.5",
-    "@types/react": "^19.1.13",
-    "@types/react-dom": "^19.1.9",
+    "@types/node": "^24.10.14",
+    "@types/pg": "^8.16.0",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
     "@types/react-router-dom": "^5.3.3",
-    "@vitejs/plugin-react": "^5.0.3",
-    "concurrently": "^8.2.2",
-    "nodemon": "^3.0.2",
-    "typescript": "^5.9.2",
-    "vite": "^7.1.6"
+    "@vitejs/plugin-react": "^5.1.4",
+    "concurrently": "^9.2.1",
+    "nodemon": "^3.1.14",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3",
+    "vite": "^7.3.1"
   },
-  "packageManager": "pnpm@10.17.0+sha512.fce8a3dd29a4ed2ec566fb53efbb04d8c44a0f05bc6f24a73046910fb9c3ce7afa35a0980500668fa3573345bd644644fa98338fa168235c80f4aa17aa17fbef"
+  "packageManager": "pnpm@10.17.0+sha512.fce8a3dd29a4ed2ec566fb53efbb04d8c44a0f05bc6f24a73046910fb9c3ce7afa35a0980500668fa3573345bd644644fa98338fa168235c80f4aa17aa17fbef",
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "sqlite3"
+    ]
+  }
 }

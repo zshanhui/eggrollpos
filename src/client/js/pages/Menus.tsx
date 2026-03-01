@@ -21,7 +21,6 @@ export default class Menu extends React.Component {
   }
 
   async componentDidMount() {
-    // console.log('IS M EXT RUNNING? ', MessengerExtensions);
     const { orderUuid } = this.props.match.params;
     console.log("order uuid >> ", orderUuid);
 
@@ -68,13 +67,6 @@ export default class Menu extends React.Component {
 
         <Container>
           <section style={{ padding: "1rem" }} className="Menu__menu-items">
-            {/* <menu>
-            <ul>
-              <li>Aa</li>
-              <li>Bb</li>
-              <li>Cc</li>
-            </ul>
-          </menu> */}
             {menuItems.map((item, i) => (
               <MenuItem
                 key={i}
@@ -123,12 +115,7 @@ function MenuItem({ orderUuid, item }) {
 
 function PageActions({orderUuid}) {
   const closeWebView = () => {
-
-    // Trigger 'confirmOrder' on backend
     completeAddingLineItems(orderUuid);
-
-    const text = 'You may now close this window if it does not close automatically';
-    location.href = `https://www.messenger.com/closeWindow/?image_url=https://placekitten.com/g/300/200&display_text=${text}`;
   }
 
   return <footer className="MenuPageActions">
@@ -158,8 +145,6 @@ function MenuItemOptions({ orderUuid, menuItem, handleClose, show }) {
       quantity,
     });
 
-    console.log('createLineItem response >> ', res);
-    
     // After adding item
     setTimeout(() => {
       if (!res) {
@@ -232,7 +217,6 @@ function SelectQuantity({ handleSetQuantity, quantity }) {
 }
 
 function CartPopover({menuItems, cart}) {
-  console.log('menuItems >> ', menuItems)
   if (!menuItems || !menuItems.length || !cart) {
     return null;
   }

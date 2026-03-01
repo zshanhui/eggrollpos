@@ -1,4 +1,4 @@
-export default {
+module.exports = {
   SALES_TAX: {
     SINGAPORE: .07,
     CALIFORNIA: .0906,

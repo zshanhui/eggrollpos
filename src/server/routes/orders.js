@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 const _ = require('lodash');
 const Actions = require('../services/actions');
-const Dialog = require('../services/dialog');
 
 const Orders = require('../models/orders');
 
@@ -13,7 +12,6 @@ router.get('/:uuid', async (req, res) => {
     res.sendStatus(400);
   }
 
-  // Fetch order and menus if it exists
   const orderWithMenus = await Orders.getByUuid(uuid, {
     withMenus: true,
     withLineItems: true,
@@ -43,22 +41,9 @@ router.post('/complete', async (req, res) => {
   if (!orderUuid) {
     res.sendStatus(500);
   }
-  // Confirm order selection, happens after webview menu confirmation
+
   const {lineItems, customer} = await Actions.verifyOrderLineItemsCompleted(orderUuid);
-
-  // Response send to Messenger as webview closes
-  await Dialog.askAboutPickupTimes(customer, lineItems);
-
   res.sendStatus(200);
-});
-
-router.put('/', async (req, res) => {
-  const PSID = '2855059271270323';
-  const payment_method = 'in_store';
-  Actions.updatePaymentMethod(PSID, {
-    payment_method
-  });
-  res.json([]);
 });
 
 module.exports = router;

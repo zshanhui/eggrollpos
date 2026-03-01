@@ -1,4 +1,3 @@
-const _ = require('lodash');
 const db = require('./db');
 
 const T = () => db('merchants');
@@ -7,7 +6,7 @@ class Merchants {
   constructor(merchants) { this.merchants = merchants }
 
   static async list() {
-    // @todo: list all merchants for admin or nearby merchants for messenger
+    // @todo: list all merchants for admin or nearby merchants
     return T().select();
   }
 
@@ -16,8 +15,14 @@ class Merchants {
       .select()
       .where('id', id)
       .first();
-    // console.log('merchant res: ', res);
     return res;
+  }
+
+  static async getByUuid(uuid) {
+    return await T()
+      .select()
+      .where('uuid', uuid)
+      .first();
   }
 
   static async getByHash(mhash) {
@@ -25,13 +30,6 @@ class Merchants {
       .select()
       .where('mhash', mhash)
       .first();
-    return res;
-  }
-
-  static async getByZomatoIds(zomatoIds) {
-    const res = await T()
-      .select()
-      .whereIn('zomato_id', zomatoIds)
     return res;
   }
 
@@ -65,7 +63,6 @@ class Merchants {
       .where('merchants.id', id)
       .distinct();
 
-    // console.log('merchant customers: ', res);
     return res;
   }
 
@@ -76,7 +73,6 @@ class Merchants {
       .joinRaw('LEFT JOIN orders ON merchants.id = orders.merchant_id')
       .where('merchants.id', id);
 
-    // console.log('merchants orders: ', res);
     return res;
   }
 }
