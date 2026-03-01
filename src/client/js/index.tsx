@@ -1,5 +1,6 @@
 // Entry file for client react-app
 
+import "./i18n";
 import React from "react";
 import ReactDOM from "react-dom";
 import App from "./App";
