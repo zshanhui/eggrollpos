@@ -44,6 +44,14 @@ Both use the same migrations/seeds: `npx knex migrate:latest --knexfile db/knexf
 
 `esbuild` needs its postinstall script to run. The `pnpm.onlyBuiltDependencies` field in `package.json` allowlists it. If it's missing, add `"pnpm": {"onlyBuiltDependencies": ["esbuild"]}` to `package.json`.
 
+### Merchant creation
+
+Merchant accounts are **only** creatable via the admin script — not via UI or API:
+
+```bash
+pnpm run create-merchant "Business Name" [--address "addr"] [--postal-code 94105] [--description "desc"] [--type cafe]
+```
+
 ### Optional integrations
 
 The contact form currently logs submissions to stdout; a database-backed admin UI is planned.

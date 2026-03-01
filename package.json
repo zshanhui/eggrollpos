@@ -12,7 +12,9 @@
     "build:all": "npm run build && npm run build:server",
     "preview": "vite preview",
     "type-check": "tsc --noEmit",
-    "test": "mocha specs/**/*"
+    "test": "mocha specs/**/*",
+    "create-merchant": "node scripts/create-merchant.js",
+    "screenshots:merchant": "node scripts/capture-merchant-screenshots.js"
   },
   "engines": {
     "node": ">=22.14.0"
@@ -54,6 +56,7 @@
     "@vitejs/plugin-react": "^5.1.4",
     "concurrently": "^9.2.1",
     "nodemon": "^3.1.14",
+    "playwright": "^1.58.2",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3",
     "vite": "^7.3.1"

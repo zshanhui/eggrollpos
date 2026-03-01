@@ -17,6 +17,7 @@ const Pages = {
   AboutPage: (props: PageProps) => <Lazy {...props} module={import('./pages/About')} />,
   Receipts: (props: PageProps) => <Lazy {...props} module={import('./pages/Receipts')} />,
   MerchantRoutes: (props: PageProps) => <Lazy {...props} module={import('./pages/MerchantRoutes')} />,
+  MerchantMenuItems: (props: PageProps) => <Lazy {...props} module={import('./pages/MerchantMenuItems')} />,
   CustomerRoutes: (props: PageProps) => <Lazy {...props} module={import('./pages/CustomerRoutes')} />,
   Menus: (props: PageProps) => <Lazy {...props} module={import('./pages/Menus')} />,
 }
@@ -34,6 +35,11 @@ function App() {
 
         {/* Merchant POS dashboard — UUID identifies the merchant */}
         <Route path="/merchant/:uuid" exact component={Pages.MerchantRoutes} />
+
+        {/* Merchant menu items management */}
+        <Route path="/merchant/:uuid/menuitems/add" exact component={Pages.MerchantMenuItems} />
+        <Route path="/merchant/:uuid/menuitems/:menuItemId/edit" exact component={Pages.MerchantMenuItems} />
+        <Route path="/merchant/:uuid/menuitems" exact component={Pages.MerchantMenuItems} />
 
         {/* Customer online ordering — scoped to a specific merchant */}
         <Route path="/order-online/:merchantId" exact component={Pages.CustomerRoutes} />

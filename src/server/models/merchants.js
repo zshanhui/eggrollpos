@@ -33,12 +33,12 @@ class Merchants {
     return res;
   }
 
+  /**
+   * Create merchant. For admin use only — do NOT expose via API or UI.
+   * Use: pnpm run create-merchant "Business Name"
+   */
   static async create(params) {
-    // @todo: add merchant
-    return T().
-      insert({
-        ...params,
-      }).returning('id');
+    return T().insert(params).returning('id');
   }
 
   static async update(id, params) {

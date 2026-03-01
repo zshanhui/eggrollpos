@@ -1,0 +1,392 @@
+/* ===== Merchant Menu Items — Mobile-first, QSR-optimized ===== */
+
+.MerchantMenuItems {
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: #0a0a0a;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: #fff;
+  padding: 16px;
+  padding-bottom: env(safe-area-inset-bottom, 16px);
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.MerchantMenuItems__error {
+  color: #ff1744;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.MerchantMenuItems--error .MerchantMenuItems__error {
+  font-size: 1.2rem;
+  text-align: center;
+  padding: 2rem;
+}
+
+.MerchantMenuItems__loading {
+  color: #888;
+  font-size: 1.25rem;
+  font-weight: 600;
+  text-align: center;
+  padding: 3rem;
+}
+
+.MerchantMenuItems__header {
+  margin-bottom: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+.MerchantMenuItems__back {
+  background: #1a1a1a;
+  border: 2px solid #444;
+  color: #fff;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 700;
+  padding: 12px 20px;
+  min-height: 48px;
+  border-radius: 12px;
+  touch-action: manipulation;
+  flex-shrink: 0;
+}
+
+.MerchantMenuItems__back:active {
+  background: #222;
+}
+
+.MerchantMenuItems__title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  margin: 0;
+  flex: 1;
+  line-height: 1.2;
+}
+
+.MerchantMenuItems__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  width: 100%;
+}
+
+@media (min-width: 480px) {
+  .MerchantMenuItems__actions {
+    width: auto;
+  }
+}
+
+.MerchantMenuItems__btn {
+  padding: 14px 20px;
+  min-height: 48px;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  border: none;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.MerchantMenuItems__btn:active:not(:disabled) {
+  opacity: 0.9;
+}
+
+.MerchantMenuItems__btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.MerchantMenuItems__btn--primary {
+  background: #00e676;
+  color: #000;
+}
+
+.MerchantMenuItems__btn--secondary {
+  background: #333;
+  color: #fff;
+  border: 2px solid #555;
+}
+
+.MerchantMenuItems__list {
+  background: #141414;
+  border-radius: 12px;
+  padding: 16px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.MerchantMenuItems__empty {
+  color: #888;
+  font-size: 1.1rem;
+  font-weight: 600;
+  padding: 2rem;
+  text-align: center;
+}
+
+.MerchantMenuItems__empty button {
+  background: none;
+  border: none;
+  color: #00e5ff;
+  cursor: pointer;
+  text-decoration: underline;
+  font-size: inherit;
+  font-weight: 700;
+  padding: 8px 0;
+  touch-action: manipulation;
+}
+
+.MerchantMenuItems__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 1rem;
+}
+
+.MerchantMenuItems__table th {
+  text-align: left;
+  color: #888;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 12px 8px;
+  border-bottom: 1px solid #2a2a2a;
+}
+
+.MerchantMenuItems__table td {
+  padding: 14px 8px;
+  border-bottom: 1px solid #1a1a1a;
+  font-size: 1rem;
+}
+
+.MerchantMenuItems__cell-name {
+  font-weight: 700;
+  color: #fff;
+}
+
+.MerchantMenuItems__cell-desc {
+  color: #999;
+  max-width: 200px;
+}
+
+.MerchantMenuItems__link {
+  background: none;
+  border: none;
+  color: #00e5ff;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  padding: 10px 8px;
+  min-height: 44px;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.MerchantMenuItems__link--danger {
+  color: #ff1744;
+}
+
+/* ===== Form ===== */
+
+.MerchantMenuItems__form {
+  max-width: 560px;
+  background: #141414;
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.MerchantMenuItems__form .MerchantMenuItems__error {
+  color: #ff1744;
+  margin-bottom: 16px;
+}
+
+.MerchantMenuItems__field {
+  margin-bottom: 20px;
+}
+
+.MerchantMenuItems__field label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 700;
+  color: #ccc;
+  font-size: 1rem;
+}
+
+.MerchantMenuItems__field input[type='checkbox'] {
+  margin-right: 10px;
+  width: 22px;
+  height: 22px;
+  min-width: 22px;
+  min-height: 22px;
+}
+
+.MerchantMenuItems__input {
+  width: 100%;
+  padding: 14px 16px;
+  min-height: 48px;
+  background: #0a0a0a;
+  border: 2px solid #333;
+  border-radius: 12px;
+  color: #fff;
+  font-size: 1rem;
+  box-sizing: border-box;
+}
+
+.MerchantMenuItems__input:focus {
+  outline: none;
+  border-color: #00e5ff;
+}
+
+.MerchantMenuItems__input--narrow {
+  width: 120px;
+}
+
+.MerchantMenuItems__textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.MerchantMenuItems__hint {
+  font-size: 0.9rem;
+  color: #888;
+  margin-top: 6px;
+}
+
+.MerchantMenuItems__modifiers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.MerchantMenuItems__modifier-label {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  min-height: 48px;
+  background: #0a0a0a;
+  border: 2px solid #333;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 1rem;
+  touch-action: manipulation;
+}
+
+.MerchantMenuItems__modifier-label:active {
+  border-color: #555;
+}
+
+.MerchantMenuItems__form-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid #2a2a2a;
+}
+
+.MerchantMenuItems__form-actions .MerchantMenuItems__btn {
+  width: 100%;
+  min-height: 52px;
+}
+
+@media (min-width: 480px) {
+  .MerchantMenuItems__form-actions {
+    flex-direction: row;
+  }
+  .MerchantMenuItems__form-actions .MerchantMenuItems__btn {
+    width: auto;
+  }
+}
+
+/* ===== Modifiers Modal ===== */
+
+.ModifiersModal__overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+.ModifiersModal {
+  background: #141414;
+  border-radius: 16px;
+  padding: 24px;
+  width: 100%;
+  max-width: 400px;
+  border: 2px solid #333;
+  max-height: 90vh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.ModifiersModal h2 {
+  margin: 0 0 8px;
+  font-size: 1.3rem;
+  font-weight: 800;
+}
+
+.ModifiersModal__hint {
+  color: #888;
+  font-size: 0.9rem;
+  margin: 0 0 20px;
+}
+
+.ModifiersModal__add {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.ModifiersModal__add .ModifiersModal__input {
+  flex: 1;
+  min-width: 140px;
+}
+
+.ModifiersModal__list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 20px;
+}
+
+.ModifiersModal__item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 0;
+  border-bottom: 1px solid #2a2a2a;
+}
+
+.ModifiersModal__item-name {
+  font-weight: 700;
+  min-width: 100px;
+  font-size: 1rem;
+}
+
+.ModifiersModal__item-price {
+  color: #69f0ae;
+  font-size: 0.95rem;
+  font-weight: 600;
+  min-width: 70px;
+}
+
+.ModifiersModal__empty {
+  color: #666;
+  font-size: 0.95rem;
+  margin: 0 0 20px;
+}
+
+.ModifiersModal .MerchantMenuItems__input {
+  flex: 1;
+  min-width: 100px;
+}
