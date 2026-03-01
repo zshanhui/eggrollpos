@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useTranslation, withTranslation, WithTranslation } from "react-i18next";
 import { Card, Row, Col, Modal, Container, Button, OverlayTrigger, Popover } from "react-bootstrap";
 
 import {
@@ -9,7 +10,8 @@ import {
 
 import "../../css/pages/Menus.css";
 import appleImage from "../../assets/images/apple-placeholder.jpg";
-export default class Menu extends React.Component {
+
+class MenuInner extends React.Component<WithTranslation> {
   constructor(props) {
     super(props);
     this.state = {
@@ -45,8 +47,9 @@ export default class Menu extends React.Component {
 
   render() {
     const { orderUuid, menuItems, order, cart } = this.state;
+    const { t } = this.props;
     if (menuItems === null) {
-      return <h1>Loading...</h1>;
+      return <h1>{t('menus.loading')}</h1>;
     }
     return (
       <>
@@ -77,11 +80,13 @@ export default class Menu extends React.Component {
           </section>
         </Container>
 
-        <PageActions orderUuid={orderUuid} />
+        <PageActions orderUuid={orderUuid} t={t} />
       </>
     );
   }
 }
+
+export default withTranslation()(MenuInner);
 
 function MenuItem({ orderUuid, item }) {
   const [showOptions, setShowOptions] = useState(false);
@@ -113,24 +118,25 @@ function MenuItem({ orderUuid, item }) {
   );
 }
 
-function PageActions({orderUuid}) {
+function PageActions({orderUuid, t}) {
   const closeWebView = () => {
     completeAddingLineItems(orderUuid);
   }
 
   return <footer className="MenuPageActions">
     <div>
-      <span className="MenuPageActions__price">Order Total: $99.99</span>
+      <span className="MenuPageActions__price">{t('menus.orderTotal')}: $99.99</span>
     </div>
     <div>
       <Button
         onClick={closeWebView}
-        className="MenuPageActions__confim">Confirm Order</Button>
+        className="MenuPageActions__confim">{t('menus.confirmOrder')}</Button>
     </div>
   </footer>
 }
 
 function MenuItemOptions({ orderUuid, menuItem, handleClose, show }) {
+  const { t } = useTranslation();
   const [quantity, setQuantity] = useState(1);
   const [addItemProgress, setAddItemProgress] = useState(false);
 
@@ -183,7 +189,7 @@ function MenuItemOptions({ orderUuid, menuItem, handleClose, show }) {
             quantity={quantity}
           />
           <Button disabled={addItemProgress} variant="primary" onClick={handleAddItem}>
-            Add to cart - {priceHumanReadable}
+            {t('menus.addToCart')} - {priceHumanReadable}
           </Button>
         </Modal.Footer>
       </Modal>
@@ -217,6 +223,7 @@ function SelectQuantity({ handleSetQuantity, quantity }) {
 }
 
 function CartPopover({menuItems, cart}) {
+  const { t } = useTranslation();
   if (!menuItems || !menuItems.length || !cart) {
     return null;
   }
@@ -233,13 +240,13 @@ function CartPopover({menuItems, cart}) {
         overlay={
           <Popover className="CartItems__list"
             id={`popover-positioned-${place}`}>
-            <Popover.Title as="h3">{`Current Order`}</Popover.Title>
+            <Popover.Title as="h3">{t('menus.currentOrder')}</Popover.Title>
             <Popover.Content>
               <ul>
                 {cart.lineItems.map(i => {
                   return <li>
-                    <span>Item: {findMenuItem(i.menu_item_id).name}</span><br/>
-                    <span>Qty: {i.quantity}</span>
+                    <span>{t('common.item')}: {findMenuItem(i.menu_item_id).name}</span><br/>
+                    <span>{t('common.qty')}: {i.quantity}</span>
                   </li>
                 })}
               </ul>
@@ -250,7 +257,7 @@ function CartPopover({menuItems, cart}) {
         <Button
           variant="secondary"
           className="Menu__cart-icon">
-          Cart <span>({getTotalItems.quantity})</span>
+          {t('menus.cart')} <span>({getTotalItems.quantity})</span>
         </Button>
       </OverlayTrigger>{' '}
     </>

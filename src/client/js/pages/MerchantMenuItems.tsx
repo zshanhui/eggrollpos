@@ -1,4 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
+import LangSwitcher from '../components/LangSwitcher';
 import '../../css/pages/MerchantMenuItems.css';
 
 function fetchApi(url: string) {
@@ -42,6 +44,7 @@ function deleteApi(url: string) {
 // ─── Main Container ───
 
 export default function MerchantMenuItems(props: any) {
+  const { t } = useTranslation();
   const merchantUuid = props.match?.params?.uuid;
   const menuItemId = props.match?.params?.menuItemId;
   const isAdd = props.location?.pathname?.endsWith('/add');
@@ -52,16 +55,16 @@ export default function MerchantMenuItems(props: any) {
 
   useEffect(() => {
     if (!merchantUuid) {
-      setError('No merchant UUID provided');
+      setError(t('merchant.noUuid'));
       return;
     }
     fetchApi(`/api/merchants/by-uuid/${merchantUuid}`)
       .then((data) => {
         if (data && data.id) setMerchant(data);
-        else setError('Merchant not found');
+        else setError(t('merchant.notFound'));
       })
-      .catch(() => setError('Failed to load merchant'));
-  }, [merchantUuid]);
+      .catch(() => setError(t('merchant.loadFailed')));
+  }, [merchantUuid, t]);
 
   if (error) {
     return (
@@ -74,7 +77,7 @@ export default function MerchantMenuItems(props: any) {
   if (!merchant) {
     return (
       <div className="MerchantMenuItems">
-        <div className="MerchantMenuItems__loading">Loading...</div>
+        <div className="MerchantMenuItems__loading">{t('common.loading')}</div>
       </div>
     );
   }
@@ -85,6 +88,7 @@ export default function MerchantMenuItems(props: any) {
         merchant={merchant}
         onBack={() => props.history.push(`/merchant/${merchantUuid}/menuitems`)}
         onSuccess={() => props.history.push(`/merchant/${merchantUuid}/menuitems`)}
+        t={t}
       />
     );
   }
@@ -96,6 +100,7 @@ export default function MerchantMenuItems(props: any) {
         menuItemId={parseInt(menuItemId, 10)}
         onBack={() => props.history.push(`/merchant/${merchantUuid}/menuitems`)}
         onSuccess={() => props.history.push(`/merchant/${merchantUuid}/menuitems`)}
+        t={t}
       />
     );
   }
@@ -107,6 +112,7 @@ export default function MerchantMenuItems(props: any) {
       history={props.history}
       onAddClick={() => props.history.push(`/merchant/${merchantUuid}/menuitems/add`)}
       onBack={() => props.history.push(`/merchant/${merchantUuid}`)}
+      t={t}
     />
   );
 }
@@ -119,12 +125,14 @@ function MenuItemsList({
   history,
   onAddClick,
   onBack,
+  t,
 }: {
   merchant: any;
   merchantUuid: string;
   history: any;
   onAddClick: () => void;
   onBack: () => void;
+  t: (key: string) => string;
 }) {
   const [menuItems, setMenuItems] = useState<any[]>([]);
   const [modifiers, setModifiers] = useState<any[]>([]);
@@ -150,7 +158,7 @@ function MenuItemsList({
   const [deleteError, setDeleteError] = useState<string | null>(null);
 
   const handleDelete = async (id: number) => {
-    if (!confirm('Delete this menu item?')) return;
+    if (!confirm(t('merchant.deleteMenuItemConfirm'))) return;
     setDeleteError(null);
     const res = await deleteApi(`/api/merchants/${merchant.id}/menu-items/${id}`);
     if (res.ok) {
@@ -158,7 +166,7 @@ function MenuItemsList({
       loadMenuItems();
     } else {
       const data = await res.json().catch(() => ({}));
-      setDeleteError((data as any)?.error || 'Failed to delete menu item');
+      setDeleteError((data as any)?.error || t('merchant.deleteFailed'));
     }
   };
 
@@ -166,23 +174,23 @@ function MenuItemsList({
     <div className="MerchantMenuItems">
       <header className="MerchantMenuItems__header">
         <button type="button" className="MerchantMenuItems__back" onClick={onBack}>
-          ← Back to Orders
+          {t('merchant.backToOrders')}
         </button>
-        <h1 className="MerchantMenuItems__title">{merchant.business_name} — Menu Items</h1>
+        <h1 className="MerchantMenuItems__title">{merchant.business_name} — {t('merchant.menuItems')} <LangSwitcher /></h1>
         <div className="MerchantMenuItems__actions">
           <button
             type="button"
             className="MerchantMenuItems__btn MerchantMenuItems__btn--secondary"
             onClick={() => setShowModifiersModal(true)}
           >
-            Manage Modifiers
+            {t('merchant.manageModifiers')}
           </button>
           <button
             type="button"
             className="MerchantMenuItems__btn MerchantMenuItems__btn--primary"
             onClick={onAddClick}
           >
-            + Add Menu Item
+            {t('merchant.addMenuItem')}
           </button>
         </div>
       </header>
@@ -196,17 +204,17 @@ function MenuItemsList({
       <div className="MerchantMenuItems__list">
         {menuItems.length === 0 ? (
           <div className="MerchantMenuItems__empty">
-            No menu items yet. <button onClick={onAddClick}>Add your first item</button>
+            {t('merchant.noMenuItems')} <button onClick={onAddClick}>{t('merchant.addFirstItem')}</button>
           </div>
         ) : (
           <table className="MerchantMenuItems__table">
             <thead>
               <tr>
-                <th>Name</th>
-                <th>Description</th>
-                <th>Price</th>
-                <th>Modifiers</th>
-                <th>Active</th>
+                <th>{t('common.name')}</th>
+                <th>{t('common.description')}</th>
+                <th>{t('common.price')}</th>
+                <th>{t('merchant.modifiers')}</th>
+                <th>{t('merchant.active')}</th>
                 <th></th>
               </tr>
             </thead>
@@ -224,14 +232,14 @@ function MenuItemsList({
                       ? item.modifiers.map((m: any) => m.name).join(', ')
                       : '—'}
                   </td>
-                  <td>{item.is_active !== false ? 'Yes' : 'No'}</td>
+                  <td>{item.is_active !== false ? t('common.yes') : t('common.no')}</td>
                   <td>
                     <button
                       type="button"
                       className="MerchantMenuItems__link"
                       onClick={() => history.push(`/merchant/${merchantUuid}/menuitems/${item.id}/edit`)}
                     >
-                      Edit
+                      {t('common.edit')}
                     </button>
                     {' · '}
                     <button
@@ -239,7 +247,7 @@ function MenuItemsList({
                       className="MerchantMenuItems__link MerchantMenuItems__link--danger"
                       onClick={() => handleDelete(item.id)}
                     >
-                      Delete
+                      {t('common.delete')}
                     </button>
                   </td>
                 </tr>
@@ -258,6 +266,7 @@ function MenuItemsList({
             loadModifiers();
             loadMenuItems();
           }}
+          t={t}
         />
       )}
     </div>
@@ -271,11 +280,13 @@ function ModifiersModal({
   modifiers,
   onClose,
   onSaved,
+  t,
 }: {
   merchant: any;
   modifiers: any[];
   onClose: () => void;
   onSaved: () => void;
+  t: (key: string) => string;
 }) {
   const [name, setName] = useState('');
   const [priceAdjustmentCents, setPriceAdjustmentCents] = useState(0);
@@ -309,7 +320,7 @@ function ModifiersModal({
   };
 
   const handleDelete = async (id: number) => {
-    if (!confirm('Delete this modifier?')) return;
+    if (!confirm(t('merchant.deleteModifierConfirm'))) return;
     await deleteApi(`/api/merchants/${merchant.id}/modifiers/${id}`);
     onSaved();
   };
@@ -323,23 +334,22 @@ function ModifiersModal({
   return (
     <div className="ModifiersModal__overlay" onClick={onClose}>
       <div className="ModifiersModal" onClick={(e) => e.stopPropagation()}>
-        <h2>Manage Modifiers</h2>
+        <h2>{t('merchant.modifiersTitle')}</h2>
         <p className="ModifiersModal__hint">
-          Modifiers like &quot;extra bacon&quot; or &quot;less salt&quot; can be attached to menu
-          items.
+          {t('merchant.modifiersHintModal')}
         </p>
 
         <div className="ModifiersModal__add">
           <input
             type="text"
-            placeholder="Modifier name (e.g. extra bacon)"
+            placeholder={t('merchant.modifierNamePlaceholder')}
             value={name}
             onChange={(e) => setName(e.target.value)}
             className="ModifiersModal__input"
           />
           <input
             type="number"
-            placeholder="Price add (cents)"
+            placeholder={t('merchant.priceAddPlaceholder')}
             value={priceAdjustmentCents || ''}
             onChange={(e) => setPriceAdjustmentCents(parseInt(e.target.value, 10) || 0)}
             className="ModifiersModal__input ModifiersModal__input--narrow"
@@ -350,7 +360,7 @@ function ModifiersModal({
             onClick={handleCreate}
             disabled={saving || !name.trim()}
           >
-            Add Modifier
+            {t('merchant.addModifier')}
           </button>
         </div>
 
@@ -377,14 +387,14 @@ function ModifiersModal({
                     onClick={() => handleUpdate(m.id)}
                     disabled={saving}
                   >
-                    Save
+                    {t('common.save')}
                   </button>
                   <button
                     type="button"
                     className="MerchantMenuItems__btn MerchantMenuItems__btn--secondary"
                     onClick={() => setEditingId(null)}
                   >
-                    Cancel
+                    {t('common.cancel')}
                   </button>
                 </>
               ) : (
@@ -393,21 +403,21 @@ function ModifiersModal({
                   <span className="ModifiersModal__item-price">
                     {m.price_adjustment_cents
                       ? `+$${(m.price_adjustment_cents / 100).toFixed(2)}`
-                      : 'No charge'}
+                      : t('merchant.noCharge')}
                   </span>
                   <button
                     type="button"
                     className="MerchantMenuItems__link"
                     onClick={() => startEdit(m)}
                   >
-                    Edit
+                    {t('common.edit')}
                   </button>
                   <button
                     type="button"
                     className="MerchantMenuItems__link MerchantMenuItems__link--danger"
                     onClick={() => handleDelete(m.id)}
                   >
-                    Delete
+                    {t('common.delete')}
                   </button>
                 </>
               )}
@@ -416,7 +426,7 @@ function ModifiersModal({
         </ul>
 
         {modifiers.length === 0 && (
-          <p className="ModifiersModal__empty">No modifiers yet. Add one above.</p>
+          <p className="ModifiersModal__empty">{t('merchant.noModifiersYet')}</p>
         )}
 
         <button
@@ -424,7 +434,7 @@ function ModifiersModal({
           className="MerchantMenuItems__btn MerchantMenuItems__btn--secondary"
           onClick={onClose}
         >
-          Close
+          {t('common.close')}
         </button>
       </div>
     </div>
@@ -438,11 +448,13 @@ function MenuItemForm({
   menuItemId,
   onBack,
   onSuccess,
+  t,
 }: {
   merchant: any;
   menuItemId?: number;
   onBack: () => void;
   onSuccess: () => void;
+  t: (key: string) => string;
 }) {
   const isEdit = menuItemId != null;
   const [name, setName] = useState('');
@@ -474,10 +486,10 @@ function MenuItemForm({
             setSelectedModifierIds((item.modifiers || []).map((m: any) => m.id));
           }
         })
-        .catch(() => setError('Failed to load menu item'))
+        .catch(() => setError(t('merchant.loadMenuItemFailed')))
         .finally(() => setLoading(false));
     }
-  }, [isEdit, menuItemId, merchant.id]);
+  }, [isEdit, menuItemId, merchant.id, t]);
 
   const toggleModifier = (id: number) => {
     setSelectedModifierIds((prev) =>
@@ -489,7 +501,7 @@ function MenuItemForm({
     e.preventDefault();
     const price = parseInt(priceCents, 10);
     if (!name.trim() || isNaN(price) || price < 0) {
-      setError('Name and valid price are required');
+      setError(t('merchant.namePriceRequired'));
       return;
     }
     setSaving(true);
@@ -514,7 +526,7 @@ function MenuItemForm({
       }
       onSuccess();
     } catch (err) {
-      setError('Failed to save');
+      setError(t('merchant.saveFailed'));
     } finally {
       setSaving(false);
     }
@@ -523,7 +535,7 @@ function MenuItemForm({
   if (loading) {
     return (
       <div className="MerchantMenuItems">
-        <div className="MerchantMenuItems__loading">Loading...</div>
+        <div className="MerchantMenuItems__loading">{t('common.loading')}</div>
       </div>
     );
   }
@@ -532,10 +544,10 @@ function MenuItemForm({
     <div className="MerchantMenuItems">
       <header className="MerchantMenuItems__header">
         <button type="button" className="MerchantMenuItems__back" onClick={onBack}>
-          ← Back to Menu Items
+          {t('merchant.backToMenuItems')}
         </button>
         <h1 className="MerchantMenuItems__title">
-          {isEdit ? 'Edit Menu Item' : 'Add Menu Item'}
+          {isEdit ? t('merchant.editMenuItem') : t('merchant.addMenuItemTitle')}
         </h1>
       </header>
 
@@ -543,7 +555,7 @@ function MenuItemForm({
         {error && <div className="MerchantMenuItems__error">{error}</div>}
 
         <div className="MerchantMenuItems__field">
-          <label htmlFor="name">Name *</label>
+          <label htmlFor="name">{t('merchant.nameRequired')}</label>
           <input
             id="name"
             type="text"
@@ -555,7 +567,7 @@ function MenuItemForm({
         </div>
 
         <div className="MerchantMenuItems__field">
-          <label htmlFor="description">Description</label>
+          <label htmlFor="description">{t('common.description')}</label>
           <textarea
             id="description"
             value={description}
@@ -566,7 +578,7 @@ function MenuItemForm({
         </div>
 
         <div className="MerchantMenuItems__field">
-          <label htmlFor="price">Price (cents) *</label>
+          <label htmlFor="price">{t('merchant.priceCents')}</label>
           <input
             id="price"
             type="number"
@@ -576,7 +588,7 @@ function MenuItemForm({
             required
             className="MerchantMenuItems__input"
           />
-          <span className="MerchantMenuItems__hint">e.g. 1099 = $10.99</span>
+          <span className="MerchantMenuItems__hint">{t('merchant.priceHint')}</span>
         </div>
 
         <div className="MerchantMenuItems__field">
@@ -586,18 +598,18 @@ function MenuItemForm({
               checked={isActive}
               onChange={(e) => setIsActive(e.target.checked)}
             />
-            {' '}Active (visible to customers)
+            {' '}{t('merchant.activeLabel')}
           </label>
         </div>
 
         <div className="MerchantMenuItems__field">
-          <label>Modifiers</label>
+          <label>{t('merchant.modifiers')}</label>
           <p className="MerchantMenuItems__hint">
-            Select which modifiers customers can add to this item.
+            {t('merchant.modifiersHint')}
           </p>
           {modifiers.length === 0 ? (
             <p className="MerchantMenuItems__hint">
-              No modifiers yet. Go to Menu Items → Manage Modifiers to create some.
+              {t('merchant.noModifiersHint')}
             </p>
           ) : (
             <div className="MerchantMenuItems__modifiers">
@@ -621,14 +633,14 @@ function MenuItemForm({
 
         <div className="MerchantMenuItems__form-actions">
           <button type="button" className="MerchantMenuItems__btn MerchantMenuItems__btn--secondary" onClick={onBack}>
-            Cancel
+            {t('common.cancel')}
           </button>
           <button
             type="submit"
             className="MerchantMenuItems__btn MerchantMenuItems__btn--primary"
             disabled={saving}
           >
-            {saving ? 'Saving…' : isEdit ? 'Update' : 'Create'}
+            {saving ? t('merchant.saving') : isEdit ? t('common.update') : t('common.create')}
           </button>
         </div>
       </form>
