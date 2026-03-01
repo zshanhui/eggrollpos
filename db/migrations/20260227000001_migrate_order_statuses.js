@@ -1,18 +1,14 @@
-exports.up = function(knex) {
-  return knex.raw(`
-    UPDATE orders SET status = 'waiting_for_acceptance' WHERE status = 'confirmed';
-    UPDATE orders SET status = 'canceled' WHERE status = 'declined';
-    UPDATE orders SET status = 'ready_for_pickup' WHERE status = 'ready';
-    UPDATE orders SET status = 'delivery_in_progress' WHERE status = 'on_delivery';
-    UPDATE orders SET status = 'waiting_for_acceptance' WHERE status = 'started';
-  `);
+exports.up = async function(knex) {
+  await knex('orders').where('status', 'confirmed').update({ status: 'waiting_for_acceptance' });
+  await knex('orders').where('status', 'declined').update({ status: 'canceled' });
+  await knex('orders').where('status', 'ready').update({ status: 'ready_for_pickup' });
+  await knex('orders').where('status', 'on_delivery').update({ status: 'delivery_in_progress' });
+  await knex('orders').where('status', 'started').update({ status: 'waiting_for_acceptance' });
 };
 
-exports.down = function(knex) {
-  return knex.raw(`
-    UPDATE orders SET status = 'confirmed' WHERE status = 'waiting_for_acceptance';
-    UPDATE orders SET status = 'declined' WHERE status = 'canceled';
-    UPDATE orders SET status = 'ready' WHERE status = 'ready_for_pickup';
-    UPDATE orders SET status = 'on_delivery' WHERE status = 'delivery_in_progress';
-  `);
+exports.down = async function(knex) {
+  await knex('orders').where('status', 'waiting_for_acceptance').update({ status: 'confirmed' });
+  await knex('orders').where('status', 'canceled').update({ status: 'declined' });
+  await knex('orders').where('status', 'ready_for_pickup').update({ status: 'ready' });
+  await knex('orders').where('status', 'delivery_in_progress').update({ status: 'on_delivery' });
 };

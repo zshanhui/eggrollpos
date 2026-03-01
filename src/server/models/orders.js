@@ -41,6 +41,11 @@ class Order {
   }
 
   static async list(merchantId, filter) {
+    const isSqlite = db.client.config.client === 'sqlite3';
+    const pickupEtaExpr = isSqlite
+      ? `datetime(orders.confirmed_at, '+' || orders.pickup_in || ' minutes') as pickup_eta`
+      : `orders.confirmed_at + (orders.pickup_in * interval '1 minute') as pickup_eta`;
+
     let query = db
       .with('t1', db.raw(`
           select orders.id as order_id
@@ -49,7 +54,7 @@ class Order {
           , orders.customer_id
           , orders.confirmed_at
           , orders.created_at
-          , orders.confirmed_at + (orders.pickup_in * interval '1 minute') as pickup_eta
+          , ${pickupEtaExpr}
           , orders.pickup_in
           , orders.status
           , orders.order_type

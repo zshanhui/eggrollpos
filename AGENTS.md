@@ -28,17 +28,12 @@ Do NOT use `pnpm run dev` directly (it uses `nodemon` which invokes `node`, not 
 
 ### PostgreSQL setup
 
-PostgreSQL runs via Docker (`docker-compose.yml`). Use `./dev.sh` to start everything in one command, or manually:
+Two database options — set via `DB_CLIENT` env var:
 
-```bash
-docker compose up -d              # start Postgres
-npx knex migrate:latest --knexfile db/knexfile.js
-npx knex seed:run --knexfile db/knexfile.js
-```
+- **PostgreSQL** (default): `docker compose up -d` then set `DB_PASSWORD=postgres`. Or use `./dev.sh`.
+- **SQLite**: `DB_CLIENT=sqlite3` — creates `db/eggrollpos.db`, no Docker needed. Or use `./dev.sh --sqlite`.
 
-Connection defaults: `postgres://postgres:postgres@127.0.0.1:5432/eggrollpos`. Override with env vars `DB_HOST`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`. Config: `db/knexfile.js`.
-
-If running Postgres without Docker (e.g. system install), set `DB_PASSWORD` to match your setup or leave `pg_hba.conf` as `trust`.
+Both use the same migrations/seeds: `npx knex migrate:latest --knexfile db/knexfile.js`. Config: `db/knexfile.js`.
 
 ### Routing
 

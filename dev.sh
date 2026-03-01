@@ -2,7 +2,9 @@
 set -e
 
 # ─── eggroll-pos development launcher ───
-# Starts PostgreSQL (Docker), runs migrations/seeds, and launches dev servers.
+# Usage:
+#   ./dev.sh            # PostgreSQL via Docker (default)
+#   ./dev.sh --sqlite   # SQLite, no Docker required
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -15,24 +17,33 @@ ok()   { echo -e "${GREEN}[dev] ✓${NC} $1"; }
 warn() { echo -e "${YELLOW}[dev] !${NC} $1"; }
 err()  { echo -e "${RED}[dev] ✗${NC} $1"; }
 
+USE_SQLITE=false
+if [ "$1" = "--sqlite" ]; then
+  USE_SQLITE=true
+fi
+
 cleanup() {
   log "Shutting down..."
   kill $EXPRESS_PID $VITE_PID 2>/dev/null || true
   wait $EXPRESS_PID $VITE_PID 2>/dev/null || true
-  log "Done. Docker Postgres is still running — stop with: docker compose down"
+  if [ "$USE_SQLITE" = true ]; then
+    log "Done. SQLite database is at db/eggrollpos.db"
+  else
+    log "Done. Docker Postgres is still running — stop with: docker compose down"
+  fi
 }
 trap cleanup EXIT INT TERM
 
 # ─── 1. Check prerequisites ───
 
-if ! command -v docker &>/dev/null; then
-  err "Docker is not installed. Install it from https://docs.docker.com/get-docker/"
-  exit 1
-fi
-
 if ! command -v pnpm &>/dev/null; then
   err "pnpm is not installed. Install it with: npm install -g pnpm"
   exit 1
+fi
+
+if [ "$USE_SQLITE" = false ] && ! command -v docker &>/dev/null; then
+  warn "Docker not found. Falling back to SQLite mode."
+  USE_SQLITE=true
 fi
 
 # ─── 2. Install dependencies ───
@@ -45,27 +56,31 @@ else
   log "node_modules exists, skipping install (run 'pnpm install' manually if needed)"
 fi
 
-# ─── 3. Start PostgreSQL via Docker ───
+# ─── 3. Database setup ───
 
-log "Starting PostgreSQL..."
-docker compose up -d --wait postgres 2>/dev/null || docker-compose up -d postgres 2>/dev/null
+if [ "$USE_SQLITE" = true ]; then
+  export DB_CLIENT=sqlite3
+  log "Using SQLite (db/eggrollpos.db)"
+else
+  log "Starting PostgreSQL..."
+  docker compose up -d --wait postgres 2>/dev/null || docker-compose up -d postgres 2>/dev/null
 
-# Wait for healthy
-for i in {1..20}; do
-  if docker compose exec -T postgres pg_isready -U postgres &>/dev/null; then
-    ok "PostgreSQL is ready on port 5432"
-    break
-  fi
-  if [ $i -eq 20 ]; then
-    err "PostgreSQL failed to start"
-    exit 1
-  fi
-  sleep 1
-done
+  for i in {1..20}; do
+    if docker compose exec -T postgres pg_isready -U postgres &>/dev/null; then
+      ok "PostgreSQL is ready on port 5432"
+      break
+    fi
+    if [ $i -eq 20 ]; then
+      err "PostgreSQL failed to start"
+      exit 1
+    fi
+    sleep 1
+  done
+
+  export DB_PASSWORD=postgres
+fi
 
 # ─── 4. Run migrations ───
-
-export DB_PASSWORD=postgres
 
 log "Running database migrations..."
 npx knex migrate:latest --knexfile db/knexfile.js 2>&1 | tail -1
@@ -73,7 +88,18 @@ ok "Migrations complete"
 
 # ─── 5. Seed data (only if tables are empty) ───
 
-ROW_COUNT=$(docker compose exec -T postgres psql -U postgres -d eggrollpos -tAc "SELECT count(*) FROM merchants" 2>/dev/null || echo "0")
+if [ "$USE_SQLITE" = true ]; then
+  ROW_COUNT=$(node -e "
+    const knex = require('./db/knex');
+    knex('merchants').count('* as c').first().then(r => {
+      console.log(r.c);
+      knex.destroy();
+    }).catch(() => { console.log('0'); knex.destroy(); });
+  " 2>/dev/null || echo "0")
+else
+  ROW_COUNT=$(docker compose exec -T postgres psql -U postgres -d eggrollpos -tAc "SELECT count(*) FROM merchants" 2>/dev/null || echo "0")
+fi
+
 if [ "$ROW_COUNT" = "0" ] || [ "$ROW_COUNT" = "" ]; then
   log "Seeding development data..."
   npx knex seed:run --knexfile db/knexfile.js 2>&1 | tail -1
@@ -85,7 +111,11 @@ fi
 # ─── 6. Start Express backend ───
 
 log "Starting Express API server on port 3000..."
-NODE_ENV=development DB_PASSWORD=postgres npx tsx ./bin/www &
+if [ "$USE_SQLITE" = true ]; then
+  NODE_ENV=development DB_CLIENT=sqlite3 npx tsx ./bin/www &
+else
+  NODE_ENV=development DB_PASSWORD=postgres npx tsx ./bin/www &
+fi
 EXPRESS_PID=$!
 
 # ─── 7. Start Vite dev server ───
@@ -105,7 +135,11 @@ echo ""
 echo -e "  Frontend:  ${CYAN}http://localhost:3001${NC}"
 echo -e "  API:       ${CYAN}http://localhost:3000${NC}"
 echo -e "  Merchant:  ${CYAN}http://localhost:3001/merchant${NC}"
-echo -e "  Database:  ${CYAN}postgres://postgres:postgres@localhost:5432/eggrollpos${NC}"
+if [ "$USE_SQLITE" = true ]; then
+  echo -e "  Database:  ${CYAN}SQLite → db/eggrollpos.db${NC}"
+else
+  echo -e "  Database:  ${CYAN}postgres://postgres:postgres@localhost:5432/eggrollpos${NC}"
+fi
 echo ""
 echo -e "  Press ${YELLOW}Ctrl+C${NC} to stop dev servers."
 echo ""

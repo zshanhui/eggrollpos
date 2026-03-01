@@ -15,7 +15,7 @@ A free, self-hosted restaurant POS (Point-of-Sale) and online ordering system. R
 |-------|-----------|
 | Frontend | React 16, React Router v5, React Bootstrap |
 | Backend | Express.js 4 (Node.js) |
-| Database | PostgreSQL with Knex.js query builder |
+| Database | PostgreSQL or SQLite with Knex.js query builder |
 | Build Tool | Vite 7 with TypeScript |
 | Dev Tools | tsx, nodemon, concurrently |
 
@@ -23,50 +23,59 @@ A free, self-hosted restaurant POS (Point-of-Sale) and online ordering system. R
 
 - **Node.js** >= 22.14.0
 - **pnpm** (pinned to 10.17.0 via `packageManager` field)
-- **Docker** (for PostgreSQL — no local Postgres install needed)
+- **Docker** (optional — needed for PostgreSQL mode)
 
 ## Quick Start
 
-One command starts everything — PostgreSQL, migrations, seeds, and both dev servers:
+One command starts everything — database, migrations, seeds, and both dev servers:
 
 ```bash
 git clone <repo-url>
 cd eggroll-pos
 pnpm install
-./dev.sh
+./dev.sh              # PostgreSQL via Docker (default)
+./dev.sh --sqlite     # SQLite, no Docker required
 ```
 
 That's it. Open [http://localhost:3001](http://localhost:3001) in your browser.
 
+If Docker is not installed, the script automatically falls back to SQLite.
+
 The script will:
-1. Start PostgreSQL in Docker (`docker-compose.yml`)
+1. Start the database (Docker PostgreSQL or local SQLite file at `db/eggrollpos.db`)
 2. Run database migrations and seed data
 3. Start the Express API server (port 3000)
 4. Start the Vite dev server with HMR (port 3001)
 
-Press `Ctrl+C` to stop the dev servers. PostgreSQL keeps running in Docker — stop it with `docker compose down`.
+Press `Ctrl+C` to stop the dev servers. If using Docker, PostgreSQL keeps running — stop it with `docker compose down`.
 
 ## Manual Setup (without dev.sh)
 
 If you prefer to run things separately:
 
-### 1. Start PostgreSQL
+### 1. Start the database
+
+**Option A — PostgreSQL via Docker:**
 
 ```bash
 docker compose up -d
 ```
 
-This starts a PostgreSQL 16 container with:
-
 | Setting | Value |
 |---------|-------|
-| Host | `127.0.0.1` |
-| Port | `5432` |
+| Host | `127.0.0.1:5432` |
 | Database | `eggrollpos` |
-| User | `postgres` |
-| Password | `postgres` |
+| User / Password | `postgres` / `postgres` |
 
-The connection settings are in `db/knexfile.js` and can be overridden with env vars `DB_HOST`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`.
+Override with env vars: `DB_HOST`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`.
+
+**Option B — SQLite (no Docker):**
+
+```bash
+export DB_CLIENT=sqlite3
+```
+
+This creates `db/eggrollpos.db` automatically. No separate database server needed.
 
 ### 2. Run migrations and seeds
 
