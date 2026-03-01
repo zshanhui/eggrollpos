@@ -63,6 +63,49 @@
   align-items: center;
 }
 
+/* ===== Status Filter Pills ===== */
+
+.OrdersGrid__filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 8px 4px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  flex-shrink: 0;
+}
+
+.OrdersGrid__pill {
+  background: #1a1a1a;
+  border: 2px solid #333;
+  color: #888;
+  padding: 10px 16px;
+  border-radius: 24px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  flex-shrink: 0;
+}
+
+.OrdersGrid__pill:hover {
+  color: #bbb;
+  border-color: #444;
+}
+
+.OrdersGrid__pill--active {
+  background: #00E5FF;
+  border-color: #00E5FF;
+  color: #000;
+}
+
+.OrdersGrid__pill--active:hover {
+  background: #00b8d4;
+  border-color: #00b8d4;
+}
+
 .OrdersGrid__cards {
   display: grid;
   grid-template-columns: 1fr;

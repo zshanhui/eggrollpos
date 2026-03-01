@@ -1,5 +1,5 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import { Status, STATUS_LABELS, getNextStatus, canCancel, canRefund } from '../../../shared/orders';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import { Status, STATUS_LABELS, getNextStatus, canCancel, canRefund, ACTIVE_ORDER_STATUSES, COMPLETED_ORDER_STATUSES } from '../../../shared/orders';
 import type { OrderStatus, OrderType } from '../../../shared/orders';
 import '../../css/pages/MerchantRoutes.css';
 
@@ -81,8 +81,11 @@ export default function MerchantRoutes(props: any) {
 
 // ─── Orders List (Grid) ───
 
+type StatusFilter = 'all' | 'active' | 'completed' | 'canceled' | 'refunded' | OrderStatus;
+
 function OrdersListPage({ merchantId, merchantName, merchantUuid, onSelectOrder }: { merchantId: number; merchantName: string; merchantUuid: string; onSelectOrder: (id: number) => void }) {
   const [orders, setOrders] = useState<any>(null);
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
 
   useEffect(() => {
     fetchApi(`/api/merchants/${merchantId}/orders`).then(setOrders);
@@ -90,20 +93,50 @@ function OrdersListPage({ merchantId, merchantName, merchantUuid, onSelectOrder 
 
   const orderList = orders ? Object.values(orders) as any[] : [];
 
+  const filteredOrders = useMemo(() => {
+    if (statusFilter === 'all') return orderList;
+    if (statusFilter === 'active') return orderList.filter((o: any) => ACTIVE_ORDER_STATUSES.includes(o.status));
+    if (statusFilter === 'completed') return orderList.filter((o: any) => [Status.PICKUP_SUCCESS, Status.DELIVERED].includes(o.status));
+    if (statusFilter === 'canceled') return orderList.filter((o: any) => o.status === Status.CANCELED);
+    if (statusFilter === 'refunded') return orderList.filter((o: any) => o.status === Status.REFUNDED);
+    return orderList.filter((o: any) => o.status === statusFilter);
+  }, [orderList, statusFilter]);
+
+  const filterPills: { key: StatusFilter; label: string }[] = [
+    { key: 'all', label: 'All' },
+    { key: 'active', label: 'Active' },
+    { key: 'completed', label: 'Done' },
+    { key: 'canceled', label: 'Canceled' },
+    { key: 'refunded', label: 'Refunded' },
+  ];
+
   return (
     <div className="OrdersGrid OrdersGrid--with-header">
       <div className="OrdersGrid__header">
         <h1 className="OrdersGrid__title">{merchantName}</h1>
         <div className="OrdersGrid__nav">
           <a href={`/merchant/${merchantUuid}/menuitems`}>Menu</a>
-          <span className="OrdersGrid__count">{orderList.length}</span>
+          <span className="OrdersGrid__count">{filteredOrders.length}</span>
         </div>
       </div>
+      <div className="OrdersGrid__filters">
+        {filterPills.map(({ key, label }) => (
+          <button
+            key={key}
+            className={`OrdersGrid__pill ${statusFilter === key ? 'OrdersGrid__pill--active' : ''}`}
+            onClick={() => setStatusFilter(key)}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
       <div className="OrdersGrid__cards">
-        {orderList.length === 0 && orders !== null ? (
-          <div className="OrdersGrid__empty">No orders yet</div>
+        {filteredOrders.length === 0 && orders !== null ? (
+          <div className="OrdersGrid__empty">
+            {orderList.length === 0 ? 'No orders yet' : 'No orders match this filter'}
+          </div>
         ) : (
-          orderList.slice(0, 12).map((order: any) => (
+          filteredOrders.slice(0, 12).map((order: any) => (
             <OrderCard
               key={order.orderId}
               order={order}
