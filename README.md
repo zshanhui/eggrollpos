@@ -25,6 +25,16 @@ A free, self-hosted restaurant POS (Point-of-Sale) and online ordering system. R
 - **pnpm** (pinned to 10.17.0 via `packageManager` field)
 - **Docker** (optional — needed for PostgreSQL mode)
 
+## Admin: Create Merchant Accounts
+
+Merchant accounts can **only** be created via the admin script — not via UI or API:
+
+```bash
+pnpm run create-merchant "Business Name" [--address "123 Main St"] [--postal-code 94105] [--description "desc"] [--type cafe]
+```
+
+The script outputs the new merchant's UUID and dashboard URL.
+
 ## Quick Start
 
 One command starts everything — database, migrations, seeds, and both dev servers:
@@ -199,6 +209,15 @@ DATABASE_URL=postgres://user:pass@host:5432/eggrollpos
 | GET | `/api/merchants/:id/orders/:orderId` | Get single order detail |
 | POST | `/api/merchants/:id/orders` | Update order status |
 | GET | `/api/merchants/:id/menu` | Get merchant menu items |
+| GET | `/api/merchants/:id/menu-items` | List menu items (REST) |
+| POST | `/api/merchants/:id/menu-items` | Create menu item (REST) |
+| GET | `/api/merchants/:id/menu-items/:menuItemId` | Get single menu item (REST) |
+| PUT/PATCH | `/api/merchants/:id/menu-items/:menuItemId` | Update menu item (REST) |
+| DELETE | `/api/merchants/:id/menu-items/:menuItemId` | Delete menu item (REST) |
+| GET | `/api/merchants/:id/modifiers` | List modifiers (REST) |
+| POST | `/api/merchants/:id/modifiers` | Create modifier (REST) |
+| PUT/PATCH | `/api/merchants/:id/modifiers/:modifierId` | Update modifier (REST) |
+| DELETE | `/api/merchants/:id/modifiers/:modifierId` | Delete modifier (REST) |
 | GET | `/api/orders/:uuid` | Get order with menus and line items |
 | POST | `/api/orders/lineitems` | Add line item to order |
 | POST | `/api/orders/complete` | Complete order selection |

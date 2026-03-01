@@ -62,7 +62,12 @@ export default function MerchantRoutes(props: any) {
   return (
     <div className="Merchant">
       {selectedOrderId === null ? (
-        <OrdersListPage merchantId={merchant.id} merchantName={merchant.business_name} onSelectOrder={setSelectedOrderId} />
+        <OrdersListPage
+          merchantId={merchant.id}
+          merchantName={merchant.business_name}
+          merchantUuid={merchantUuid}
+          onSelectOrder={setSelectedOrderId}
+        />
       ) : (
         <OrderDetailPage
           merchantId={merchant.id}
@@ -76,7 +81,7 @@ export default function MerchantRoutes(props: any) {
 
 // ─── Orders List (Grid) ───
 
-function OrdersListPage({ merchantId, merchantName, onSelectOrder }: { merchantId: number; merchantName: string; onSelectOrder: (id: number) => void }) {
+function OrdersListPage({ merchantId, merchantName, merchantUuid, onSelectOrder }: { merchantId: number; merchantName: string; merchantUuid: string; onSelectOrder: (id: number) => void }) {
   const [orders, setOrders] = useState<any>(null);
 
   useEffect(() => {
@@ -89,25 +94,31 @@ function OrdersListPage({ merchantId, merchantName, onSelectOrder }: { merchantI
     <div className="OrdersGrid OrdersGrid--with-header">
       <div className="OrdersGrid__header">
         <h1 className="OrdersGrid__title">{merchantName}</h1>
-        <span className="OrdersGrid__count">{orderList.length} orders</span>
+        <div className="OrdersGrid__nav">
+          <a href={`/merchant/${merchantUuid}/menuitems`}>Menu</a>
+          <span className="OrdersGrid__count">{orderList.length}</span>
+        </div>
       </div>
-      {orderList.length === 0 && orders !== null && (
-        <div className="OrdersGrid__empty">No orders yet</div>
-      )}
-      {orderList.slice(0, 8).map((order: any) => (
-        <OrderCard
-          key={order.orderId}
-          order={order}
-          onClick={() => onSelectOrder(order.orderId)}
-        />
-      ))}
+      <div className="OrdersGrid__cards">
+        {orderList.length === 0 && orders !== null ? (
+          <div className="OrdersGrid__empty">No orders yet</div>
+        ) : (
+          orderList.slice(0, 12).map((order: any) => (
+            <OrderCard
+              key={order.orderId}
+              order={order}
+              onClick={() => onSelectOrder(order.orderId)}
+            />
+          ))
+        )}
+      </div>
     </div>
   );
 }
 
-// ─── Order Card ───
+// ─── Order Card (memoized for scroll perf on low-end devices) ───
 
-function OrderCard({ order, onClick }: { order: any; onClick: () => void }) {
+const OrderCard = React.memo(function OrderCard({ order, onClick }: { order: any; onClick: () => void }) {
   const status: OrderStatus = order.status;
   const elapsed = getElapsed(order.createdAt);
 
@@ -141,7 +152,7 @@ function OrderCard({ order, onClick }: { order: any; onClick: () => void }) {
       </div>
     </div>
   );
-}
+});
 
 // ─── Order Detail Page ───
 
