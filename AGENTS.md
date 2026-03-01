@@ -28,12 +28,17 @@ Do NOT use `pnpm run dev` directly (it uses `nodemon` which invokes `node`, not 
 
 ### PostgreSQL setup
 
-- Database: `eggrollpos`, user: `postgres`, no password, host: `127.0.0.1`
-- Config: `db/knexfile.js`
-- Start PostgreSQL: `sudo pg_ctlcluster 16 main start`
-- Auth must be set to `trust` in `pg_hba.conf` (the knexfile uses empty password)
-- Run migrations: `npx knex migrate:latest --knexfile db/knexfile.js`
-- Run seeds: `npx knex seed:run --knexfile db/knexfile.js`
+PostgreSQL runs via Docker (`docker-compose.yml`). Use `./dev.sh` to start everything in one command, or manually:
+
+```bash
+docker compose up -d              # start Postgres
+npx knex migrate:latest --knexfile db/knexfile.js
+npx knex seed:run --knexfile db/knexfile.js
+```
+
+Connection defaults: `postgres://postgres:postgres@127.0.0.1:5432/eggrollpos`. Override with env vars `DB_HOST`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`. Config: `db/knexfile.js`.
+
+If running Postgres without Docker (e.g. system install), set `DB_PASSWORD` to match your setup or leave `pg_hba.conf` as `trust`.
 
 ### Routing
 

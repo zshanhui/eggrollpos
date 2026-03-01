@@ -24,62 +24,64 @@ A free, self-hosted restaurant POS (Point-of-Sale) and online ordering system. R
 
 - **Node.js** >= 22.14.0
 - **pnpm** (pinned to 10.17.0 via `packageManager` field)
-- **PostgreSQL** running locally
+- **Docker** (for PostgreSQL — no local Postgres install needed)
 
-## Getting Started
+## Quick Start
 
-### 1. Clone and install dependencies
+One command starts everything — PostgreSQL, migrations, seeds, and both dev servers:
 
 ```bash
 git clone <repo-url>
 cd eggroll-pos
 pnpm install
+./dev.sh
 ```
 
-### 2. Set up PostgreSQL
+That's it. Open [http://localhost:3001](http://localhost:3001) in your browser.
 
-Create the database:
+The script will:
+1. Start PostgreSQL in Docker (`docker-compose.yml`)
+2. Run database migrations and seed data
+3. Start the Express API server (port 3000)
+4. Start the Vite dev server with HMR (port 3001)
+
+Press `Ctrl+C` to stop the dev servers. PostgreSQL keeps running in Docker — stop it with `docker compose down`.
+
+## Manual Setup (without dev.sh)
+
+If you prefer to run things separately:
+
+### 1. Start PostgreSQL
 
 ```bash
-createdb eggrollpos
+docker compose up -d
 ```
 
-The default connection settings (in `db/knexfile.js`) are:
+This starts a PostgreSQL 16 container with:
 
 | Setting | Value |
 |---------|-------|
 | Host | `127.0.0.1` |
+| Port | `5432` |
 | Database | `eggrollpos` |
 | User | `postgres` |
-| Password | _(empty)_ |
+| Password | `postgres` |
 
-> If your PostgreSQL setup requires a password or different user, edit `db/knexfile.js` accordingly.
+The connection settings are in `db/knexfile.js` and can be overridden with env vars `DB_HOST`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`.
 
-### 3. Run database migrations and seeds
+### 2. Run migrations and seeds
 
 ```bash
 npx knex migrate:latest --knexfile db/knexfile.js
 npx knex seed:run --knexfile db/knexfile.js
 ```
 
-This creates all tables (merchants, customers, orders, menu_items, line_items, receipts) and populates sample data for development.
-
-### 4. Start the development servers
-
-The app runs two servers in development:
+### 3. Start the dev servers
 
 | Server | Port | Purpose |
 |--------|------|---------|
 | Express API | 3000 | REST API, SSR views |
 | Vite Dev Server | 3001 | React frontend with HMR |
-
-**Option A — Start both together:**
-
-```bash
-NODE_OPTIONS='--import tsx/esm' pnpm run dev
-```
-
-**Option B — Start separately (recommended):**
 
 ```bash
 # Terminal 1: Express backend
@@ -118,6 +120,8 @@ pnpm test             # Run mocha tests
 ## Project Structure
 
 ```
+├── dev.sh                   # One-command dev launcher script
+├── docker-compose.yml       # PostgreSQL Docker setup
 ├── bin/www                  # Express HTTP server entry point
 ├── index.html               # Vite entry HTML (development)
 ├── db/
@@ -159,7 +163,13 @@ Create a `.env` file in the project root for optional integrations:
 PORT=3000
 NODE_ENV=development
 
-# PostgreSQL (production only — dev uses knexfile.js defaults)
+# PostgreSQL (dev defaults work with docker-compose.yml)
+DB_HOST=127.0.0.1
+DB_NAME=eggrollpos
+DB_USER=postgres
+DB_PASSWORD=postgres
+
+# PostgreSQL (production — overrides above)
 DATABASE_URL=postgres://user:pass@host:5432/eggrollpos
 
 # Zomato nearby search (optional)
