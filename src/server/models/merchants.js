@@ -18,6 +18,13 @@ class Merchants {
     return res;
   }
 
+  static async getByUuid(uuid) {
+    return await T()
+      .select()
+      .where('uuid', uuid)
+      .first();
+  }
+
   static async getByHash(mhash) {
     const res = await T()
       .select()

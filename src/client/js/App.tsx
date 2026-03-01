@@ -32,14 +32,14 @@ function App() {
         <Route path="/about" exact component={Pages.AboutPage} />
         <Route path="/receipts/:id" exact component={Pages.Receipts} />
 
-        {/* Merchant dashboard entry point */}
-        <Route path="/merchant" exact component={Pages.MerchantRoutes} />
+        {/* Merchant POS dashboard — UUID identifies the merchant */}
+        <Route path="/merchant/:uuid" exact component={Pages.MerchantRoutes} />
 
-        {/* Ordering and Menu routes */}
+        {/* Customer online ordering — scoped to a specific merchant */}
+        <Route path="/order-online/:merchantId" exact component={Pages.CustomerRoutes} />
+
+        {/* Customer menu webview for an existing order */}
         <Route path="/orders/:orderUuid/menus" exact component={Pages.Menus} />
-
-        {/* Customer webview entry point: menus, receipts? */}
-        <Route path="/customer" exact component={Pages.CustomerRoutes} />
       </Switch>
 
     </Router>

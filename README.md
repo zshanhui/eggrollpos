@@ -109,9 +109,18 @@ Open [http://localhost:3001](http://localhost:3001) in your browser.
 |-----|------|
 | `/` | Homepage with beta signup form |
 | `/about` | About page |
-| `/merchant` | Merchant POS dashboard (hardcoded to merchant ID 3) |
-| `/orders/:uuid/menus` | Customer menu ordering view |
+| `/merchant/:uuid` | Merchant POS dashboard (UUID identifies the merchant) |
+| `/order-online/:merchantId` | Public ordering menu for a specific merchant |
+| `/orders/:orderUuid/menus` | Customer menu ordering view for an existing order |
 | `/receipts/:id` | Receipt view |
+
+Seed merchant UUIDs for local development:
+
+| Merchant | UUID | Dashboard URL |
+|----------|------|---------------|
+| Alice Merchant 1 | `mc000001-0001-0001-0001-000000000001` | `/merchant/mc000001-0001-0001-0001-000000000001` |
+| Alice Merchant 2 | `mc000002-0002-0002-0002-000000000002` | `/merchant/mc000002-0002-0002-0002-000000000002` |
+| Alice Merchant 3 | `mc000003-0003-0003-0003-000000000003` | `/merchant/mc000003-0003-0003-0003-000000000003` |
 
 ## Available Scripts
 
@@ -185,7 +194,9 @@ DATABASE_URL=postgres://user:pass@host:5432/eggrollpos
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
+| GET | `/api/merchants/by-uuid/:uuid` | Look up merchant by UUID |
 | GET | `/api/merchants/:id/orders` | Get merchant orders (with date/status filters) |
+| GET | `/api/merchants/:id/orders/:orderId` | Get single order detail |
 | POST | `/api/merchants/:id/orders` | Update order status |
 | GET | `/api/merchants/:id/menu` | Get merchant menu items |
 | GET | `/api/orders/:uuid` | Get order with menus and line items |

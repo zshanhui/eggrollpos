@@ -3,8 +3,6 @@ import { Status, STATUS_LABELS, getNextStatus, canCancel, canRefund } from '../.
 import type { OrderStatus, OrderType } from '../../../shared/orders';
 import '../../css/pages/MerchantRoutes.css';
 
-const MERCHANT_ID = 3;
-
 function fetchApi(url: string) {
   return fetch(url, { credentials: 'same-origin' as const }).then(r => r.json());
 }
@@ -20,15 +18,54 @@ function postApi(url: string, body: any) {
 
 // ─── Main Container ───
 
-export default function MerchantRoutes() {
+export default function MerchantRoutes(props: any) {
+  const merchantUuid = props.match?.params?.uuid;
+  const [merchant, setMerchant] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
   const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (!merchantUuid) {
+      setError('No merchant UUID provided');
+      return;
+    }
+    fetchApi(`/api/merchants/by-uuid/${merchantUuid}`)
+      .then(data => {
+        if (data && data.id) {
+          setMerchant(data);
+        } else {
+          setError('Merchant not found');
+        }
+      })
+      .catch(() => setError('Failed to load merchant'));
+  }, [merchantUuid]);
+
+  if (error) {
+    return (
+      <div className="Merchant" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
+        <div style={{ textAlign: 'center', color: '#FF1744' }}>
+          <div style={{ fontSize: '2rem', fontWeight: 700, marginBottom: 8 }}>{error}</div>
+          <div style={{ color: '#888' }}>Check the merchant UUID in the URL</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!merchant) {
+    return (
+      <div className="Merchant" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', color: '#666', fontSize: '1.5rem' }}>
+        Loading...
+      </div>
+    );
+  }
 
   return (
     <div className="Merchant">
       {selectedOrderId === null ? (
-        <OrdersListPage onSelectOrder={setSelectedOrderId} />
+        <OrdersListPage merchantId={merchant.id} merchantName={merchant.business_name} onSelectOrder={setSelectedOrderId} />
       ) : (
         <OrderDetailPage
+          merchantId={merchant.id}
           orderId={selectedOrderId}
           onBack={() => setSelectedOrderId(null)}
         />
@@ -39,20 +76,20 @@ export default function MerchantRoutes() {
 
 // ─── Orders List (Grid) ───
 
-function OrdersListPage({ onSelectOrder }: { onSelectOrder: (id: number) => void }) {
+function OrdersListPage({ merchantId, merchantName, onSelectOrder }: { merchantId: number; merchantName: string; onSelectOrder: (id: number) => void }) {
   const [orders, setOrders] = useState<any>(null);
 
   useEffect(() => {
-    fetchApi(`/api/merchants/${MERCHANT_ID}/orders`).then(setOrders);
-  }, []);
+    fetchApi(`/api/merchants/${merchantId}/orders`).then(setOrders);
+  }, [merchantId]);
 
   const orderList = orders ? Object.values(orders) as any[] : [];
 
   return (
     <div className="OrdersGrid OrdersGrid--with-header">
       <div className="OrdersGrid__header">
-        <h1 className="OrdersGrid__title">Orders</h1>
-        <span className="OrdersGrid__count">{orderList.length} active</span>
+        <h1 className="OrdersGrid__title">{merchantName}</h1>
+        <span className="OrdersGrid__count">{orderList.length} orders</span>
       </div>
       {orderList.length === 0 && orders !== null && (
         <div className="OrdersGrid__empty">No orders yet</div>
@@ -108,14 +145,14 @@ function OrderCard({ order, onClick }: { order: any; onClick: () => void }) {
 
 // ─── Order Detail Page ───
 
-function OrderDetailPage({ orderId, onBack }: { orderId: number; onBack: () => void }) {
+function OrderDetailPage({ merchantId, orderId, onBack }: { merchantId: number; orderId: number; onBack: () => void }) {
   const [order, setOrder] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [reasonModal, setReasonModal] = useState<'cancel' | 'refund' | null>(null);
 
   const loadOrder = useCallback(() => {
-    fetchApi(`/api/merchants/${MERCHANT_ID}/orders/${orderId}`).then(setOrder);
-  }, [orderId]);
+    fetchApi(`/api/merchants/${merchantId}/orders/${orderId}`).then(setOrder);
+  }, [merchantId, orderId]);
 
   useEffect(() => { loadOrder(); }, [loadOrder]);
 
@@ -124,19 +161,19 @@ function OrderDetailPage({ orderId, onBack }: { orderId: number; onBack: () => v
     const next = getNextStatus(order.status, order.orderType || 'pickup');
     if (!next) return;
     setLoading(true);
-    await postApi(`/api/merchants/${MERCHANT_ID}/orders`, {
+    await postApi(`/api/merchants/${merchantId}/orders`, {
       orderId: order.id,
       status: next,
     });
     loadOrder();
     setLoading(false);
-  }, [order, loading, loadOrder]);
+  }, [order, loading, merchantId, loadOrder]);
 
   const handleCancelOrRefund = useCallback(async (reason: string) => {
     if (!order || loading) return;
     const status = reasonModal === 'cancel' ? Status.CANCELED : Status.REFUNDED;
     setLoading(true);
-    await postApi(`/api/merchants/${MERCHANT_ID}/orders`, {
+    await postApi(`/api/merchants/${merchantId}/orders`, {
       orderId: order.id,
       status,
       cancelReason: reason,
@@ -144,7 +181,7 @@ function OrderDetailPage({ orderId, onBack }: { orderId: number; onBack: () => v
     setReasonModal(null);
     loadOrder();
     setLoading(false);
-  }, [order, loading, reasonModal, loadOrder]);
+  }, [order, loading, merchantId, reasonModal, loadOrder]);
 
   if (!order) {
     return (

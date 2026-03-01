@@ -3,7 +3,17 @@ const router = express.Router();
 const _ = require('lodash');
 const Actions = require('../services/actions');
 const Orders = require('../models/orders');
+const Merchants = require('../models/merchants');
 const {getNextStatus, canCancel, canRefund, Status} = require('../../shared/orders');
+
+router.get('/by-uuid/:uuid', async (req, res) => {
+    const merchant = await Merchants.getByUuid(req.params.uuid);
+    if (merchant) {
+        res.json(merchant);
+    } else {
+        res.sendStatus(404);
+    }
+});
 
 router.get('/:merchantId/orders', async (req, res) => {
     const merchantId = req.params.merchantId;

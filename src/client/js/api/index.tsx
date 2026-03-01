@@ -1,7 +1,3 @@
-const MERCHANT_ID = 3
-
-// Entrypoint for nodejs api
-
 const ORDERS_URL = '/api/merchants/$id/orders';
 const ORDER_MENUS_URL = '/api/orders/$uuid';
 const LINE_ITEMS_URL = '/api/orders/lineitems';
@@ -38,21 +34,17 @@ const fetchResource = async (url, options = defaultGetOptions) => {
   }
 };
 
-// @note: merchantId should probably some from session cookie or similar
 export const getOrders = async (merchantId, params) => {
   const response = await fetchResource(ORDERS_URL.replace('$id', String(merchantId)));
   return response;
 }
 
 export const updateOrderStatus = async (params, merchantId) => {
-  const response = await fetchResource(ORDERS_URL.replace('$id', String(merchantId || MERCHANT_ID)), createPostBodyRequest({
+  const response = await fetchResource(ORDERS_URL.replace('$id', String(merchantId)), createPostBodyRequest({
     ...params,
   }));
   return response;
 }
-
-
-// Customer ordering and menus
 
 export const getCustomerOrderMenu = async (orderUuid) => {
   const response = await fetchResource(ORDER_MENUS_URL.replace('$uuid', orderUuid));
@@ -60,7 +52,6 @@ export const getCustomerOrderMenu = async (orderUuid) => {
 }
 
 export const createLineItem = async (params) => {
-  // console.log('params >> ', params);
   const response = await fetchResource(LINE_ITEMS_URL, createPostBodyRequest({
     ...params,
   }));
@@ -69,7 +60,6 @@ export const createLineItem = async (params) => {
 
 export const removeLineItem = async (lineItemId) => {
   // @todo: implement remove line item API
-
 }
 
 export const completeAddingLineItems = async (orderUuid) => {
