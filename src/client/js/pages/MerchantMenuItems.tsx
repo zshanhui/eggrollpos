@@ -1,0 +1,637 @@
+import React, { useEffect, useState, useCallback } from 'react';
+import '../../css/pages/MerchantMenuItems.css';
+
+function fetchApi(url: string) {
+  return fetch(url, { credentials: 'same-origin' as const }).then((r) => r.json());
+}
+
+function postApi(url: string, body: any) {
+  return fetch(url, {
+    method: 'POST',
+    credentials: 'same-origin' as const,
+    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+    body: JSON.stringify(body),
+  }).then(async (r) => {
+    const data = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error((data as any)?.error || 'Request failed');
+    return data;
+  });
+}
+
+function putApi(url: string, body: any) {
+  return fetch(url, {
+    method: 'PUT',
+    credentials: 'same-origin' as const,
+    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+    body: JSON.stringify(body),
+  }).then(async (r) => {
+    const data = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error((data as any)?.error || 'Request failed');
+    return data;
+  });
+}
+
+function deleteApi(url: string) {
+  return fetch(url, {
+    method: 'DELETE',
+    credentials: 'same-origin' as const,
+    headers: { Accept: 'application/json' },
+  });
+}
+
+// ─── Main Container ───
+
+export default function MerchantMenuItems(props: any) {
+  const merchantUuid = props.match?.params?.uuid;
+  const menuItemId = props.match?.params?.menuItemId;
+  const isAdd = props.location?.pathname?.endsWith('/add');
+  const isEdit = menuItemId != null && !isAdd;
+
+  const [merchant, setMerchant] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!merchantUuid) {
+      setError('No merchant UUID provided');
+      return;
+    }
+    fetchApi(`/api/merchants/by-uuid/${merchantUuid}`)
+      .then((data) => {
+        if (data && data.id) setMerchant(data);
+        else setError('Merchant not found');
+      })
+      .catch(() => setError('Failed to load merchant'));
+  }, [merchantUuid]);
+
+  if (error) {
+    return (
+      <div className="MerchantMenuItems MerchantMenuItems--error">
+        <div className="MerchantMenuItems__error">{error}</div>
+      </div>
+    );
+  }
+
+  if (!merchant) {
+    return (
+      <div className="MerchantMenuItems">
+        <div className="MerchantMenuItems__loading">Loading...</div>
+      </div>
+    );
+  }
+
+  if (isAdd) {
+    return (
+      <MenuItemForm
+        merchant={merchant}
+        onBack={() => props.history.push(`/merchant/${merchantUuid}/menuitems`)}
+        onSuccess={() => props.history.push(`/merchant/${merchantUuid}/menuitems`)}
+      />
+    );
+  }
+
+  if (isEdit) {
+    return (
+      <MenuItemForm
+        merchant={merchant}
+        menuItemId={parseInt(menuItemId, 10)}
+        onBack={() => props.history.push(`/merchant/${merchantUuid}/menuitems`)}
+        onSuccess={() => props.history.push(`/merchant/${merchantUuid}/menuitems`)}
+      />
+    );
+  }
+
+  return (
+    <MenuItemsList
+      merchant={merchant}
+      merchantUuid={merchantUuid}
+      history={props.history}
+      onAddClick={() => props.history.push(`/merchant/${merchantUuid}/menuitems/add`)}
+      onBack={() => props.history.push(`/merchant/${merchantUuid}`)}
+    />
+  );
+}
+
+// ─── Menu Items List ───
+
+function MenuItemsList({
+  merchant,
+  merchantUuid,
+  history,
+  onAddClick,
+  onBack,
+}: {
+  merchant: any;
+  merchantUuid: string;
+  history: any;
+  onAddClick: () => void;
+  onBack: () => void;
+}) {
+  const [menuItems, setMenuItems] = useState<any[]>([]);
+  const [modifiers, setModifiers] = useState<any[]>([]);
+  const [showModifiersModal, setShowModifiersModal] = useState(false);
+
+  const loadMenuItems = useCallback(() => {
+    fetchApi(`/api/merchants/${merchant.id}/menu-items`).then((data) =>
+      setMenuItems(data.menuItems || [])
+    );
+  }, [merchant.id]);
+
+  const loadModifiers = useCallback(() => {
+    fetchApi(`/api/merchants/${merchant.id}/modifiers`).then((data) =>
+      setModifiers(data.modifiers || [])
+    );
+  }, [merchant.id]);
+
+  useEffect(() => {
+    loadMenuItems();
+    loadModifiers();
+  }, [loadMenuItems, loadModifiers]);
+
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+
+  const handleDelete = async (id: number) => {
+    if (!confirm('Delete this menu item?')) return;
+    setDeleteError(null);
+    const res = await deleteApi(`/api/merchants/${merchant.id}/menu-items/${id}`);
+    if (res.ok) {
+      setDeleteError(null);
+      loadMenuItems();
+    } else {
+      const data = await res.json().catch(() => ({}));
+      setDeleteError((data as any)?.error || 'Failed to delete menu item');
+    }
+  };
+
+  return (
+    <div className="MerchantMenuItems">
+      <header className="MerchantMenuItems__header">
+        <button type="button" className="MerchantMenuItems__back" onClick={onBack}>
+          ← Back to Orders
+        </button>
+        <h1 className="MerchantMenuItems__title">{merchant.business_name} — Menu Items</h1>
+        <div className="MerchantMenuItems__actions">
+          <button
+            type="button"
+            className="MerchantMenuItems__btn MerchantMenuItems__btn--secondary"
+            onClick={() => setShowModifiersModal(true)}
+          >
+            Manage Modifiers
+          </button>
+          <button
+            type="button"
+            className="MerchantMenuItems__btn MerchantMenuItems__btn--primary"
+            onClick={onAddClick}
+          >
+            + Add Menu Item
+          </button>
+        </div>
+      </header>
+
+      {deleteError && (
+        <div className="MerchantMenuItems__error" style={{ marginBottom: 16 }}>
+          {deleteError}
+        </div>
+      )}
+
+      <div className="MerchantMenuItems__list">
+        {menuItems.length === 0 ? (
+          <div className="MerchantMenuItems__empty">
+            No menu items yet. <button onClick={onAddClick}>Add your first item</button>
+          </div>
+        ) : (
+          <table className="MerchantMenuItems__table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Price</th>
+                <th>Modifiers</th>
+                <th>Active</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {menuItems.map((item: any) => (
+                <tr key={item.id}>
+                  <td className="MerchantMenuItems__cell-name">{item.name}</td>
+                  <td className="MerchantMenuItems__cell-desc">
+                    {(item.description || '').slice(0, 50)}
+                    {(item.description || '').length > 50 ? '…' : ''}
+                  </td>
+                  <td>${((item.price_cents || 0) / 100).toFixed(2)}</td>
+                  <td>
+                    {item.modifiers?.length
+                      ? item.modifiers.map((m: any) => m.name).join(', ')
+                      : '—'}
+                  </td>
+                  <td>{item.is_active !== false ? 'Yes' : 'No'}</td>
+                  <td>
+                    <button
+                      type="button"
+                      className="MerchantMenuItems__link"
+                      onClick={() => history.push(`/merchant/${merchantUuid}/menuitems/${item.id}/edit`)}
+                    >
+                      Edit
+                    </button>
+                    {' · '}
+                    <button
+                      type="button"
+                      className="MerchantMenuItems__link MerchantMenuItems__link--danger"
+                      onClick={() => handleDelete(item.id)}
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+
+      {showModifiersModal && (
+        <ModifiersModal
+          merchant={merchant}
+          modifiers={modifiers}
+          onClose={() => setShowModifiersModal(false)}
+          onSaved={() => {
+            loadModifiers();
+            loadMenuItems();
+          }}
+        />
+      )}
+    </div>
+  );
+}
+
+// ─── Modifiers Modal ───
+
+function ModifiersModal({
+  merchant,
+  modifiers,
+  onClose,
+  onSaved,
+}: {
+  merchant: any;
+  modifiers: any[];
+  onClose: () => void;
+  onSaved: () => void;
+}) {
+  const [name, setName] = useState('');
+  const [priceAdjustmentCents, setPriceAdjustmentCents] = useState(0);
+  const [saving, setSaving] = useState(false);
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editName, setEditName] = useState('');
+  const [editPrice, setEditPrice] = useState(0);
+
+  const handleCreate = async () => {
+    if (!name.trim()) return;
+    setSaving(true);
+    await postApi(`/api/merchants/${merchant.id}/modifiers`, {
+      name: name.trim(),
+      priceAdjustmentCents,
+    });
+    setName('');
+    setPriceAdjustmentCents(0);
+    setSaving(false);
+    onSaved();
+  };
+
+  const handleUpdate = async (id: number) => {
+    setSaving(true);
+    await putApi(`/api/merchants/${merchant.id}/modifiers/${id}`, {
+      name: editName.trim(),
+      priceAdjustmentCents: editPrice,
+    });
+    setEditingId(null);
+    setSaving(false);
+    onSaved();
+  };
+
+  const handleDelete = async (id: number) => {
+    if (!confirm('Delete this modifier?')) return;
+    await deleteApi(`/api/merchants/${merchant.id}/modifiers/${id}`);
+    onSaved();
+  };
+
+  const startEdit = (m: any) => {
+    setEditingId(m.id);
+    setEditName(m.name);
+    setEditPrice(m.price_adjustment_cents || 0);
+  };
+
+  return (
+    <div className="ModifiersModal__overlay" onClick={onClose}>
+      <div className="ModifiersModal" onClick={(e) => e.stopPropagation()}>
+        <h2>Manage Modifiers</h2>
+        <p className="ModifiersModal__hint">
+          Modifiers like &quot;extra bacon&quot; or &quot;less salt&quot; can be attached to menu
+          items.
+        </p>
+
+        <div className="ModifiersModal__add">
+          <input
+            type="text"
+            placeholder="Modifier name (e.g. extra bacon)"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="ModifiersModal__input"
+          />
+          <input
+            type="number"
+            placeholder="Price add (cents)"
+            value={priceAdjustmentCents || ''}
+            onChange={(e) => setPriceAdjustmentCents(parseInt(e.target.value, 10) || 0)}
+            className="ModifiersModal__input ModifiersModal__input--narrow"
+          />
+          <button
+            type="button"
+            className="MerchantMenuItems__btn MerchantMenuItems__btn--primary"
+            onClick={handleCreate}
+            disabled={saving || !name.trim()}
+          >
+            Add Modifier
+          </button>
+        </div>
+
+        <ul className="ModifiersModal__list">
+          {modifiers.map((m) => (
+            <li key={m.id} className="ModifiersModal__item">
+              {editingId === m.id ? (
+                <>
+                  <input
+                    type="text"
+                    value={editName}
+                    onChange={(e) => setEditName(e.target.value)}
+                    className="ModifiersModal__input"
+                  />
+                  <input
+                    type="number"
+                    value={editPrice}
+                    onChange={(e) => setEditPrice(parseInt(e.target.value, 10) || 0)}
+                    className="ModifiersModal__input ModifiersModal__input--narrow"
+                  />
+                  <button
+                    type="button"
+                    className="MerchantMenuItems__btn MerchantMenuItems__btn--primary"
+                    onClick={() => handleUpdate(m.id)}
+                    disabled={saving}
+                  >
+                    Save
+                  </button>
+                  <button
+                    type="button"
+                    className="MerchantMenuItems__btn MerchantMenuItems__btn--secondary"
+                    onClick={() => setEditingId(null)}
+                  >
+                    Cancel
+                  </button>
+                </>
+              ) : (
+                <>
+                  <span className="ModifiersModal__item-name">{m.name}</span>
+                  <span className="ModifiersModal__item-price">
+                    {m.price_adjustment_cents
+                      ? `+$${(m.price_adjustment_cents / 100).toFixed(2)}`
+                      : 'No charge'}
+                  </span>
+                  <button
+                    type="button"
+                    className="MerchantMenuItems__link"
+                    onClick={() => startEdit(m)}
+                  >
+                    Edit
+                  </button>
+                  <button
+                    type="button"
+                    className="MerchantMenuItems__link MerchantMenuItems__link--danger"
+                    onClick={() => handleDelete(m.id)}
+                  >
+                    Delete
+                  </button>
+                </>
+              )}
+            </li>
+          ))}
+        </ul>
+
+        {modifiers.length === 0 && (
+          <p className="ModifiersModal__empty">No modifiers yet. Add one above.</p>
+        )}
+
+        <button
+          type="button"
+          className="MerchantMenuItems__btn MerchantMenuItems__btn--secondary"
+          onClick={onClose}
+        >
+          Close
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ─── Menu Item Form (Add / Edit) ───
+
+function MenuItemForm({
+  merchant,
+  menuItemId,
+  onBack,
+  onSuccess,
+}: {
+  merchant: any;
+  menuItemId?: number;
+  onBack: () => void;
+  onSuccess: () => void;
+}) {
+  const isEdit = menuItemId != null;
+  const [name, setName] = useState('');
+  const [description, setDescription] = useState('');
+  const [priceCents, setPriceCents] = useState('');
+  const [isActive, setIsActive] = useState(true);
+  const [selectedModifierIds, setSelectedModifierIds] = useState<number[]>([]);
+  const [modifiers, setModifiers] = useState<any[]>([]);
+  const [loading, setLoading] = useState(isEdit);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetchApi(`/api/merchants/${merchant.id}/modifiers`).then((data) =>
+      setModifiers(data.modifiers || [])
+    );
+  }, [merchant.id]);
+
+  useEffect(() => {
+    if (isEdit && menuItemId) {
+      fetchApi(`/api/merchants/${merchant.id}/menu-items/${menuItemId}`)
+        .then((data) => {
+          const item = data.menuItem;
+          if (item) {
+            setName(item.name || '');
+            setDescription(item.description || '');
+            setPriceCents(String(item.price_cents || ''));
+            setIsActive(item.is_active !== false);
+            setSelectedModifierIds((item.modifiers || []).map((m: any) => m.id));
+          }
+        })
+        .catch(() => setError('Failed to load menu item'))
+        .finally(() => setLoading(false));
+    }
+  }, [isEdit, menuItemId, merchant.id]);
+
+  const toggleModifier = (id: number) => {
+    setSelectedModifierIds((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+    );
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const price = parseInt(priceCents, 10);
+    if (!name.trim() || isNaN(price) || price < 0) {
+      setError('Name and valid price are required');
+      return;
+    }
+    setSaving(true);
+    setError(null);
+    try {
+      if (isEdit && menuItemId) {
+        await putApi(`/api/merchants/${merchant.id}/menu-items/${menuItemId}`, {
+          name: name.trim(),
+          description: description.trim(),
+          priceCents: price,
+          isActive,
+          modifierIds: selectedModifierIds,
+        });
+      } else {
+        await postApi(`/api/merchants/${merchant.id}/menu-items`, {
+          name: name.trim(),
+          description: description.trim(),
+          priceCents: price,
+          isActive,
+          modifierIds: selectedModifierIds,
+        });
+      }
+      onSuccess();
+    } catch (err) {
+      setError('Failed to save');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="MerchantMenuItems">
+        <div className="MerchantMenuItems__loading">Loading...</div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="MerchantMenuItems">
+      <header className="MerchantMenuItems__header">
+        <button type="button" className="MerchantMenuItems__back" onClick={onBack}>
+          ← Back to Menu Items
+        </button>
+        <h1 className="MerchantMenuItems__title">
+          {isEdit ? 'Edit Menu Item' : 'Add Menu Item'}
+        </h1>
+      </header>
+
+      <form className="MerchantMenuItems__form" onSubmit={handleSubmit}>
+        {error && <div className="MerchantMenuItems__error">{error}</div>}
+
+        <div className="MerchantMenuItems__field">
+          <label htmlFor="name">Name *</label>
+          <input
+            id="name"
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
+            className="MerchantMenuItems__input"
+          />
+        </div>
+
+        <div className="MerchantMenuItems__field">
+          <label htmlFor="description">Description</label>
+          <textarea
+            id="description"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            className="MerchantMenuItems__input MerchantMenuItems__textarea"
+            rows={3}
+          />
+        </div>
+
+        <div className="MerchantMenuItems__field">
+          <label htmlFor="price">Price (cents) *</label>
+          <input
+            id="price"
+            type="number"
+            min="0"
+            value={priceCents}
+            onChange={(e) => setPriceCents(e.target.value)}
+            required
+            className="MerchantMenuItems__input"
+          />
+          <span className="MerchantMenuItems__hint">e.g. 1099 = $10.99</span>
+        </div>
+
+        <div className="MerchantMenuItems__field">
+          <label>
+            <input
+              type="checkbox"
+              checked={isActive}
+              onChange={(e) => setIsActive(e.target.checked)}
+            />
+            {' '}Active (visible to customers)
+          </label>
+        </div>
+
+        <div className="MerchantMenuItems__field">
+          <label>Modifiers</label>
+          <p className="MerchantMenuItems__hint">
+            Select which modifiers customers can add to this item.
+          </p>
+          {modifiers.length === 0 ? (
+            <p className="MerchantMenuItems__hint">
+              No modifiers yet. Go to Menu Items → Manage Modifiers to create some.
+            </p>
+          ) : (
+            <div className="MerchantMenuItems__modifiers">
+              {modifiers.map((m) => (
+                <label key={m.id} className="MerchantMenuItems__modifier-label">
+                  <input
+                    type="checkbox"
+                    checked={selectedModifierIds.includes(m.id)}
+                    onChange={() => toggleModifier(m.id)}
+                  />
+                  {' '}
+                  {m.name}
+                  {m.price_adjustment_cents
+                    ? ` (+$${(m.price_adjustment_cents / 100).toFixed(2)})`
+                    : ''}
+                </label>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="MerchantMenuItems__form-actions">
+          <button type="button" className="MerchantMenuItems__btn MerchantMenuItems__btn--secondary" onClick={onBack}>
+            Cancel
+          </button>
+          <button
+            type="submit"
+            className="MerchantMenuItems__btn MerchantMenuItems__btn--primary"
+            disabled={saving}
+          >
+            {saving ? 'Saving…' : isEdit ? 'Update' : 'Create'}
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+}

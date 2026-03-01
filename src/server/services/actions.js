@@ -32,7 +32,7 @@ async function addOrderLineItem({orderUuid, menuItemId, comments = '', quantity}
 
   const {order} = await Orders.getByUuid(orderUuid);
 
-  if (!order || !order.id || order.status !== Status.STARTED) {
+  if (!order || !order.id || order.status !== Status.WAITING_FOR_ACCEPTANCE) {
     throw Error('No order found for UUID provided: ' + orderUuid);
   }
 
@@ -69,7 +69,7 @@ async function updateLineItemQuantity({lineItemId, quantity}) {
 async function verifyOrderLineItemsCompleted(orderUuid) {
   const {order} = await Orders.getByUuid(orderUuid);
 
-  if (!order.id || order.status !== Status.STARTED) {
+  if (!order.id || order.status !== Status.WAITING_FOR_ACCEPTANCE) {
     throw new Error('Order not found or status is not started');
   }
 

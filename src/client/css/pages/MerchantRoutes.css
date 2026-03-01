@@ -1,100 +1,158 @@
-/* ===== Merchant POS Dashboard ===== */
+/* ===== Merchant POS Dashboard — Mobile-first, QSR-optimized ===== */
+/* Designed for fast-paced kitchens: large touch targets, high contrast, minimal animations */
 
 .Merchant {
   min-height: 100vh;
-  background: #0d0d0d;
+  min-height: 100dvh;
+  background: #0a0a0a;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
-/* ===== Orders Grid ===== */
+/* ===== Orders List — Mobile: single column scroll, Desktop: grid ===== */
 
 .OrdersGrid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  grid-template-rows: repeat(2, 1fr);
+  display: flex;
+  flex-direction: column;
   gap: 12px;
   padding: 12px;
-  height: 100vh;
+  min-height: 100vh;
+  min-height: 100dvh;
   box-sizing: border-box;
 }
 
 .OrdersGrid__header {
-  grid-column: 1 / -1;
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
-  padding: 0 4px;
+  gap: 12px;
+  padding: 8px 4px;
+  flex-shrink: 0;
 }
 
 .OrdersGrid__title {
   color: #fff;
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   font-weight: 700;
   margin: 0;
+  line-height: 1.2;
 }
 
 .OrdersGrid__count {
   color: #888;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
+  font-weight: 600;
 }
 
-.OrdersGrid--with-header {
-  grid-template-rows: 40px repeat(2, 1fr);
+.OrdersGrid__nav {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
-/* ===== Order Card ===== */
+.OrdersGrid__nav a {
+  color: #00e5ff;
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-decoration: none;
+  padding: 8px 12px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.OrdersGrid__cards {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.OrdersGrid--with-header .OrdersGrid__cards {
+  min-height: 0;
+}
+
+/* Tablet: 2 columns */
+@media (min-width: 480px) {
+  .OrdersGrid__cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .OrdersGrid__title {
+    font-size: 1.4rem;
+  }
+}
+
+/* Desktop: 4 columns */
+@media (min-width: 900px) {
+  .OrdersGrid {
+    display: grid;
+    grid-template-rows: auto 1fr;
+    grid-template-columns: 1fr;
+  }
+  .OrdersGrid__cards {
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+  }
+}
+
+/* ===== Order Card — Large touch target, high contrast, no animations ===== */
 
 .OrderCard {
-  background: #1a1a1a;
-  border-radius: 16px;
-  border: 2px solid #333;
+  background: #141414;
+  border-radius: 12px;
+  border: 3px solid #333;
   padding: 16px;
+  min-height: 120px;
   cursor: pointer;
-  transition: transform 0.12s ease, border-color 0.12s ease, box-shadow 0.12s ease;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  position: relative;
-}
-
-.OrderCard:hover {
-  transform: scale(1.02);
-  box-shadow: 0 0 24px rgba(255, 255, 255, 0.08);
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  contain: layout style;
 }
 
 .OrderCard:active {
-  transform: scale(0.98);
+  background: #1a1a1a;
 }
 
 .OrderCard__top {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
 .OrderCard__orderNum {
-  font-size: 1.6rem;
+  font-size: 1.75rem;
   font-weight: 800;
   color: #fff;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
 }
 
 .OrderCard__time {
-  font-size: 0.85rem;
+  font-size: 0.95rem;
   color: #888;
+  font-weight: 600;
 }
 
 .OrderCard__customer {
-  font-size: 1rem;
-  color: #ccc;
+  font-size: 1.05rem;
+  color: #ddd;
   margin-bottom: 8px;
-  font-weight: 500;
+  font-weight: 600;
+  line-height: 1.3;
 }
 
 .OrderCard__items {
   flex: 1;
   color: #999;
-  font-size: 0.85rem;
+  font-size: 0.95rem;
   line-height: 1.4;
   overflow: hidden;
 }
@@ -108,7 +166,7 @@
 .OrderCard__item-qty {
   font-weight: 700;
   color: #bbb;
-  min-width: 18px;
+  min-width: 24px;
 }
 
 .OrderCard__bottom {
@@ -117,25 +175,24 @@
   align-items: center;
   margin-top: 12px;
   padding-top: 10px;
-  border-top: 1px solid #333;
+  border-top: 1px solid #2a2a2a;
 }
 
-/* ===== Status Badge ===== */
+/* Status Badge — Solid colors, no animation for low-end perf ===== */
 
 .StatusBadge {
-  padding: 4px 12px;
-  border-radius: 20px;
-  font-size: 0.75rem;
-  font-weight: 700;
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.03em;
   white-space: nowrap;
 }
 
 .StatusBadge--waiting_for_acceptance {
   background: #FFD600;
   color: #000;
-  animation: pulse-glow-yellow 2s infinite;
 }
 
 .StatusBadge--accepted {
@@ -146,19 +203,16 @@
 .StatusBadge--preparing {
   background: #D500F9;
   color: #fff;
-  animation: pulse-glow-purple 2s infinite;
 }
 
 .StatusBadge--ready_for_pickup {
   background: #00E676;
   color: #000;
-  animation: pulse-glow-green 2s infinite;
 }
 
 .StatusBadge--ready_for_delivery {
   background: #2979FF;
   color: #fff;
-  animation: pulse-glow-blue 2s infinite;
 }
 
 .StatusBadge--pickup_success {
@@ -186,7 +240,6 @@
   color: #000;
 }
 
-/* Border glow on cards by status */
 .OrderCard--waiting_for_acceptance { border-color: #FFD600; }
 .OrderCard--accepted { border-color: #00E5FF; }
 .OrderCard--preparing { border-color: #D500F9; }
@@ -201,83 +254,90 @@
 /* ===== Order Type Tag ===== */
 
 .OrderTypeTag {
-  font-size: 0.7rem;
-  font-weight: 700;
+  font-size: 0.75rem;
+  font-weight: 800;
   text-transform: uppercase;
-  padding: 2px 8px;
+  padding: 4px 10px;
   border-radius: 6px;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.03em;
 }
 
 .OrderTypeTag--pickup {
-  background: rgba(0, 230, 118, 0.15);
+  background: rgba(0, 230, 118, 0.2);
   color: #00E676;
 }
 
 .OrderTypeTag--delivery {
-  background: rgba(41, 121, 255, 0.15);
+  background: rgba(41, 121, 255, 0.2);
   color: #2979FF;
 }
 
-/* ===== Order Detail ===== */
+/* ===== Order Detail — Full-screen mobile, large touch targets ===== */
 
 .OrderDetail {
   min-height: 100vh;
-  background: #0d0d0d;
-  padding: 20px;
+  min-height: 100dvh;
+  background: #0a0a0a;
+  padding: 16px;
+  padding-bottom: env(safe-area-inset-bottom, 16px);
   color: #fff;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .OrderDetail__back {
-  background: none;
-  border: 2px solid #555;
+  background: #1a1a1a;
+  border: 2px solid #444;
   color: #fff;
-  padding: 10px 20px;
+  padding: 14px 24px;
+  min-height: 48px;
   border-radius: 12px;
   cursor: pointer;
-  font-size: 1rem;
-  font-weight: 600;
-  margin-bottom: 20px;
-  transition: border-color 0.15s;
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 16px;
+  width: 100%;
+  max-width: 200px;
+  touch-action: manipulation;
 }
 
-.OrderDetail__back:hover {
-  border-color: #fff;
+.OrderDetail__back:active {
+  background: #222;
 }
 
 .OrderDetail__header {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 24px;
-  flex-wrap: wrap;
+  margin-bottom: 20px;
   gap: 12px;
 }
 
 .OrderDetail__orderNum {
-  font-size: 2.5rem;
+  font-size: 2rem;
   font-weight: 800;
+  letter-spacing: -0.02em;
 }
 
 .OrderDetail__status {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
 }
 
 .OrderDetail__status .StatusBadge {
   font-size: 1rem;
-  padding: 8px 20px;
+  padding: 8px 18px;
 }
 
 .OrderDetail__meta {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 16px;
-  margin-bottom: 32px;
-  background: #1a1a1a;
-  border-radius: 16px;
-  padding: 20px;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 24px;
+  background: #141414;
+  border-radius: 12px;
+  padding: 16px;
 }
 
 .OrderDetail__meta-item {
@@ -287,133 +347,140 @@
 }
 
 .OrderDetail__meta-label {
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   text-transform: uppercase;
-  color: #888;
-  letter-spacing: 1px;
-  font-weight: 600;
+  color: #666;
+  letter-spacing: 0.05em;
+  font-weight: 700;
 }
 
 .OrderDetail__meta-value {
   font-size: 1.1rem;
-  font-weight: 600;
+  font-weight: 700;
   color: #fff;
+}
+
+@media (min-width: 480px) {
+  .OrderDetail__meta {
+    grid-template-columns: repeat(4, 1fr);
+  }
 }
 
 /* ===== Line Items Table ===== */
 
 .OrderDetail__items {
-  background: #1a1a1a;
-  border-radius: 16px;
-  padding: 20px;
-  margin-bottom: 32px;
+  background: #141414;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 24px;
 }
 
 .OrderDetail__items h3 {
-  margin: 0 0 16px;
-  font-size: 1.2rem;
+  margin: 0 0 12px;
+  font-size: 1rem;
   color: #888;
   text-transform: uppercase;
-  letter-spacing: 1px;
-  font-weight: 600;
+  letter-spacing: 0.05em;
+  font-weight: 700;
 }
 
 .OrderDetail__items-table {
   width: 100%;
   border-collapse: collapse;
+  font-size: 1rem;
 }
 
 .OrderDetail__items-table th {
   text-align: left;
   color: #666;
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   text-transform: uppercase;
-  letter-spacing: 1px;
-  padding: 8px 0;
-  border-bottom: 1px solid #333;
+  letter-spacing: 0.05em;
+  padding: 10px 0;
+  border-bottom: 1px solid #2a2a2a;
 }
 
 .OrderDetail__items-table td {
-  padding: 12px 0;
-  border-bottom: 1px solid #222;
-  font-size: 1rem;
+  padding: 14px 0;
+  border-bottom: 1px solid #1a1a1a;
+  font-size: 1.05rem;
 }
 
 .OrderDetail__items-table .item-name {
-  font-weight: 600;
+  font-weight: 700;
   color: #fff;
 }
 
 .OrderDetail__items-table .item-comment {
   color: #888;
-  font-size: 0.85rem;
-  font-style: italic;
+  font-size: 0.9rem;
 }
 
 .OrderDetail__items-table .item-qty {
-  font-weight: 700;
+  font-weight: 800;
   color: #00E5FF;
-  font-size: 1.1rem;
-  width: 60px;
+  font-size: 1.15rem;
+  width: 48px;
 }
 
 .OrderDetail__items-table .item-price {
   text-align: right;
   color: #69F0AE;
-  font-weight: 700;
+  font-weight: 800;
   font-size: 1.1rem;
 }
 
-/* ===== Actions ===== */
+/* ===== Action Buttons — 48px min height for touch ===== */
 
 .OrderDetail__actions {
   display: flex;
+  flex-direction: column;
   gap: 12px;
-  flex-wrap: wrap;
 }
 
 .OrderDetail__action-btn {
-  padding: 16px 32px;
+  padding: 18px 24px;
+  min-height: 52px;
   border: none;
-  border-radius: 14px;
-  font-size: 1.1rem;
-  font-weight: 700;
+  border-radius: 12px;
+  font-size: 1.15rem;
+  font-weight: 800;
   cursor: pointer;
-  transition: transform 0.1s ease, box-shadow 0.15s ease;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.OrderDetail__action-btn:hover {
-  transform: scale(1.03);
+  letter-spacing: 0.05em;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .OrderDetail__action-btn:active {
-  transform: scale(0.97);
+  opacity: 0.9;
 }
 
 .OrderDetail__action-btn--primary {
   background: #00E676;
   color: #000;
-  box-shadow: 0 0 20px rgba(0, 230, 118, 0.3);
 }
 
 .OrderDetail__action-btn--cancel {
   background: #FF1744;
   color: #fff;
-  box-shadow: 0 0 20px rgba(255, 23, 68, 0.3);
 }
 
 .OrderDetail__action-btn--refund {
   background: #FF9100;
   color: #000;
-  box-shadow: 0 0 20px rgba(255, 145, 0, 0.3);
 }
 
 .OrderDetail__action-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
-  transform: none;
+}
+
+@media (min-width: 480px) {
+  .OrderDetail__actions {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
 }
 
 /* ===== Cancel/Refund Modal ===== */
@@ -421,40 +488,43 @@
 .ReasonModal__overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.8);
+  background: rgba(0, 0, 0, 0.85);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
+  padding: 16px;
+  box-sizing: border-box;
 }
 
 .ReasonModal {
-  background: #1a1a1a;
-  border-radius: 20px;
-  padding: 32px;
-  width: 90%;
-  max-width: 500px;
+  background: #141414;
+  border-radius: 16px;
+  padding: 24px;
+  width: 100%;
+  max-width: 400px;
   border: 2px solid #333;
 }
 
 .ReasonModal h3 {
   color: #fff;
   margin: 0 0 16px;
-  font-size: 1.3rem;
+  font-size: 1.25rem;
+  font-weight: 700;
 }
 
 .ReasonModal__textarea {
   width: 100%;
-  min-height: 120px;
-  background: #0d0d0d;
-  border: 2px solid #444;
+  min-height: 100px;
+  background: #0a0a0a;
+  border: 2px solid #333;
   border-radius: 12px;
   color: #fff;
   padding: 14px;
   font-size: 1rem;
-  resize: vertical;
   margin-bottom: 16px;
   font-family: inherit;
+  box-sizing: border-box;
 }
 
 .ReasonModal__textarea:focus {
@@ -464,41 +534,33 @@
 
 .ReasonModal__buttons {
   display: flex;
-  gap: 12px;
-  justify-content: flex-end;
+  flex-direction: column;
+  gap: 10px;
 }
 
-/* ===== Animations ===== */
-
-@keyframes pulse-glow-yellow {
-  0%, 100% { box-shadow: 0 0 4px rgba(255, 214, 0, 0.4); }
-  50% { box-shadow: 0 0 12px rgba(255, 214, 0, 0.8); }
+.ReasonModal__buttons .OrderDetail__action-btn {
+  width: 100%;
 }
 
-@keyframes pulse-glow-purple {
-  0%, 100% { box-shadow: 0 0 4px rgba(213, 0, 249, 0.4); }
-  50% { box-shadow: 0 0 12px rgba(213, 0, 249, 0.8); }
-}
-
-@keyframes pulse-glow-green {
-  0%, 100% { box-shadow: 0 0 4px rgba(0, 230, 118, 0.4); }
-  50% { box-shadow: 0 0 12px rgba(0, 230, 118, 0.8); }
-}
-
-@keyframes pulse-glow-blue {
-  0%, 100% { box-shadow: 0 0 4px rgba(41, 121, 255, 0.4); }
-  50% { box-shadow: 0 0 12px rgba(41, 121, 255, 0.8); }
+@media (min-width: 360px) {
+  .ReasonModal__buttons {
+    flex-direction: row;
+    justify-content: flex-end;
+  }
+  .ReasonModal__buttons .OrderDetail__action-btn {
+    width: auto;
+  }
 }
 
 /* ===== Empty state ===== */
 
 .OrdersGrid__empty {
   grid-column: 1 / -1;
-  grid-row: 1 / -1;
   display: flex;
   align-items: center;
   justify-content: center;
   color: #555;
-  font-size: 1.5rem;
-  font-weight: 600;
+  font-size: 1.25rem;
+  font-weight: 700;
+  padding: 48px 24px;
 }
