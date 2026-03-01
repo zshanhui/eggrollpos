@@ -12,6 +12,4 @@ module.exports = {
   MAX_ORDERS_MERCHANTS: 10,
   ONLINE_PAYMENTS_ENABLED: false,
   PICKUP_INTERVALS: [15, 30, 45, 60],
-  ZOMATO_API_KEY: process.env.ZOMATO_API_KEY || '',
-  ZOMATO_API_URL: process.env.ZOMATO_API_URL || '',
 }

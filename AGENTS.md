@@ -51,4 +51,4 @@ If running Postgres without Docker (e.g. system install), set `DB_PASSWORD` to m
 
 ### Optional integrations
 
-Zomato is optional. The app starts and runs fine without its env vars set. The contact form currently logs submissions to stdout; a database-backed admin UI is planned.
+The contact form currently logs submissions to stdout; a database-backed admin UI is planned.

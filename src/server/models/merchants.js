@@ -26,13 +26,6 @@ class Merchants {
     return res;
   }
 
-  static async getByZomatoIds(zomatoIds) {
-    const res = await T()
-      .select()
-      .whereIn('zomato_id', zomatoIds)
-    return res;
-  }
-
   static async create(params) {
     // @todo: add merchant
     return T().

@@ -7,58 +7,6 @@ const Receipts = require('../models/receipts');
 
 const {Status} = require('../../shared/orders');
 
-const axios = require("axios");
-const { ZOMATO_API_KEY, ZOMATO_API_URL } = require("../constants");
-
-async function getNearbyShopsFromZomato(lat, lon) {
-  try {
-    const resp = await requestNearbyZomato(lat, lon);
-
-    let shops = resp.nearby_restaurants.map(res => res.restaurant);
-    const zomatoIds = shops.map(shop => shop.id);
-    const validMerchants = await Merchants.getByZomatoIds(zomatoIds);
-
-    const merchantIdMap = new Map(validMerchants.map(i => [i.zomato_id, i.id]));
-    shops = shops.filter(shop => merchantIdMap.has(parseInt(shop.id)));
-    shops.forEach(shop => shop.merchantId = merchantIdMap.get(parseInt(shop.id)));
-
-    return shops;
-  } catch (err) {
-    console.log("getNearbyShops failed:", err);
-    return null;
-  }
-}
-
-async function zomatoAPICall(endpoint, params) {
-  try {
-    const response = await axios.get(`${ZOMATO_API_URL}/${endpoint}`, {
-      headers: {
-        "user-key": ZOMATO_API_KEY,
-        Accept: "application/json",
-      },
-      params: params,
-    });
-    return response.data;
-  } catch (error) {
-    console.error("Zomato API Error:", error.response.data);
-    throw error;
-  }
-}
-
-async function requestNearbyZomato(lat, lon) {
-  const data = await zomatoAPICall("geocode", { lat, lon });
-  const nearbyRestaurants = data.nearby_restaurants.map((r) => {
-    return {
-      id: r.restaurant.id,
-      name: r.restaurant.name,
-      url: r.restaurant.url,
-      location: r.restaurant.location,
-      photos: r.restaurant.photos,
-    };
-  });
-  return nearbyRestaurants;
-}
-
 async function getMerchantMenu(merchantId) {
   const menu = await MenuItems.getByMerchantId(merchantId);
   if (!menu) {
@@ -173,7 +121,6 @@ async function getLineItems({orderId}) {
 }
 
 module.exports = {
-  getNearbyShopsFromZomato,
   getMerchantOrders,
   getMerchantMenu,
   addOrderLineItem,

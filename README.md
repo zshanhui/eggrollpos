@@ -8,7 +8,6 @@ A free, self-hosted restaurant POS (Point-of-Sale) and online ordering system. R
 - **Online Menu & Ordering** — Customers browse menus and place orders from a web view
 - **Receipt System** — Auto-generated receipts with line items, tax, and totals
 - **Contact/Lead Form** — Capture beta signup leads
-- **Nearby Restaurant Search** — Zomato API integration (optional)
 
 ## Tech Stack
 
@@ -171,10 +170,6 @@ DB_PASSWORD=postgres
 
 # PostgreSQL (production — overrides above)
 DATABASE_URL=postgres://user:pass@host:5432/eggrollpos
-
-# Zomato nearby search (optional)
-ZOMATO_API_KEY=
-ZOMATO_API_URL=
 ```
 
 ## API Endpoints
