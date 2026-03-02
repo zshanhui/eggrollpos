@@ -63,8 +63,9 @@ export default function MerchantRoutes(props: any) {
     );
   }
 
+  const theme = merchant.theme === 'light' ? 'light' : 'dark';
   return (
-    <div className="Merchant">
+    <div className={`Merchant Merchant--theme-${theme}`}>
       {selectedOrderId === null ? (
         <OrdersListPage
           merchantId={merchant.id}
@@ -102,6 +103,7 @@ function OrdersListPage({ merchantId, merchantName, merchantUuid, onSelectOrder,
         <h1 className="OrdersGrid__title">{merchantName}<LangSwitcher /></h1>
         <div className="OrdersGrid__nav">
           <a href={`/merchant/${merchantUuid}/menuitems`}>{t('merchant.menu')}</a>
+          <a href={`/merchant/${merchantUuid}/settings`}>{t('merchant.settings')}</a>
           <span className="OrdersGrid__count">{orderList.length}</span>
         </div>
       </div>

@@ -10,6 +10,57 @@
   touch-action: manipulation;
 }
 
+/* Light theme for merchant dashboard */
+.Merchant--theme-light {
+  background: #f5f5f5;
+}
+
+.Merchant--theme-light .OrdersGrid__title,
+.Merchant--theme-light .OrderCard__orderNum,
+.Merchant--theme-light .OrderCard__customer,
+.Merchant--theme-light .OrderDetail__orderNum,
+.Merchant--theme-light .OrderDetail__meta-value,
+.Merchant--theme-light .OrderDetail__items-table .item-name {
+  color: #1a1a1a;
+}
+
+.Merchant--theme-light .OrdersGrid__count,
+.Merchant--theme-light .OrdersGrid__nav a,
+.Merchant--theme-light .OrderCard__time,
+.Merchant--theme-light .OrderCard__items,
+.Merchant--theme-light .OrderDetail__meta-label {
+  color: #555;
+}
+
+.Merchant--theme-light .OrderCard {
+  background: #fff;
+  border-color: #e0e0e0;
+}
+
+.Merchant--theme-light .OrderDetail__meta,
+.Merchant--theme-light .OrderDetail__items {
+  background: #fff;
+  border: 1px solid #e0e0e0;
+}
+
+.Merchant--theme-light .OrderDetail {
+  background: #f5f5f5;
+  color: #1a1a1a;
+}
+
+.Merchant--theme-light .OrderDetail__back,
+.Merchant--theme-light .ReasonModal {
+  background: #fff;
+  border-color: #ddd;
+}
+
+.Merchant--theme-light .ReasonModal h3,
+.Merchant--theme-light .ReasonModal__textarea {
+  color: #1a1a1a;
+  background: #fafafa;
+  border-color: #ddd;
+}
+
 /* ===== Orders List — Mobile: single column scroll, Desktop: grid ===== */
 
 .OrdersGrid {

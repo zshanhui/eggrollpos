@@ -17,6 +17,48 @@ router.get('/by-uuid/:uuid', async (req, res) => {
     }
 });
 
+// ─── Merchant Settings (business info, theme) ───
+
+function normalizeMerchantSettingsBody(body) {
+    if (!body) return {};
+    return {
+        businessName: body.businessName ?? body.business_name,
+        taxId: body.taxId ?? body.tax_id,
+        whatsappNumber: body.whatsappNumber ?? body.whatsapp_number,
+        address: body.address,
+        theme: body.theme,
+    };
+}
+
+async function updateMerchantSettingsHandler(req, res) {
+    const merchantId = parseInt(req.params.merchantId, 10);
+    if (isNaN(merchantId)) return res.status(400).json({ error: 'Invalid merchant ID' });
+    const merchant = await Merchants.get(merchantId);
+    if (!merchant) return res.status(404).json({ error: 'Merchant not found' });
+    const { businessName, taxId, whatsappNumber, address, theme } = normalizeMerchantSettingsBody(req.body);
+    const updates = {};
+    if (businessName !== undefined) updates.business_name = String(businessName).trim();
+    if (taxId !== undefined) updates.tax_id = taxId ? String(taxId).trim() : null;
+    if (whatsappNumber !== undefined) updates.whatsapp_number = whatsappNumber ? String(whatsappNumber).trim() : null;
+    if (address !== undefined) updates.address = address ? String(address).trim() : null;
+    if (theme !== undefined) {
+        if (theme !== 'light' && theme !== 'dark') {
+            return res.status(400).json({ error: 'theme must be "light" or "dark"' });
+        }
+        updates.theme = theme;
+    }
+    if (Object.keys(updates).length === 0) {
+        return res.json({ merchant });
+    }
+    await Merchants.update(merchantId, updates);
+    const updated = await Merchants.get(merchantId);
+    res.json({ merchant: updated });
+}
+
+router.patch('/:merchantId', updateMerchantSettingsHandler);
+router.put('/:merchantId', updateMerchantSettingsHandler);
+
+
 router.get('/:merchantId/orders', async (req, res) => {
     const merchantId = req.params.merchantId;
     if (!merchantId || parseInt(merchantId) != merchantId) {

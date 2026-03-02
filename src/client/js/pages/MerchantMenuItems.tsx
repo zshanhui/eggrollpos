@@ -157,6 +157,8 @@ function MenuItemsList({
 
   const [deleteError, setDeleteError] = useState<string | null>(null);
 
+  const theme = merchant.theme === 'light' ? 'light' : 'dark';
+
   const handleDelete = async (id: number) => {
     if (!confirm(t('merchant.deleteMenuItemConfirm'))) return;
     setDeleteError(null);
@@ -171,13 +173,16 @@ function MenuItemsList({
   };
 
   return (
-    <div className="MerchantMenuItems">
+    <div className={`MerchantMenuItems MerchantMenuItems--theme-${theme}`}>
       <header className="MerchantMenuItems__header">
         <button type="button" className="MerchantMenuItems__back" onClick={onBack}>
           {t('merchant.backToOrders')}
         </button>
         <h1 className="MerchantMenuItems__title">{merchant.business_name} — {t('merchant.menuItems')} <LangSwitcher /></h1>
         <div className="MerchantMenuItems__actions">
+          <a href={`/merchant/${merchantUuid}/settings`} className="MerchantMenuItems__link MerchantMenuItems__link--nav">
+            {t('merchant.settings')}
+          </a>
           <button
             type="button"
             className="MerchantMenuItems__btn MerchantMenuItems__btn--secondary"
@@ -532,16 +537,18 @@ function MenuItemForm({
     }
   };
 
+  const theme = merchant.theme === 'light' ? 'light' : 'dark';
+
   if (loading) {
     return (
-      <div className="MerchantMenuItems">
+      <div className={`MerchantMenuItems MerchantMenuItems--theme-${theme}`}>
         <div className="MerchantMenuItems__loading">{t('common.loading')}</div>
       </div>
     );
   }
 
   return (
-    <div className="MerchantMenuItems">
+    <div className={`MerchantMenuItems MerchantMenuItems--theme-${theme}`}>
       <header className="MerchantMenuItems__header">
         <button type="button" className="MerchantMenuItems__back" onClick={onBack}>
           {t('merchant.backToMenuItems')}
