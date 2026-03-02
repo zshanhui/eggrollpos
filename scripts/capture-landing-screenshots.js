@@ -22,6 +22,7 @@ async function main() {
     viewport: { width: 1280, height: 800 },
     deviceScaleFactor: 2,
     locale: 'en-US',
+    colorScheme: 'light',
   });
 
   await context.addInitScript(() => {

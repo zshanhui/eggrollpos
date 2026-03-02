@@ -22,6 +22,7 @@ async function main() {
     viewport: { width: 1280, height: 800 },
     deviceScaleFactor: 2,
     locale: 'zh-CN',
+    colorScheme: 'light',
   };
 
   const browser = await chromium.launch({ headless: true });

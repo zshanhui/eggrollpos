@@ -24,6 +24,7 @@ async function main() {
     viewport: { width: 390, height: 844 },
     deviceScaleFactor: 2,
     userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X) AppleWebKit/605.1.15',
+    colorScheme: 'light',
   };
   if (RECORD_VIDEO) {
     contextOptions.recordVideo = {
