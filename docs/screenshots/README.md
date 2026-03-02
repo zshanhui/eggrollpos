@@ -17,13 +17,22 @@ Screenshots of the merchant POS dashboard and menu management UI.
 
 ## Files
 
+All screenshots are captured with Chinese (zh) as the default language.
+
 | File | Description |
 |------|-------------|
-| `merchant-orders-list-mobile.png` | Orders grid on mobile (390×844) |
-| `merchant-order-detail-mobile.png` | Single order detail view on mobile |
-| `merchant-menu-items-list-mobile.png` | Menu items list on mobile |
-| `merchant-menu-item-add-mobile.png` | Add menu item form on mobile |
-| `merchant-orders-list-desktop.png` | Orders grid on desktop (1280×800) |
+| `merchant-orders-list-mobile.jpg` | Orders grid on mobile (390×844) |
+| `merchant-order-detail-mobile.jpg` | Single order detail view on mobile |
+| `merchant-menu-items-list-mobile.jpg` | Menu items list on mobile |
+| `merchant-menu-item-add-mobile.jpg` | Add menu item form on mobile |
+| `merchant-menu-item-edit-mobile.jpg` | Edit menu item form on mobile |
+| `merchant-modifiers-modal-mobile.jpg` | Modifiers management modal on mobile |
+| `merchant-orders-list-desktop.jpg` | Orders grid on desktop (960×600) |
+| `merchant-order-detail-desktop.jpg` | Single order detail view on desktop |
+| `merchant-menu-items-list-desktop.jpg` | Menu items list on desktop |
+| `merchant-menu-item-add-desktop.jpg` | Add menu item form on desktop |
+| `merchant-menu-item-edit-desktop.jpg` | Edit menu item form on desktop |
+| `merchant-modifiers-modal-desktop.jpg` | Modifiers management modal on desktop |
 
 ## Demo Video
 

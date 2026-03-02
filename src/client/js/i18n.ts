@@ -9,11 +9,12 @@ const resources = {
   zh: { translation: zh },
 };
 
+const DEFAULT_LANG = "zh";
 const savedLng = typeof localStorage !== "undefined" ? localStorage.getItem("i18nextLng") : null;
 
 i18n.use(initReactI18next).init({
   resources,
-  lng: savedLng || "zh",
+  lng: savedLng || DEFAULT_LANG,
   fallbackLng: "en",
   interpolation: {
     escapeValue: false, // React already escapes

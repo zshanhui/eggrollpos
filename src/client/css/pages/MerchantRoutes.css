@@ -266,15 +266,27 @@
   display: flex;
   gap: 8px;
   overflow-x: auto;
+  overflow-y: hidden;
   -webkit-overflow-scrolling: touch;
   padding-bottom: 8px;
   min-height: 0;
+  min-width: 0; /* allow shrink so horizontal scroll works in flex/grid */
+  width: 100%;
   grid-column: 1 / -1;
+  overscroll-behavior-x: contain; /* prevent scroll chaining to parent on mobile */
 }
 
 .OrdersGrid__ready-scroll .OrderCard {
   flex: 0 0 min(180px, 40vw);
   min-width: 140px;
+}
+
+/* Mobile: smaller cards so more fit on screen, ensure scroll works */
+@media (max-width: 479px) {
+  .OrdersGrid__ready-scroll .OrderCard {
+    flex: 0 0 min(160px, 45vw);
+    min-width: 120px;
+  }
 }
 
 @media (min-width: 900px) {
