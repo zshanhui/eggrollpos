@@ -52,6 +52,8 @@ merchant:
   customer: "Customer"
   phone: "Phone"
   created: "Created"
+  orderPlaced: "Order Placed"
+  acceptOrder: "Accept Order"
   pickupIn: "Pickup In"
   orderItems: "Order Items"
   cancelReason: "Cancel Reason"

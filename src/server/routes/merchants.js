@@ -6,7 +6,7 @@ const Orders = require('../models/orders');
 const Merchants = require('../models/merchants');
 const MenuItems = require('../models/menu_items');
 const Modifiers = require('../models/modifiers');
-const {getNextStatus, canCancel, canRefund, Status} = require('../../shared/orders');
+const {getNextStatus, canCancel, Status} = require('../../shared/orders');
 
 router.get('/by-uuid/:uuid', async (req, res) => {
     const merchant = await Merchants.getByUuid(req.params.uuid);
@@ -22,12 +22,14 @@ router.get('/:merchantId/orders', async (req, res) => {
     if (!merchantId || parseInt(merchantId) != merchantId) {
         return res.sendStatus(400);
     }
+    const q = req.query;
+    const dateParam = q['date'] || q['Date'];
     const filter = {
-        startDate: req.query['startdate'],
-        endDate: req.query['enddate'],
-        status: req.query['status'],
-        limit: req.query['limit'],
-        offset: req.query['offset']
+        startDate: dateParam || q['startdate'] || q['startDate'],
+        endDate: dateParam || q['enddate'] || q['endDate'],
+        status: q['status'],
+        limit: q['limit'],
+        offset: q['offset']
     };
     const orders = await Actions.getMerchantOrders(merchantId, filter);
     if (orders) {

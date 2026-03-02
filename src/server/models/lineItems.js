@@ -5,14 +5,12 @@ const T = () => db('line_items');
 class LineItems {
   constructor(lineItems) { this.lineItems = lineItems }
 
-  static async create({orderId, menuItemId, comments, quantity}) {
+  static async create({orderId, menuItemId, quantity}) {
     const res = await T().insert({
       order_id: orderId,
       menu_item_id: menuItemId,
       quantity,
-      comments,
     }).returning('id');
-    console.log('Order.create res >> ', res);
     return res[0];
   }
 

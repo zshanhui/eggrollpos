@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Status, STATUS_LABELS, getNextStatus, canCancel, canRefund, ACTIVE_ORDER_STATUSES, COMPLETED_ORDER_STATUSES } from '../../../shared/orders';
+import { Status, STATUS_LABELS, getNextStatus, canCancel } from '../../../shared/orders';
 import type { OrderStatus, OrderType } from '../../../shared/orders';
 import LangSwitcher from '../components/LangSwitcher';
 import '../../css/pages/MerchantRoutes.css';
@@ -46,10 +46,10 @@ export default function MerchantRoutes(props: any) {
 
   if (error) {
     return (
-      <div className="Merchant" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
-        <div style={{ textAlign: 'center', color: '#FF1744' }}>
-          <div style={{ fontSize: '2rem', fontWeight: 700, marginBottom: 8 }}>{error}</div>
-          <div style={{ color: '#888' }}>{t('merchant.checkUuid')}</div>
+      <div className="Merchant Merchant__centered">
+        <div className="Merchant__error">
+          <div className="Merchant__error-title">{error}</div>
+          <div className="Merchant__error-hint">{t('merchant.checkUuid')}</div>
         </div>
       </div>
     );
@@ -57,7 +57,7 @@ export default function MerchantRoutes(props: any) {
 
   if (!merchant) {
     return (
-      <div className="Merchant" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', color: '#666', fontSize: '1.5rem' }}>
+      <div className="Merchant Merchant__centered Merchant__loading">
         {t('common.loading')}
       </div>
     );
@@ -87,34 +87,83 @@ export default function MerchantRoutes(props: any) {
 
 // ─── Orders List (Grid) ───
 
-type StatusFilter = 'all' | 'active' | 'completed' | 'canceled' | 'refunded' | OrderStatus;
+const MOBILE_BREAKPOINT = 600;
+
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < MOBILE_BREAKPOINT);
+  useEffect(() => {
+    const mq = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`);
+    const handler = () => setIsMobile(mq.matches);
+    mq.addEventListener('change', handler);
+    handler();
+    return () => mq.removeEventListener('change', handler);
+  }, []);
+  return isMobile;
+}
+
+const AWAITING_PREPARING_STATUSES: OrderStatus[] = [
+  Status.WAITING_FOR_ACCEPTANCE,
+  Status.ACCEPTED,
+  Status.PREPARING,
+];
+
+const READY_STATUSES: OrderStatus[] = [
+  Status.READY_FOR_PICKUP,
+  Status.READY_FOR_DELIVERY,
+  Status.DELIVERY_IN_PROGRESS,
+  Status.PICKUP_SUCCESS,
+  Status.DELIVERED,
+];
+
+type StatusFilter = 'active' | 'canceled_refunded';
+
+const FILTER_OPTIONS: { key: StatusFilter; label: string; colorClass: string }[] = [
+  { key: 'active', label: 'Active', colorClass: 'OrdersGrid__pill--active-color' },
+  { key: 'canceled_refunded', label: 'Canceled/Refunded', colorClass: 'OrdersGrid__pill--canceled-color' },
+];
+
+function todayISO() {
+  return new Date().toISOString().slice(0, 10);
+}
 
 function OrdersListPage({ merchantId, merchantName, merchantUuid, onSelectOrder, t }: { merchantId: number; merchantName: string; merchantUuid: string; onSelectOrder: (id: number) => void; t: (key: string) => string }) {
   const [orders, setOrders] = useState<any>(null);
-  const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>('active');
+  const [dateFilter, setDateFilter] = useState<string>(() => todayISO());
+  const isMobile = useIsMobile();
 
   useEffect(() => {
-    fetchApi(`/api/merchants/${merchantId}/orders`).then(setOrders);
-  }, [merchantId]);
+    const params = new URLSearchParams();
+    params.set('date', dateFilter);
+    fetchApi(`/api/merchants/${merchantId}/orders?${params}`).then(setOrders);
+  }, [merchantId, dateFilter]);
 
   const orderList = orders ? Object.values(orders) as any[] : [];
 
-  const filteredOrders = useMemo(() => {
-    if (statusFilter === 'all') return orderList;
-    if (statusFilter === 'active') return orderList.filter((o: any) => ACTIVE_ORDER_STATUSES.includes(o.status));
-    if (statusFilter === 'completed') return orderList.filter((o: any) => [Status.PICKUP_SUCCESS, Status.DELIVERED].includes(o.status));
-    if (statusFilter === 'canceled') return orderList.filter((o: any) => o.status === Status.CANCELED);
-    if (statusFilter === 'refunded') return orderList.filter((o: any) => o.status === Status.REFUNDED);
-    return orderList.filter((o: any) => o.status === statusFilter);
-  }, [orderList, statusFilter]);
+  const { awaitingPreparing, ready, canceledRefunded, orderCountToday } = useMemo(() => {
+    const sortFifo = (a: any, b: any) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+    const awaiting = orderList
+      .filter((o: any) => AWAITING_PREPARING_STATUSES.includes(o.status))
+      .sort(sortFifo);
+    const readyList = orderList
+      .filter((o: any) => READY_STATUSES.includes(o.status))
+      .sort(sortFifo);
+    const canceled = orderList.filter((o: any) => o.status === Status.CANCELED || o.status === Status.REFUNDED);
+    return {
+      awaitingPreparing: awaiting,
+      ready: readyList,
+      canceledRefunded: canceled,
+      orderCountToday: orderList.length,
+    };
+  }, [orderList]);
 
-  const filterPills: { key: StatusFilter; label: string }[] = [
-    { key: 'all', label: 'All' },
-    { key: 'active', label: 'Active' },
-    { key: 'completed', label: 'Done' },
-    { key: 'canceled', label: 'Canceled' },
-    { key: 'refunded', label: 'Refunded' },
-  ];
+  const filteredOrders = useMemo(() => {
+    if (statusFilter === 'active') return [...awaitingPreparing, ...ready];
+    return canceledRefunded;
+  }, [statusFilter, awaitingPreparing, ready, canceledRefunded]);
+
+  const displayAwaiting = statusFilter === 'active' ? awaitingPreparing : [];
+  const displayReady = statusFilter === 'active' ? ready : [];
 
   return (
     <div className="OrdersGrid OrdersGrid--with-header">
@@ -126,30 +175,83 @@ function OrdersListPage({ merchantId, merchantName, merchantUuid, onSelectOrder,
         </div>
       </div>
       <div className="OrdersGrid__filters">
-        {filterPills.map(({ key, label }) => (
-          <button
-            key={key}
-            className={`OrdersGrid__pill ${statusFilter === key ? 'OrdersGrid__pill--active' : ''}`}
-            onClick={() => setStatusFilter(key)}
+        <div className="OrdersGrid__date-row">
+          <input
+            type="date"
+            className="OrdersGrid__date-input"
+            value={dateFilter}
+            onChange={(e) => setDateFilter(e.target.value)}
+            aria-label="Filter orders by date"
+          />
+          <span className="OrdersGrid__order-count">
+            {orderCountToday} order{orderCountToday !== 1 ? 's' : ''} today
+          </span>
+        </div>
+        {isMobile ? (
+          <select
+            className="OrdersGrid__filter-dropdown"
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
+            aria-label="Filter orders by status"
           >
-            {label}
-          </button>
-        ))}
+            {FILTER_OPTIONS.map(({ key, label }) => (
+              <option key={key} value={key}>{label}</option>
+            ))}
+          </select>
+        ) : (
+          FILTER_OPTIONS.map(({ key, label, colorClass }) => (
+            <button
+              key={key}
+              className={`OrdersGrid__pill ${colorClass} ${statusFilter === key ? 'OrdersGrid__pill--active' : ''}`}
+              onClick={() => setStatusFilter(key)}
+            >
+              {label}
+            </button>
+          ))
+        )}
       </div>
       <div className="OrdersGrid__cards">
         {filteredOrders.length === 0 && orders !== null ? (
           <div className="OrdersGrid__empty">
-            {orderList.length === 0 ? t('merchant.noOrders') : t('merchant.noMatchingOrders', 'No orders match this filter')}
+            {orderList.length === 0 ? t('merchant.noOrders') : t('merchant.noMatchingOrders')}
           </div>
+        ) : statusFilter === 'active' ? (
+          <>
+            <div className="OrdersGrid__section OrdersGrid__section--awaiting">
+              {displayAwaiting.slice(0, 15).map((order: any) => (
+                <OrderCard
+                  key={order.orderId}
+                  order={order}
+                  onClick={() => onSelectOrder(order.orderId)}
+                  t={t}
+                />
+              ))}
+            </div>
+            <div className="OrdersGrid__section OrdersGrid__section--ready">
+              <div className="OrdersGrid__section-label">Ready</div>
+              <div className="OrdersGrid__ready-scroll">
+                {displayReady.map((order: any) => (
+                  <OrderCard
+                    key={order.orderId}
+                    order={order}
+                    onClick={() => onSelectOrder(order.orderId)}
+                    t={t}
+                  />
+                ))}
+              </div>
+            </div>
+          </>
         ) : (
-          filteredOrders.slice(0, 12).map((order: any) => (
-            <OrderCard
-              key={order.orderId}
-              order={order}
-              onClick={() => onSelectOrder(order.orderId)}
-              t={t}
-            />
-          ))
+          <div className="OrdersGrid__section OrdersGrid__section--canceled">
+            {canceledRefunded.map((order: any) => (
+              <OrderCard
+                key={order.orderId}
+                order={order}
+                onClick={() => onSelectOrder(order.orderId)}
+                t={t}
+              />
+            ))}
+          </div>
         )}
       </div>
     </div>
@@ -162,26 +264,40 @@ const OrderCard = React.memo(function OrderCard({ order, onClick, t }: { order: 
   const status: OrderStatus = order.status;
   const elapsed = getElapsed(order.createdAt, t);
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      onClick();
+    }
+  };
+
   return (
-    <div className={`OrderCard OrderCard--${status}`} onClick={onClick}>
+    <div
+      className={`OrderCard OrderCard--${status}`}
+      onClick={onClick}
+      onKeyDown={handleKeyDown}
+      role="button"
+      tabIndex={0}
+      aria-label={`View order #${order.displayNumber ?? order.orderId} from ${order.customerName}`}
+    >
       <div className="OrderCard__top">
-        <span className="OrderCard__orderNum">#{order.orderId}</span>
+        <span className="OrderCard__orderNum">#{order.displayNumber ?? order.orderId}</span>
         <span className="OrderCard__time">{elapsed}</span>
       </div>
-      <div className="OrderCard__customer">{order.customerName}</div>
       <div className="OrderCard__items">
-        {order.lineItems?.slice(0, 4).map((item: any, i: number) => (
+        {order.lineItems?.slice(0, 2).map((item: any, i: number) => (
           <div className="OrderCard__item" key={i}>
             <span className="OrderCard__item-qty">{item.quantity}×</span>
             <span>{item.name}</span>
           </div>
         ))}
-        {order.lineItems?.length > 4 && (
-          <div className="OrderCard__item" style={{ color: '#666' }}>
-            +{order.lineItems.length - 4} {t('merchant.moreItems')}
+        {order.lineItems?.length > 2 && (
+          <div className="OrderCard__item OrderCard__item-more">
+            +{order.lineItems.length - 2} {t('merchant.moreItems')}
           </div>
         )}
       </div>
+      <div className="OrderCard__customer">{order.customerName}</div>
       <div className="OrderCard__bottom">
         <span className={`OrderTypeTag OrderTypeTag--${order.orderType || 'pickup'}`}>
           {order.orderType === 'delivery' ? t('orderType.delivery') : t('orderType.pickup')}
@@ -199,7 +315,7 @@ const OrderCard = React.memo(function OrderCard({ order, onClick, t }: { order: 
 function OrderDetailPage({ merchantId, orderId, onBack, t }: { merchantId: number; orderId: number; onBack: () => void; t: (key: string) => string }) {
   const [order, setOrder] = useState<any>(null);
   const [loading, setLoading] = useState(false);
-  const [reasonModal, setReasonModal] = useState<'cancel' | 'refund' | null>(null);
+  const [reasonModal, setReasonModal] = useState<boolean>(false);
 
   const loadOrder = useCallback(() => {
     fetchApi(`/api/merchants/${merchantId}/orders/${orderId}`).then(setOrder);
@@ -220,19 +336,18 @@ function OrderDetailPage({ merchantId, orderId, onBack, t }: { merchantId: numbe
     setLoading(false);
   }, [order, loading, merchantId, loadOrder]);
 
-  const handleCancelOrRefund = useCallback(async (reason: string) => {
+  const handleCancel = useCallback(async (reason: string) => {
     if (!order || loading) return;
-    const status = reasonModal === 'cancel' ? Status.CANCELED : Status.REFUNDED;
     setLoading(true);
     await postApi(`/api/merchants/${merchantId}/orders`, {
       orderId: order.id,
-      status,
+      status: Status.REFUNDED,
       cancelReason: reason,
     });
-    setReasonModal(null);
+    setReasonModal(false);
     loadOrder();
     setLoading(false);
-  }, [order, loading, merchantId, reasonModal, loadOrder]);
+  }, [order, loading, merchantId, loadOrder]);
 
   if (!order) {
     return (
@@ -245,7 +360,9 @@ function OrderDetailPage({ merchantId, orderId, onBack, t }: { merchantId: numbe
   const status: OrderStatus = order.status;
   const orderType: OrderType = order.orderType || 'pickup';
   const nextStatus = getNextStatus(status, orderType);
-  const nextLabel = nextStatus ? t(`orderStatus.${nextStatus}`) : null;
+  const nextLabel = nextStatus
+    ? (nextStatus === Status.ACCEPTED ? t('merchant.acceptOrder') : t(`orderStatus.${nextStatus}`))
+    : null;
 
   const totalCents = order.lineItems?.reduce((sum: number, li: any) => {
     return sum + (parseInt(li.priceCents) * li.quantity);
@@ -261,7 +378,7 @@ function OrderDetailPage({ merchantId, orderId, onBack, t }: { merchantId: numbe
       </div>
 
       <div className="OrderDetail__header">
-        <span className="OrderDetail__orderNum">{t('merchant.orderNum', { id: order.id })}</span>
+        <span className="OrderDetail__orderNum">{t('merchant.orderNum', { id: order.displayNumber ?? order.id })}</span>
         <div className="OrderDetail__status">
           <span className={`OrderTypeTag OrderTypeTag--${orderType}`}>
             {orderType === 'delivery' ? t('orderType.delivery') : t('orderType.pickup')}
@@ -282,17 +399,22 @@ function OrderDetailPage({ merchantId, orderId, onBack, t }: { merchantId: numbe
           <span className="OrderDetail__meta-value">{order.mobilePhone || t('common.na')}</span>
         </div>
         <div className="OrderDetail__meta-item">
-          <span className="OrderDetail__meta-label">{t('merchant.created')}</span>
+          <span className="OrderDetail__meta-label">{t('merchant.orderPlaced')}</span>
           <span className="OrderDetail__meta-value">{new Date(order.createdAt).toLocaleTimeString()}</span>
         </div>
         <div className="OrderDetail__meta-item">
           <span className="OrderDetail__meta-label">{t('merchant.pickupIn')}</span>
           <span className="OrderDetail__meta-value">{order.pickupIn ? `${order.pickupIn} min` : t('common.na')}</span>
         </div>
+        {order.comments?.trim() && (
+          <div className="OrderDetail__meta-comment">
+            <span className="OrderDetail__meta-label">Note</span>
+            <span className="OrderDetail__meta-comment-text">{order.comments}</span>
+          </div>
+        )}
       </div>
 
       <div className="OrderDetail__items">
-        <h3>{t('merchant.orderItems')}</h3>
         <table className="OrderDetail__items-table">
           <thead>
             <tr>
@@ -307,24 +429,23 @@ function OrderDetailPage({ merchantId, orderId, onBack, t }: { merchantId: numbe
                 <td className="item-qty">{li.quantity}</td>
                 <td>
                   <div className="item-name">{li.name}</div>
-                  {li.comments && <div className="item-comment">{li.comments}</div>}
                 </td>
                 <td className="item-price">${((parseInt(li.priceCents) * li.quantity) / 100).toFixed(2)}</td>
               </tr>
             ))}
           </tbody>
         </table>
-        <div style={{ textAlign: 'right', marginTop: 16, fontSize: '1.3rem', fontWeight: 700, color: '#69F0AE' }}>
+        <div className="OrderDetail__total">
           {t('common.total')}: ${(totalCents / 100).toFixed(2)}
         </div>
       </div>
 
       {order.cancelReason && (
-        <div style={{ background: '#1a1a1a', borderRadius: 16, padding: 20, marginBottom: 32, borderLeft: '4px solid #FF1744' }}>
-          <div style={{ color: '#888', fontSize: '0.8rem', textTransform: 'uppercase' as const, letterSpacing: 1, marginBottom: 4 }}>
+        <div className="OrderDetail__cancel-reason">
+          <div className="OrderDetail__cancel-reason-label">
             {status === 'refunded' ? t('merchant.refundReason') : t('merchant.cancelReason')}
           </div>
-          <div style={{ color: '#fff', fontSize: '1.1rem' }}>{order.cancelReason}</div>
+          <div className="OrderDetail__cancel-reason-text">{order.cancelReason}</div>
         </div>
       )}
 
@@ -341,28 +462,18 @@ function OrderDetailPage({ merchantId, orderId, onBack, t }: { merchantId: numbe
         {canCancel(status) && (
           <button
             className="OrderDetail__action-btn OrderDetail__action-btn--cancel"
-            onClick={() => setReasonModal('cancel')}
+            onClick={() => setReasonModal(true)}
             disabled={loading}
           >
             {t('merchant.cancelOrder')}
-          </button>
-        )}
-        {canRefund(status) && (
-          <button
-            className="OrderDetail__action-btn OrderDetail__action-btn--refund"
-            onClick={() => setReasonModal('refund')}
-            disabled={loading}
-          >
-            {t('merchant.refund')}
           </button>
         )}
       </div>
 
       {reasonModal && (
         <ReasonModal
-          type={reasonModal}
-          onSubmit={handleCancelOrRefund}
-          onClose={() => setReasonModal(null)}
+          onSubmit={handleCancel}
+          onClose={() => setReasonModal(false)}
           t={t}
         />
       )}
@@ -372,8 +483,7 @@ function OrderDetailPage({ merchantId, orderId, onBack, t }: { merchantId: numbe
 
 // ─── Reason Modal ───
 
-function ReasonModal({ type, onSubmit, onClose, t }: {
-  type: 'cancel' | 'refund';
+function ReasonModal({ onSubmit, onClose, t }: {
   onSubmit: (reason: string) => void;
   onClose: () => void;
   t: (key: string) => string;
@@ -383,29 +493,27 @@ function ReasonModal({ type, onSubmit, onClose, t }: {
   return (
     <div className="ReasonModal__overlay" onClick={onClose}>
       <div className="ReasonModal" onClick={e => e.stopPropagation()}>
-        <h3>{type === 'cancel' ? t('merchant.cancelOrderTitle') : t('merchant.refundOrderTitle')}</h3>
+        <h3>{t('merchant.cancelOrderTitle')}</h3>
         <textarea
           className="ReasonModal__textarea"
-          placeholder={type === 'cancel' ? t('merchant.enterCancelReason') : t('merchant.enterRefundReason')}
+          placeholder={t('merchant.enterCancelReason')}
           value={reason}
           onChange={e => setReason(e.target.value)}
           autoFocus
         />
         <div className="ReasonModal__buttons">
           <button
-            className="OrderDetail__action-btn"
-            style={{ background: '#333', color: '#fff', padding: '12px 24px', fontSize: '1rem' }}
+            className="OrderDetail__action-btn ReasonModal__btn-back"
             onClick={onClose}
           >
             {t('merchant.goBack')}
           </button>
           <button
-            className={`OrderDetail__action-btn OrderDetail__action-btn--${type === 'cancel' ? 'cancel' : 'refund'}`}
-            style={{ padding: '12px 24px', fontSize: '1rem' }}
+            className="OrderDetail__action-btn OrderDetail__action-btn--cancel ReasonModal__btn-confirm"
             onClick={() => reason.trim() && onSubmit(reason.trim())}
             disabled={!reason.trim()}
           >
-            {type === 'cancel' ? t('merchant.confirmCancel') : t('merchant.confirmRefund')}
+            {t('merchant.confirmCancel')}
           </button>
         </div>
       </div>
