@@ -12,6 +12,44 @@
   touch-action: manipulation;
 }
 
+/* Light theme */
+.MerchantMenuItems--theme-light {
+  background: #f5f5f5;
+  color: #1a1a1a;
+}
+
+.MerchantMenuItems--theme-light .MerchantMenuItems__back,
+.MerchantMenuItems--theme-light .MerchantMenuItems__btn--secondary {
+  background: #fff;
+  border-color: #ccc;
+  color: #333;
+}
+
+.MerchantMenuItems--theme-light .MerchantMenuItems__list,
+.MerchantMenuItems--theme-light .MerchantMenuItems__form {
+  background: #fff;
+  border: 1px solid #e0e0e0;
+}
+
+.MerchantMenuItems--theme-light .MerchantMenuItems__cell-name,
+.MerchantMenuItems--theme-light .MerchantMenuItems__field label {
+  color: #333;
+}
+
+.MerchantMenuItems--theme-light .MerchantMenuItems__input {
+  background: #fafafa;
+  border-color: #ddd;
+  color: #1a1a1a;
+}
+
+.MerchantMenuItems__link--nav {
+  display: inline-flex;
+  align-items: center;
+  padding: 12px 16px;
+  text-decoration: none;
+  font-weight: 600;
+}
+
 .MerchantMenuItems__error {
   color: #ff1744;
   font-size: 1rem;

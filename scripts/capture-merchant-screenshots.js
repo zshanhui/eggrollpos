@@ -84,7 +84,33 @@ async function main() {
     });
     console.log('Saved: merchant-menu-item-add-mobile.png');
 
-    // Desktop view - orders list
+    // Merchant settings (dark theme)
+    await page.goto(`${BASE_URL}/merchant/${MERCHANT_UUID}/settings`, {
+      waitUntil: 'networkidle',
+      timeout: 15000,
+    });
+    await page.waitForSelector('.MerchantSettings', { timeout: 5000 });
+    await page.screenshot({
+      path: path.join(OUTPUT_DIR, 'merchant-settings-dark-mobile.png'),
+      fullPage: true,
+    });
+    console.log('Saved: merchant-settings-dark-mobile.png');
+
+    // Merchant settings (light theme) - switch theme first
+    const lightThemeBtn = await page.getByRole('button', { name: /light|浅色/i }).first();
+    try {
+      await lightThemeBtn.click();
+      await page.waitForTimeout(500);
+      await page.screenshot({
+        path: path.join(OUTPUT_DIR, 'merchant-settings-light-mobile.png'),
+        fullPage: true,
+      });
+      console.log('Saved: merchant-settings-light-mobile.png');
+    } catch {
+      console.log('Skipped: merchant-settings-light-mobile.png (theme button not found)');
+    }
+
+    // Desktop view - orders list (with Settings link)
     await page.setViewportSize({ width: 1280, height: 800 });
     await page.goto(`${BASE_URL}/merchant/${MERCHANT_UUID}`, {
       waitUntil: 'networkidle',
@@ -95,6 +121,18 @@ async function main() {
       path: path.join(OUTPUT_DIR, 'merchant-orders-list-desktop.png'),
     });
     console.log('Saved: merchant-orders-list-desktop.png');
+
+    // Merchant settings desktop
+    await page.goto(`${BASE_URL}/merchant/${MERCHANT_UUID}/settings`, {
+      waitUntil: 'networkidle',
+      timeout: 15000,
+    });
+    await page.waitForSelector('.MerchantSettings', { timeout: 5000 });
+    await page.screenshot({
+      path: path.join(OUTPUT_DIR, 'merchant-settings-desktop.png'),
+      fullPage: true,
+    });
+    console.log('Saved: merchant-settings-desktop.png');
 
     if (RECORD_VIDEO) {
       const video = page.video();
