@@ -1,9 +1,11 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 export default function About(props) {
+  const { t } = useTranslation();
   return(
     <section>
-      Welcome to the about page!
+      {t('about.welcome')}
     </section>
   )
 }

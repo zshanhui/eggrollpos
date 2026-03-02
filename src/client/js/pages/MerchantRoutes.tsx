@@ -1,6 +1,8 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Status, STATUS_LABELS, getNextStatus, canCancel, canRefund, ACTIVE_ORDER_STATUSES, COMPLETED_ORDER_STATUSES } from '../../../shared/orders';
 import type { OrderStatus, OrderType } from '../../../shared/orders';
+import LangSwitcher from '../components/LangSwitcher';
 import '../../css/pages/MerchantRoutes.css';
 
 function fetchApi(url: string) {
@@ -24,9 +26,11 @@ export default function MerchantRoutes(props: any) {
   const [error, setError] = useState<string | null>(null);
   const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
 
+  const { t } = useTranslation();
+
   useEffect(() => {
     if (!merchantUuid) {
-      setError('No merchant UUID provided');
+      setError(t('merchant.noUuid'));
       return;
     }
     fetchApi(`/api/merchants/by-uuid/${merchantUuid}`)
@@ -34,18 +38,18 @@ export default function MerchantRoutes(props: any) {
         if (data && data.id) {
           setMerchant(data);
         } else {
-          setError('Merchant not found');
+          setError(t('merchant.notFound'));
         }
       })
-      .catch(() => setError('Failed to load merchant'));
-  }, [merchantUuid]);
+      .catch(() => setError(t('merchant.loadFailed')));
+  }, [merchantUuid, t]);
 
   if (error) {
     return (
       <div className="Merchant" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
         <div style={{ textAlign: 'center', color: '#FF1744' }}>
           <div style={{ fontSize: '2rem', fontWeight: 700, marginBottom: 8 }}>{error}</div>
-          <div style={{ color: '#888' }}>Check the merchant UUID in the URL</div>
+          <div style={{ color: '#888' }}>{t('merchant.checkUuid')}</div>
         </div>
       </div>
     );
@@ -54,7 +58,7 @@ export default function MerchantRoutes(props: any) {
   if (!merchant) {
     return (
       <div className="Merchant" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', color: '#666', fontSize: '1.5rem' }}>
-        Loading...
+        {t('common.loading')}
       </div>
     );
   }
@@ -67,12 +71,14 @@ export default function MerchantRoutes(props: any) {
           merchantName={merchant.business_name}
           merchantUuid={merchantUuid}
           onSelectOrder={setSelectedOrderId}
+          t={t}
         />
       ) : (
         <OrderDetailPage
           merchantId={merchant.id}
           orderId={selectedOrderId}
           onBack={() => setSelectedOrderId(null)}
+          t={t}
         />
       )}
     </div>
@@ -83,7 +89,7 @@ export default function MerchantRoutes(props: any) {
 
 type StatusFilter = 'all' | 'active' | 'completed' | 'canceled' | 'refunded' | OrderStatus;
 
-function OrdersListPage({ merchantId, merchantName, merchantUuid, onSelectOrder }: { merchantId: number; merchantName: string; merchantUuid: string; onSelectOrder: (id: number) => void }) {
+function OrdersListPage({ merchantId, merchantName, merchantUuid, onSelectOrder, t }: { merchantId: number; merchantName: string; merchantUuid: string; onSelectOrder: (id: number) => void; t: (key: string) => string }) {
   const [orders, setOrders] = useState<any>(null);
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
 
@@ -113,9 +119,9 @@ function OrdersListPage({ merchantId, merchantName, merchantUuid, onSelectOrder 
   return (
     <div className="OrdersGrid OrdersGrid--with-header">
       <div className="OrdersGrid__header">
-        <h1 className="OrdersGrid__title">{merchantName}</h1>
+        <h1 className="OrdersGrid__title">{merchantName}<LangSwitcher /></h1>
         <div className="OrdersGrid__nav">
-          <a href={`/merchant/${merchantUuid}/menuitems`}>Menu</a>
+          <a href={`/merchant/${merchantUuid}/menuitems`}>{t('merchant.menu')}</a>
           <span className="OrdersGrid__count">{filteredOrders.length}</span>
         </div>
       </div>
@@ -133,7 +139,7 @@ function OrdersListPage({ merchantId, merchantName, merchantUuid, onSelectOrder 
       <div className="OrdersGrid__cards">
         {filteredOrders.length === 0 && orders !== null ? (
           <div className="OrdersGrid__empty">
-            {orderList.length === 0 ? 'No orders yet' : 'No orders match this filter'}
+            {orderList.length === 0 ? t('merchant.noOrders') : t('merchant.noMatchingOrders', 'No orders match this filter')}
           </div>
         ) : (
           filteredOrders.slice(0, 12).map((order: any) => (
@@ -141,6 +147,7 @@ function OrdersListPage({ merchantId, merchantName, merchantUuid, onSelectOrder 
               key={order.orderId}
               order={order}
               onClick={() => onSelectOrder(order.orderId)}
+              t={t}
             />
           ))
         )}
@@ -151,9 +158,9 @@ function OrdersListPage({ merchantId, merchantName, merchantUuid, onSelectOrder 
 
 // ─── Order Card (memoized for scroll perf on low-end devices) ───
 
-const OrderCard = React.memo(function OrderCard({ order, onClick }: { order: any; onClick: () => void }) {
+const OrderCard = React.memo(function OrderCard({ order, onClick, t }: { order: any; onClick: () => void; t: (key: string) => string }) {
   const status: OrderStatus = order.status;
-  const elapsed = getElapsed(order.createdAt);
+  const elapsed = getElapsed(order.createdAt, t);
 
   return (
     <div className={`OrderCard OrderCard--${status}`} onClick={onClick}>
@@ -171,16 +178,16 @@ const OrderCard = React.memo(function OrderCard({ order, onClick }: { order: any
         ))}
         {order.lineItems?.length > 4 && (
           <div className="OrderCard__item" style={{ color: '#666' }}>
-            +{order.lineItems.length - 4} more...
+            +{order.lineItems.length - 4} {t('merchant.moreItems')}
           </div>
         )}
       </div>
       <div className="OrderCard__bottom">
         <span className={`OrderTypeTag OrderTypeTag--${order.orderType || 'pickup'}`}>
-          {order.orderType === 'delivery' ? '🚗 Delivery' : '🏪 Pickup'}
+          {order.orderType === 'delivery' ? t('orderType.delivery') : t('orderType.pickup')}
         </span>
         <span className={`StatusBadge StatusBadge--${status}`}>
-          {STATUS_LABELS[status] || status}
+          {t(`orderStatus.${status}`) || status}
         </span>
       </div>
     </div>
@@ -189,7 +196,7 @@ const OrderCard = React.memo(function OrderCard({ order, onClick }: { order: any
 
 // ─── Order Detail Page ───
 
-function OrderDetailPage({ merchantId, orderId, onBack }: { merchantId: number; orderId: number; onBack: () => void }) {
+function OrderDetailPage({ merchantId, orderId, onBack, t }: { merchantId: number; orderId: number; onBack: () => void; t: (key: string) => string }) {
   const [order, setOrder] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [reasonModal, setReasonModal] = useState<'cancel' | 'refund' | null>(null);
@@ -230,7 +237,7 @@ function OrderDetailPage({ merchantId, orderId, onBack }: { merchantId: number; 
   if (!order) {
     return (
       <div className="OrderDetail" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', color: '#666' }}>
-        Loading...
+        {t('common.loading')}
       </div>
     );
   }
@@ -238,7 +245,7 @@ function OrderDetailPage({ merchantId, orderId, onBack }: { merchantId: number; 
   const status: OrderStatus = order.status;
   const orderType: OrderType = order.orderType || 'pickup';
   const nextStatus = getNextStatus(status, orderType);
-  const nextLabel = nextStatus ? STATUS_LABELS[nextStatus] : null;
+  const nextLabel = nextStatus ? t(`orderStatus.${nextStatus}`) : null;
 
   const totalCents = order.lineItems?.reduce((sum: number, li: any) => {
     return sum + (parseInt(li.priceCents) * li.quantity);
@@ -246,49 +253,52 @@ function OrderDetailPage({ merchantId, orderId, onBack }: { merchantId: number; 
 
   return (
     <div className="OrderDetail">
-      <button className="OrderDetail__back" onClick={onBack}>
-        ← Back to Orders
-      </button>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+        <button className="OrderDetail__back" onClick={onBack}>
+          {t('merchant.backToOrders')}
+        </button>
+        <LangSwitcher />
+      </div>
 
       <div className="OrderDetail__header">
-        <span className="OrderDetail__orderNum">Order #{order.id}</span>
+        <span className="OrderDetail__orderNum">{t('merchant.orderNum', { id: order.id })}</span>
         <div className="OrderDetail__status">
           <span className={`OrderTypeTag OrderTypeTag--${orderType}`}>
-            {orderType === 'delivery' ? '🚗 Delivery' : '🏪 Pickup'}
+            {orderType === 'delivery' ? t('orderType.delivery') : t('orderType.pickup')}
           </span>
           <span className={`StatusBadge StatusBadge--${status}`}>
-            {STATUS_LABELS[status] || status}
+            {t(`orderStatus.${status}`) || status}
           </span>
         </div>
       </div>
 
       <div className="OrderDetail__meta">
         <div className="OrderDetail__meta-item">
-          <span className="OrderDetail__meta-label">Customer</span>
+          <span className="OrderDetail__meta-label">{t('merchant.customer')}</span>
           <span className="OrderDetail__meta-value">{order.customerName}</span>
         </div>
         <div className="OrderDetail__meta-item">
-          <span className="OrderDetail__meta-label">Phone</span>
-          <span className="OrderDetail__meta-value">{order.mobilePhone || 'N/A'}</span>
+          <span className="OrderDetail__meta-label">{t('merchant.phone')}</span>
+          <span className="OrderDetail__meta-value">{order.mobilePhone || t('common.na')}</span>
         </div>
         <div className="OrderDetail__meta-item">
-          <span className="OrderDetail__meta-label">Created</span>
+          <span className="OrderDetail__meta-label">{t('merchant.created')}</span>
           <span className="OrderDetail__meta-value">{new Date(order.createdAt).toLocaleTimeString()}</span>
         </div>
         <div className="OrderDetail__meta-item">
-          <span className="OrderDetail__meta-label">Pickup In</span>
-          <span className="OrderDetail__meta-value">{order.pickupIn ? `${order.pickupIn} min` : 'N/A'}</span>
+          <span className="OrderDetail__meta-label">{t('merchant.pickupIn')}</span>
+          <span className="OrderDetail__meta-value">{order.pickupIn ? `${order.pickupIn} min` : t('common.na')}</span>
         </div>
       </div>
 
       <div className="OrderDetail__items">
-        <h3>Order Items</h3>
+        <h3>{t('merchant.orderItems')}</h3>
         <table className="OrderDetail__items-table">
           <thead>
             <tr>
-              <th>Qty</th>
-              <th>Item</th>
-              <th style={{ textAlign: 'right' }}>Price</th>
+              <th>{t('common.qty')}</th>
+              <th>{t('common.item')}</th>
+              <th style={{ textAlign: 'right' }}>{t('common.price')}</th>
             </tr>
           </thead>
           <tbody>
@@ -305,14 +315,14 @@ function OrderDetailPage({ merchantId, orderId, onBack }: { merchantId: number; 
           </tbody>
         </table>
         <div style={{ textAlign: 'right', marginTop: 16, fontSize: '1.3rem', fontWeight: 700, color: '#69F0AE' }}>
-          Total: ${(totalCents / 100).toFixed(2)}
+          {t('common.total')}: ${(totalCents / 100).toFixed(2)}
         </div>
       </div>
 
       {order.cancelReason && (
         <div style={{ background: '#1a1a1a', borderRadius: 16, padding: 20, marginBottom: 32, borderLeft: '4px solid #FF1744' }}>
           <div style={{ color: '#888', fontSize: '0.8rem', textTransform: 'uppercase' as const, letterSpacing: 1, marginBottom: 4 }}>
-            {status === 'refunded' ? 'Refund Reason' : 'Cancel Reason'}
+            {status === 'refunded' ? t('merchant.refundReason') : t('merchant.cancelReason')}
           </div>
           <div style={{ color: '#fff', fontSize: '1.1rem' }}>{order.cancelReason}</div>
         </div>
@@ -334,7 +344,7 @@ function OrderDetailPage({ merchantId, orderId, onBack }: { merchantId: number; 
             onClick={() => setReasonModal('cancel')}
             disabled={loading}
           >
-            Cancel Order
+            {t('merchant.cancelOrder')}
           </button>
         )}
         {canRefund(status) && (
@@ -343,7 +353,7 @@ function OrderDetailPage({ merchantId, orderId, onBack }: { merchantId: number; 
             onClick={() => setReasonModal('refund')}
             disabled={loading}
           >
-            Refund
+            {t('merchant.refund')}
           </button>
         )}
       </div>
@@ -353,6 +363,7 @@ function OrderDetailPage({ merchantId, orderId, onBack }: { merchantId: number; 
           type={reasonModal}
           onSubmit={handleCancelOrRefund}
           onClose={() => setReasonModal(null)}
+          t={t}
         />
       )}
     </div>
@@ -361,20 +372,21 @@ function OrderDetailPage({ merchantId, orderId, onBack }: { merchantId: number; 
 
 // ─── Reason Modal ───
 
-function ReasonModal({ type, onSubmit, onClose }: {
+function ReasonModal({ type, onSubmit, onClose, t }: {
   type: 'cancel' | 'refund';
   onSubmit: (reason: string) => void;
   onClose: () => void;
+  t: (key: string) => string;
 }) {
   const [reason, setReason] = useState('');
 
   return (
     <div className="ReasonModal__overlay" onClick={onClose}>
       <div className="ReasonModal" onClick={e => e.stopPropagation()}>
-        <h3>{type === 'cancel' ? '❌ Cancel Order' : '💰 Refund Order'}</h3>
+        <h3>{type === 'cancel' ? t('merchant.cancelOrderTitle') : t('merchant.refundOrderTitle')}</h3>
         <textarea
           className="ReasonModal__textarea"
-          placeholder={`Enter ${type} reason...`}
+          placeholder={type === 'cancel' ? t('merchant.enterCancelReason') : t('merchant.enterRefundReason')}
           value={reason}
           onChange={e => setReason(e.target.value)}
           autoFocus
@@ -385,7 +397,7 @@ function ReasonModal({ type, onSubmit, onClose }: {
             style={{ background: '#333', color: '#fff', padding: '12px 24px', fontSize: '1rem' }}
             onClick={onClose}
           >
-            Go Back
+            {t('merchant.goBack')}
           </button>
           <button
             className={`OrderDetail__action-btn OrderDetail__action-btn--${type === 'cancel' ? 'cancel' : 'refund'}`}
@@ -393,7 +405,7 @@ function ReasonModal({ type, onSubmit, onClose }: {
             onClick={() => reason.trim() && onSubmit(reason.trim())}
             disabled={!reason.trim()}
           >
-            Confirm {type === 'cancel' ? 'Cancel' : 'Refund'}
+            {type === 'cancel' ? t('merchant.confirmCancel') : t('merchant.confirmRefund')}
           </button>
         </div>
       </div>
@@ -403,11 +415,11 @@ function ReasonModal({ type, onSubmit, onClose }: {
 
 // ─── Helpers ───
 
-function getElapsed(createdAt: string): string {
+function getElapsed(createdAt: string, t: (key: string) => string): string {
   if (!createdAt) return '';
   const diff = Date.now() - new Date(createdAt).getTime();
   const mins = Math.floor(diff / 60000);
-  if (mins < 1) return 'Just now';
+  if (mins < 1) return t('time.justNow');
   if (mins < 60) return `${mins}m`;
   const hrs = Math.floor(mins / 60);
   return `${hrs}h ${mins % 60}m`;
