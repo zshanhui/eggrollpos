@@ -68,7 +68,7 @@ class ReceiptInner extends React.Component<{ id: string } & WithTranslation> {
                 <Col xs={6}>
                   <Row>
                     <Col>
-                      <p><span className="font-weight-bold">{item.name}</span>{item.comments && ' (' + item.comments + ')'}</p>
+                      <p><span className="font-weight-bold">{item.name}</span></p>
                     </Col>
                   </Row>
                 </Col>

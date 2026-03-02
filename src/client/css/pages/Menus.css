@@ -77,13 +77,25 @@
 .MenuPageActions {
   position: fixed;
   display: flex;
-  flex-direction: row;
-  justify-content: space-around;
-  align-items: center;
+  flex-direction: column;
+  gap: 0.5rem;
   bottom: 0;
   left: 0;
   width: 100vw;
   padding: 1rem;
   background: #fff;
   z-index: 10;
+}
+
+.MenuPageActions__comments-input {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 0.9rem;
+}
+
+.MenuPageActions__comments-input:focus {
+  outline: none;
+  border-color: #6f42c1;
 }

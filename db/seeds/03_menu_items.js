@@ -17,12 +17,17 @@ exports.seed = function(knex) {
         {id: 9,  merchant_id: 2, name: 'Spring Rolls (4)',    description: 'Crispy vegetable spring rolls',                price_cents: 650},
         {id: 10, merchant_id: 2, name: 'Fried Rice',          description: 'Egg fried rice with peas and carrots',         price_cents: 1050},
 
-        // Alice Merchant 3 — fast casual
-        {id: 11, merchant_id: 3, name: 'Chicken Bowl',        description: 'Grilled chicken, rice, black beans, corn',     price_cents: 1175},
-        {id: 12, merchant_id: 3, name: 'Veggie Wrap',         description: 'Hummus, roasted veggies, feta, spinach',       price_cents: 1025},
-        {id: 13, merchant_id: 3, name: 'Steak Burrito',       description: 'Grilled steak, guac, sour cream, cheese',      price_cents: 1350},
-        {id: 14, merchant_id: 3, name: 'Sweet Potato Fries',  description: 'Crispy with chipotle aioli',                   price_cents: 550},
-        {id: 15, merchant_id: 3, name: 'Mango Smoothie',      description: 'Mango, banana, coconut milk',                  price_cents: 625},
+        // Eastern Express — Chinese takeout (merchant 3)
+        {id: 11, merchant_id: 3, name: 'General Tso\'s Chicken', description: 'Crispy chicken in sweet spicy sauce',        price_cents: 1295},
+        {id: 12, merchant_id: 3, name: 'Chicken Fried Rice',    description: 'Wok-fried rice with egg and vegetables',       price_cents: 995},
+        {id: 13, merchant_id: 3, name: 'Beef with Broccoli',     description: 'Tender beef and broccoli in brown sauce',     price_cents: 1395},
+        {id: 14, merchant_id: 3, name: 'Vegetable Lo Mein',       description: 'Stir-fried noodles with mixed vegetables',     price_cents: 995},
+        {id: 15, merchant_id: 3, name: 'Egg Roll (2)',           description: 'Crispy pork and vegetable egg rolls',          price_cents: 495},
+        {id: 16, merchant_id: 3, name: 'Wonton Soup',            description: 'Pork wontons in clear broth',                 price_cents: 595},
+        {id: 17, merchant_id: 3, name: 'Sweet and Sour Chicken', description: 'Breaded chicken with sweet and sour sauce',  price_cents: 1195},
+        {id: 18, merchant_id: 3, name: 'Kung Pao Shrimp',        description: 'Shrimp with peanuts and peppers',            price_cents: 1495},
+        {id: 19, merchant_id: 3, name: 'Hot and Sour Soup',     description: 'Spicy and tangy with tofu and mushrooms',    price_cents: 495},
+        {id: 20, merchant_id: 3, name: 'Steamed Dumplings (6)',  description: 'Pork dumplings with soy ginger dipping',      price_cents: 695},
       ]);
     });
 };

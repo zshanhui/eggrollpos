@@ -62,9 +62,10 @@ export const removeLineItem = async (lineItemId) => {
   // @todo: implement remove line item API
 }
 
-export const completeAddingLineItems = async (orderUuid) => {
+export const completeAddingLineItems = async (orderUuid, comments = '') => {
   const response = await fetchResource(ORDER_ADD_COMPLETE_URL, createPostBodyRequest({
     orderUuid,
+    comments,
   }));
   return response;
 }

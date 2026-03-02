@@ -4,7 +4,7 @@
  * Requires dev servers to be running: ./dev.sh --sqlite (or pnpm run dev)
  *
  * Usage: pnpm run screenshots:i18n
- * Output: docs/screenshots/i18n-*.png
+ * Output: docs/screenshots/i18n-*.jpg
  */
 
 const { chromium } = require('playwright');
@@ -20,7 +20,7 @@ async function main() {
 
   const contextOptions = {
     viewport: { width: 1280, height: 800 },
-    deviceScaleFactor: 2,
+    deviceScaleFactor: 1,
     locale: 'zh-CN',
   };
 
@@ -39,26 +39,32 @@ async function main() {
     await page.goto(`${BASE_URL}/`, { waitUntil: 'networkidle', timeout: 15000 });
     await page.waitForSelector('.hero', { timeout: 5000 });
     await page.screenshot({
-      path: path.join(OUTPUT_DIR, 'i18n-home-landing.png'),
+      path: path.join(OUTPUT_DIR, 'i18n-home-landing.jpg'),
+      type: 'jpeg',
+      quality: 65,
       fullPage: true,
     });
-    console.log('Saved: i18n-home-landing.png');
+    console.log('Saved: i18n-home-landing.jpg');
 
     // 2. About page
     await page.goto(`${BASE_URL}/about`, { waitUntil: 'networkidle', timeout: 15000 });
     await page.screenshot({
-      path: path.join(OUTPUT_DIR, 'i18n-about.png'),
+      path: path.join(OUTPUT_DIR, 'i18n-about.jpg'),
+      type: 'jpeg',
+      quality: 65,
       fullPage: true,
     });
-    console.log('Saved: i18n-about.png');
+    console.log('Saved: i18n-about.jpg');
 
     // 3. Customer order online
     await page.goto(`${BASE_URL}/order-online/3`, { waitUntil: 'networkidle', timeout: 15000 });
     await page.screenshot({
-      path: path.join(OUTPUT_DIR, 'i18n-customer-order-online.png'),
+      path: path.join(OUTPUT_DIR, 'i18n-customer-order-online.jpg'),
+      type: 'jpeg',
+      quality: 65,
       fullPage: true,
     });
-    console.log('Saved: i18n-customer-order-online.png');
+    console.log('Saved: i18n-customer-order-online.jpg');
 
     // 4. Merchant orders list
     await page.goto(`${BASE_URL}/merchant/${MERCHANT_UUID}`, {
@@ -67,10 +73,12 @@ async function main() {
     });
     await page.waitForSelector('.OrdersGrid', { timeout: 5000 });
     await page.screenshot({
-      path: path.join(OUTPUT_DIR, 'i18n-merchant-orders-list.png'),
+      path: path.join(OUTPUT_DIR, 'i18n-merchant-orders-list.jpg'),
+      type: 'jpeg',
+      quality: 65,
       fullPage: true,
     });
-    console.log('Saved: i18n-merchant-orders-list.png');
+    console.log('Saved: i18n-merchant-orders-list.jpg');
 
     // 5. Merchant order detail (click first order if exists)
     const orderCard = await page.$('.OrderCard');
@@ -79,12 +87,14 @@ async function main() {
       await page.waitForSelector('.OrderDetail', { timeout: 5000 });
       await page.waitForTimeout(300);
       await page.screenshot({
-        path: path.join(OUTPUT_DIR, 'i18n-merchant-order-detail.png'),
+        path: path.join(OUTPUT_DIR, 'i18n-merchant-order-detail.jpg'),
+        type: 'jpeg',
+        quality: 65,
         fullPage: true,
       });
-      console.log('Saved: i18n-merchant-order-detail.png');
+      console.log('Saved: i18n-merchant-order-detail.jpg');
     } else {
-      console.log('Skipped: i18n-merchant-order-detail.png (no orders)');
+      console.log('Skipped: i18n-merchant-order-detail.jpg (no orders)');
     }
 
     // 6. Merchant menu items list
@@ -94,10 +104,12 @@ async function main() {
     });
     await page.waitForSelector('.MerchantMenuItems', { timeout: 5000 });
     await page.screenshot({
-      path: path.join(OUTPUT_DIR, 'i18n-merchant-menu-items.png'),
+      path: path.join(OUTPUT_DIR, 'i18n-merchant-menu-items.jpg'),
+      type: 'jpeg',
+      quality: 65,
       fullPage: true,
     });
-    console.log('Saved: i18n-merchant-menu-items.png');
+    console.log('Saved: i18n-merchant-menu-items.jpg');
 
     // 7. Merchant add menu item form
     await page.goto(`${BASE_URL}/merchant/${MERCHANT_UUID}/menuitems/add`, {
@@ -106,10 +118,12 @@ async function main() {
     });
     await page.waitForSelector('.MerchantMenuItems__form', { timeout: 5000 });
     await page.screenshot({
-      path: path.join(OUTPUT_DIR, 'i18n-merchant-add-menu-item.png'),
+      path: path.join(OUTPUT_DIR, 'i18n-merchant-add-menu-item.jpg'),
+      type: 'jpeg',
+      quality: 65,
       fullPage: true,
     });
-    console.log('Saved: i18n-merchant-add-menu-item.png');
+    console.log('Saved: i18n-merchant-add-menu-item.jpg');
 
     // 8. Modifiers modal (open from menu items)
     await page.goto(`${BASE_URL}/merchant/${MERCHANT_UUID}/menuitems`, {
@@ -123,11 +137,13 @@ async function main() {
       await page.waitForSelector('.ModifiersModal', { timeout: 5000 });
       await page.waitForTimeout(300);
       await page.screenshot({
-        path: path.join(OUTPUT_DIR, 'i18n-merchant-modifiers-modal.png'),
+        path: path.join(OUTPUT_DIR, 'i18n-merchant-modifiers-modal.jpg'),
+        type: 'jpeg',
+        quality: 65,
       });
-      console.log('Saved: i18n-merchant-modifiers-modal.png');
+      console.log('Saved: i18n-merchant-modifiers-modal.jpg');
     } catch {
-      console.log('Skipped: i18n-merchant-modifiers-modal.png (button not found)');
+      console.log('Skipped: i18n-merchant-modifiers-modal.jpg (button not found)');
     }
 
     // 9. Mobile view - home
@@ -135,10 +151,12 @@ async function main() {
     await page.goto(`${BASE_URL}/`, { waitUntil: 'networkidle', timeout: 15000 });
     await page.waitForSelector('.hero', { timeout: 5000 });
     await page.screenshot({
-      path: path.join(OUTPUT_DIR, 'i18n-home-mobile.png'),
+      path: path.join(OUTPUT_DIR, 'i18n-home-mobile.jpg'),
+      type: 'jpeg',
+      quality: 65,
       fullPage: true,
     });
-    console.log('Saved: i18n-home-mobile.png');
+    console.log('Saved: i18n-home-mobile.jpg');
 
     console.log('');
     console.log('Screenshots saved to docs/screenshots/');

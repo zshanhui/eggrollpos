@@ -42,7 +42,7 @@ export const COMPLETED_ORDER_STATUSES: OrderStatus[] = [
 ];
 
 export const STATUS_LABELS: Record<OrderStatus, string> = {
-  waiting_for_acceptance: "Waiting for Acceptance",
+  waiting_for_acceptance: "New Order",
   accepted: "Order Accepted",
   preparing: "Preparing",
   ready_for_pickup: "Ready for Pickup",
@@ -78,11 +78,8 @@ export function getNextStatus(currentStatus: OrderStatus, orderType: OrderType):
   return transitions[currentStatus] || null;
 }
 
+/** Cancel is available for any non-terminal order. Cancel automatically refunds. */
 export function canCancel(status: OrderStatus): boolean {
-  return status === "waiting_for_acceptance";
-}
-
-export function canRefund(status: OrderStatus): boolean {
   return !["canceled", "refunded"].includes(status);
 }
 

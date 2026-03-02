@@ -45,10 +45,14 @@ class Order {
     const pickupEtaExpr = isSqlite
       ? `datetime(orders.confirmed_at, '+' || orders.pickup_in || ' minutes') as pickup_eta`
       : `orders.confirmed_at + (orders.pickup_in * interval '1 minute') as pickup_eta`;
+    const dateExpr = isSqlite ? 'date(orders.created_at)' : '(orders.created_at)::date';
+    const dateExprO2 = isSqlite ? 'date(o2.created_at)' : '(o2.created_at)::date';
+    const displayNumberExpr = `(SELECT COUNT(*) FROM orders o2 WHERE o2.merchant_id = orders.merchant_id AND ${dateExprO2} = ${dateExpr} AND o2.id <= orders.id) as display_number`;
 
     let query = db
       .with('t1', db.raw(`
           select orders.id as order_id
+          , ${displayNumberExpr}
           , orders.uuid as uuid
           , orders.merchant_id
           , orders.customer_id
@@ -59,8 +63,9 @@ class Order {
           , orders.status
           , orders.order_type
           , orders.cancel_reason
+          , orders.comments
+          , orders.ready_at
           , line_items.id as line_item_id
-          , line_items.comments
           , line_items.quantity
           , menu_items.id as menu_item_id
           , menu_items.name as menu_item_name
@@ -78,14 +83,29 @@ class Order {
       .where('merchant_id', merchantId);
 
     if (filter.startDate) {
-      query = query.andWhere('created_at', '>=', filter.startDate);
+      if (isSqlite) {
+        query = query.andWhereRaw('date(created_at) >= date(?)', [filter.startDate]);
+      } else {
+        query = query.andWhereRaw('(created_at)::date >= ?::date', [filter.startDate]);
+      }
     }
     if (filter.endDate) {
-      query = query.andWhere('created_at', '<=', filter.endDate);
+      if (isSqlite) {
+        query = query.andWhereRaw('date(created_at) <= date(?)', [filter.endDate]);
+      } else {
+        query = query.andWhereRaw('(created_at)::date <= ?::date', [filter.endDate]);
+      }
     }
 
     if (filter.status) {
-      query = query.andWhere("status", filter.status);
+      const validStatuses = [
+        Status.WAITING_FOR_ACCEPTANCE, Status.ACCEPTED, Status.PREPARING,
+        Status.READY_FOR_PICKUP, Status.READY_FOR_DELIVERY, Status.PICKUP_SUCCESS,
+        Status.DELIVERY_IN_PROGRESS, Status.DELIVERED, Status.CANCELED, Status.REFUNDED
+      ];
+      if (validStatuses.includes(filter.status)) {
+        query = query.andWhere('status', filter.status);
+      }
     }
     const res = await query.orderBy('created_at', 'desc');
     return this._groupMenuItemsByOrder(camelcaseKeys(res));
@@ -106,6 +126,9 @@ class Order {
     if (params.status === Status.ACCEPTED) {
       params.accepted_at = db.fn.now();
     }
+    if (params.status === Status.READY_FOR_PICKUP || params.status === Status.READY_FOR_DELIVERY) {
+      params.ready_at = db.fn.now();
+    }
 
     const res = await Table()
       .update({...params})
@@ -122,8 +145,18 @@ class Order {
   }
 
   static async getDetailWithID(id) {
+    const isSqlite = db.client.config.client === 'sqlite3';
+    const dateExpr = isSqlite ? 'date(orders.created_at)' : '(orders.created_at)::date';
+    const dateExprO2 = isSqlite ? 'date(o2.created_at)' : '(o2.created_at)::date';
+
     const order = await Table()
-      .select('orders.*', 'customers.name as customer_name', 'customers.mobile_phone', 'merchants.business_name as merchant_name')
+      .select(
+        'orders.*',
+        'customers.name as customer_name',
+        'customers.mobile_phone',
+        'merchants.business_name as merchant_name',
+        db.raw(`(SELECT COUNT(*) FROM orders o2 WHERE o2.merchant_id = orders.merchant_id AND ${dateExprO2} = ${dateExpr} AND o2.id <= orders.id) as display_number`)
+      )
       .join('customers', {'orders.customer_id': 'customers.id'})
       .join('merchants', {'orders.merchant_id': 'merchants.id'})
       .where('orders.id', id)
@@ -182,7 +215,6 @@ class Order {
     order.forEach(ord => {
       const lineItem = {
         id: ord.lineItemId,
-        comments: ord.comments,
         quantity: ord.quantity,
         menuItemId: ord.menuItemId,
         name: ord.menuItemName,
@@ -197,7 +229,6 @@ class Order {
           lineItems: [lineItem],
         };
         delete grouped[ord.uuid].lineItemId;
-        delete grouped[ord.uuid].comments;
         delete grouped[ord.uuid].quantity;
         delete grouped[ord.uuid].menuItemName;
         delete grouped[ord.uuid].menuItemDescription;
