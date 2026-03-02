@@ -25,7 +25,7 @@ async function getMerchantOrders(merchantId, filter) {
   }
 }
 
-async function addOrderLineItem({orderUuid, menuItemId, comments = '', quantity}) {
+async function addOrderLineItem({orderUuid, menuItemId, quantity}) {
   if (!orderUuid || !menuItemId || !quantity) {
     return null;
   }
@@ -40,7 +40,6 @@ async function addOrderLineItem({orderUuid, menuItemId, comments = '', quantity}
     orderId: order.id,
     menuItemId,
     quantity,
-    comments: comments,
   });
 
   return results;
@@ -87,6 +86,7 @@ async function verifyOrderLineItemsCompleted(orderUuid) {
   return {
     lineItems,
     customer,
+    order,
   }
 }
 

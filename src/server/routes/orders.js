@@ -25,7 +25,7 @@ router.get('/:uuid', async (req, res) => {
 });
 
 router.post('/lineitems', async (req, res) => {
-  const params = _.pick(req.body, ['orderUuid', 'menuItemId', 'quantity', 'comments']);
+  const params = _.pick(req.body, ['orderUuid', 'menuItemId', 'quantity']);
   if (!params.orderUuid || !params.menuItemId || Number(params.quantity) < 1 || Number(params.quantity) > 10) {
     console.error('Missing one of required params: orderUuid, lineItemId, quantity');
     res.sendStatus(500);
@@ -38,11 +38,15 @@ router.post('/lineitems', async (req, res) => {
 
 router.post('/complete', async (req, res) => {
   const orderUuid = req.body.orderUuid;
+  const comments = req.body.comments || '';
   if (!orderUuid) {
     res.sendStatus(500);
   }
 
-  const {lineItems, customer} = await Actions.verifyOrderLineItemsCompleted(orderUuid);
+  const {lineItems, customer, order} = await Actions.verifyOrderLineItemsCompleted(orderUuid);
+  if (comments.trim() && order && order.id) {
+    await Orders.update(order.id, { comments: comments.trim() });
+  }
   res.sendStatus(200);
 });
 

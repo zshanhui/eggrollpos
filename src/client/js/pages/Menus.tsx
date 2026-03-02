@@ -119,13 +119,24 @@ function MenuItem({ orderUuid, item }) {
 }
 
 function PageActions({orderUuid, t}) {
+  const [comments, setComments] = useState('');
+
   const closeWebView = () => {
-    completeAddingLineItems(orderUuid);
+    completeAddingLineItems(orderUuid, comments);
   }
 
   return <footer className="MenuPageActions">
     <div>
       <span className="MenuPageActions__price">{t('menus.orderTotal')}: $99.99</span>
+    </div>
+    <div className="MenuPageActions__comments">
+      <input
+        type="text"
+        placeholder="Special instructions or notes..."
+        value={comments}
+        onChange={(e) => setComments(e.target.value)}
+        className="MenuPageActions__comments-input"
+      />
     </div>
     <div>
       <Button
@@ -147,7 +158,6 @@ function MenuItemOptions({ orderUuid, menuItem, handleClose, show }) {
     const res = await createLineItem({
       orderUuid,
       menuItemId: menuItem.id,
-      comments: '',
       quantity,
     });
 

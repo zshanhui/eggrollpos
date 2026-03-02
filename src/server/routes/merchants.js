@@ -80,12 +80,14 @@ router.get('/:merchantId/orders', async (req, res) => {
     if (!merchantId || parseInt(merchantId) != merchantId) {
         return res.sendStatus(400);
     }
+    const q = req.query;
+    const dateParam = q['date'] || q['Date'];
     const filter = {
-        startDate: req.query['startdate'],
-        endDate: req.query['enddate'],
-        status: req.query['status'],
-        limit: req.query['limit'],
-        offset: req.query['offset']
+        startDate: dateParam || q['startdate'] || q['startDate'],
+        endDate: dateParam || q['enddate'] || q['endDate'],
+        status: q['status'],
+        limit: q['limit'],
+        offset: q['offset']
     };
     const orders = await Actions.getMerchantOrders(merchantId, filter);
     if (orders) {
