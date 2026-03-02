@@ -15,7 +15,8 @@
     "test": "mocha specs/**/*",
     "create-merchant": "node scripts/create-merchant.js",
     "screenshots:merchant": "node scripts/capture-merchant-screenshots.js",
-    "screenshots:i18n": "node scripts/capture-i18n-screenshots.js"
+    "screenshots:i18n": "node scripts/capture-i18n-screenshots.js",
+    "screenshots:landing": "node scripts/capture-landing-screenshots.js"
   },
   "engines": {
     "node": ">=22.14.0"

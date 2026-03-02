@@ -1,0 +1,218 @@
+/* Landing page - warm restaurant aesthetic */
+.LandingPage {
+  --landing-bg: #faf8f5;
+  --landing-cream: #f5f0e8;
+  --landing-coral: #c45c3e;
+  --landing-coral-dark: #a84a2f;
+  --landing-forest: #2d4a3e;
+  --landing-charcoal: #1a1a1a;
+  --landing-muted: #6b6b6b;
+  font-family: "DM Sans", -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.LandingPage__header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  padding: 1rem 1.5rem;
+  background: rgba(250, 248, 245, 0.95);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid rgba(45, 74, 62, 0.08);
+}
+
+.LandingPage__lang {
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.LandingPage__lang button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  margin-left: 0.5rem;
+  color: var(--landing-muted);
+}
+
+.LandingPage__lang button:hover,
+.LandingPage__lang button[data-active="true"] {
+  color: var(--landing-coral);
+}
+
+.LandingPage__lang button[data-active="true"] {
+  font-weight: 700;
+}
+
+/* Hero section */
+.LandingPage__hero {
+  padding: 6rem 1.5rem 4rem;
+  background: linear-gradient(180deg, var(--landing-bg) 0%, var(--landing-cream) 100%);
+  text-align: center;
+}
+
+.LandingPage__hero-title {
+  font-size: clamp(2rem, 5vw, 3.25rem);
+  font-weight: 700;
+  color: var(--landing-charcoal);
+  line-height: 1.2;
+  max-width: 640px;
+  margin: 0 auto 1rem;
+}
+
+.LandingPage__hero-sub {
+  font-size: 1.125rem;
+  color: var(--landing-muted);
+  max-width: 520px;
+  margin: 0 auto 2.5rem;
+}
+
+/* Benefits section */
+.LandingPage__benefits {
+  padding: 4rem 1.5rem;
+  background: var(--landing-bg);
+}
+
+.LandingPage__section-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--landing-charcoal);
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.LandingPage__benefits-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.LandingPage__benefit {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(45, 74, 62, 0.06);
+}
+
+.LandingPage__benefit-img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 8px;
+  background: var(--landing-cream);
+}
+
+.LandingPage__benefit-title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--landing-forest);
+  margin: 1rem 0 0.5rem;
+}
+
+.LandingPage__benefit-desc {
+  font-size: 0.9375rem;
+  color: var(--landing-muted);
+  line-height: 1.5;
+}
+
+/* Pricing section */
+.LandingPage__pricing {
+  padding: 4rem 1.5rem;
+  background: var(--landing-cream);
+}
+
+.LandingPage__pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.5rem;
+  max-width: 700px;
+  margin: 0 auto;
+  justify-content: center;
+}
+
+.LandingPage__plan {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  text-align: center;
+  border: 2px solid transparent;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.LandingPage__plan--featured {
+  border-color: var(--landing-coral);
+  box-shadow: 0 4px 20px rgba(196, 92, 62, 0.15);
+}
+
+.LandingPage__plan-name {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--landing-forest);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.LandingPage__plan-price {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--landing-charcoal);
+  margin: 0.5rem 0;
+}
+
+.LandingPage__plan-price span {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--landing-muted);
+}
+
+.LandingPage__plan-desc {
+  font-size: 0.875rem;
+  color: var(--landing-muted);
+}
+
+/* Contact section */
+.LandingPage__contact {
+  padding: 4rem 1.5rem;
+  background: var(--landing-bg);
+}
+
+.LandingPage__contact-inner {
+  max-width: 560px;
+  margin: 0 auto;
+}
+
+.LandingPage__contact-form .form-group {
+  margin-bottom: 1.25rem;
+}
+
+.LandingPage__contact-form .form-control {
+  border-radius: 8px;
+  border: 1px solid rgba(45, 74, 62, 0.2);
+  padding: 0.75rem 1rem;
+}
+
+.LandingPage__contact-form .form-control:focus {
+  border-color: var(--landing-coral);
+  box-shadow: 0 0 0 3px rgba(196, 92, 62, 0.15);
+}
+
+.LandingPage__contact-form .btn-primary {
+  background: var(--landing-coral);
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+.LandingPage__contact-form .btn-primary:hover {
+  background: var(--landing-coral-dark);
+}
+
+/* Ensure body scroll works with fixed header */
+body {
+  padding-top: 0;
+}

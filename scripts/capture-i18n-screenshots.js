@@ -37,7 +37,7 @@ async function main() {
   try {
     // 1. Home landing (Chinese hero + contact form)
     await page.goto(`${BASE_URL}/`, { waitUntil: 'networkidle', timeout: 15000 });
-    await page.waitForSelector('.hero', { timeout: 5000 });
+    await page.waitForSelector('.LandingPage', { timeout: 5000 });
     await page.screenshot({
       path: path.join(OUTPUT_DIR, 'i18n-home-landing.png'),
       fullPage: true,
@@ -133,7 +133,7 @@ async function main() {
     // 9. Mobile view - home
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto(`${BASE_URL}/`, { waitUntil: 'networkidle', timeout: 15000 });
-    await page.waitForSelector('.hero', { timeout: 5000 });
+    await page.waitForSelector('.LandingPage', { timeout: 5000 });
     await page.screenshot({
       path: path.join(OUTPUT_DIR, 'i18n-home-mobile.png'),
       fullPage: true,
