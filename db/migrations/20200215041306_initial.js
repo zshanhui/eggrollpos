@@ -11,7 +11,7 @@ exports.up = function(knex) {
   })
   .createTable('customers', t => {
     t.increments()
-    t.string('psid') // used to send messages to fb-messenger
+    t.string('psid')
     t.string('name')
     t.timestamp('created_at').defaultTo(knex.fn.now())
   })
