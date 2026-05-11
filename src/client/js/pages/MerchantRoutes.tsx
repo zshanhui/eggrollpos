@@ -33,7 +33,7 @@ export default function MerchantRoutes(props: any) {
       setError(t('merchant.noUuid'));
       return;
     }
-    fetchApi(`/api/merchants/by-uuid/${merchantUuid}`)
+    fetchApi(`/api/merchants/${merchantUuid}`)
       .then(data => {
         if (data && data.id) {
           setMerchant(data);

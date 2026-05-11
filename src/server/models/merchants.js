@@ -52,7 +52,7 @@ class Merchants {
   static async getByZip(zipCode) {
     return await T()
       .select()
-      .where('postal_code', zipCode);
+      .where('address_postal_code', zipCode);
   }
 
   static async  customers(id) {

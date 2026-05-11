@@ -32,7 +32,7 @@ export default function MerchantSettings(props: any) {
       setError(t('merchant.noUuid'));
       return;
     }
-    fetchApi(`/api/merchants/by-uuid/${merchantUuid}`)
+    fetchApi(`/api/merchants/${merchantUuid}`)
       .then((data) => {
         if (data && data.id) setMerchant(data);
         else setError(t('merchant.notFound'));
@@ -83,7 +83,7 @@ function SettingsForm({
   const [businessName, setBusinessName] = useState(merchant.business_name || '');
   const [taxId, setTaxId] = useState(merchant.tax_id || '');
   const [whatsappNumber, setWhatsappNumber] = useState(merchant.whatsapp_number || '');
-  const [address, setAddress] = useState(merchant.address || '');
+  const [addressStreet, setAddressStreet] = useState(merchant.address_street || '');
   const [theme, setTheme] = useState<'light' | 'dark'>(merchant.theme === 'light' ? 'light' : 'dark');
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
@@ -92,7 +92,7 @@ function SettingsForm({
     setBusinessName(merchant.business_name || '');
     setTaxId(merchant.tax_id || '');
     setWhatsappNumber(merchant.whatsapp_number || '');
-    setAddress(merchant.address || '');
+    setAddressStreet(merchant.address_street || '');
     setTheme(merchant.theme === 'light' ? 'light' : 'dark');
   }, [merchant]);
 
@@ -128,7 +128,7 @@ function SettingsForm({
         businessName: businessName.trim(),
         taxId: taxId.trim() || null,
         whatsappNumber: whatsappNumber.trim() || null,
-        address: address.trim() || null,
+        addressStreet: addressStreet.trim() || null,
       });
       onSave(data.merchant);
     } catch (err) {
@@ -201,8 +201,8 @@ function SettingsForm({
             <label htmlFor="address">{t('merchant.businessAddress')}</label>
             <textarea
               id="address"
-              value={address}
-              onChange={(e) => setAddress(e.target.value)}
+              value={addressStreet}
+              onChange={(e) => setAddressStreet(e.target.value)}
               className="MerchantSettings__input MerchantSettings__textarea"
               rows={3}
               placeholder={t('merchant.businessAddressPlaceholder')}
