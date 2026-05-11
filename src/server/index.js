@@ -9,6 +9,7 @@ const ReactRouter = require("./routes/index");
 const leadsRouter = require("./routes/leads");
 const merchantsRouter = require("./routes/merchants");
 const ordersRouter = require("./routes/orders");
+const { publicRouter: menusPublicRouter } = require("./routes/menus");
 
 const Actions = require("./services/actions");
 
@@ -30,6 +31,7 @@ app.use("/assets", express.static(path.join(__dirname, "../../dist/assets")));
 app.use("/api/contact", leadsRouter);
 app.use("/api/merchants", merchantsRouter);
 app.use("/api/orders", ordersRouter);
+app.use("/api/menus", menusPublicRouter);
 
 app.get("/r/:receiptId", async (req, res) => {
   const receiptId = req.params.receiptId;

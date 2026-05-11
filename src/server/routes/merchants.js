@@ -7,6 +7,7 @@ const Merchants = require('../models/merchants');
 const MenuItems = require('../models/menu_items');
 const Modifiers = require('../models/modifiers');
 const {getNextStatus, canCancel, canRefund, Status} = require('../../shared/orders');
+const { adminRouter: menusRouter } = require('./menus');
 
 /**
  * @typedef {import('../../shared/merchants').MerchantRow} MerchantRow
@@ -327,5 +328,8 @@ router.delete('/:merchantId/modifiers/:modifierId', async (req, res) => {
     await Modifiers.delete(modifierId);
     res.status(204).send();
 });
+
+// Menu management CRUD (under /api/merchants/:merchantId/menus)
+router.use('/:merchantId/menus', menusRouter);
 
 module.exports = router;
