@@ -5,14 +5,14 @@
   "main": "src/server/index.js",
   "scripts": {
     "start": "node ./bin/www",
-    "dev": "concurrently \"vite\" \"NODE_ENV=development DEBUG=sqc_app* nodemon ./bin/www\"",
+    "dev": "concurrently \"vite\" \"NODE_ENV=development DEBUG=sqc_app* nodemon --exec tsx --ext js,ts,json ./bin/www\"",
     "build": "vite build",
     "build:image": "vite build && cp -r src/client/assets/images/* dist/assets/",
     "build:server": "tsc --project tsconfig.server.json",
     "build:all": "npm run build && npm run build:server",
     "preview": "vite preview",
     "type-check": "tsc --noEmit",
-    "test": "mocha specs/**/*",
+    "test": "DB_CLIENT=sqlite3 DB_FILENAME=test.db NODE_ENV=development mocha specs/**/*",
     "create-merchant": "node scripts/create-merchant.js",
     "screenshots:merchant": "node scripts/capture-merchant-screenshots.js",
     "screenshots:i18n": "node scripts/capture-i18n-screenshots.js"

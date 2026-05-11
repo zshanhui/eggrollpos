@@ -7,7 +7,6 @@
     "allowImportingTsExtensions": false,
     "noEmit": false,
     "outDir": "./dist-server",
-    "rootDir": "./src/server",
     "jsx": "react-jsx",
     "types": ["node"]
   },

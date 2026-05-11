@@ -1,80 +1,77 @@
-const db = require('./db');
+import db from './db';
+import type { MerchantRow, MerchantCreateParams, MerchantUpdateParams } from '../../shared/merchants';
 
 const T = () => db('merchants');
 
 class Merchants {
-  constructor(merchants) { this.merchants = merchants }
+  merchants: MerchantRow[];
 
-  static async list() {
-    // @todo: list all merchants for admin or nearby merchants
+  constructor(merchants: MerchantRow[]) {
+    this.merchants = merchants;
+  }
+
+  static async list(): Promise<MerchantRow[]> {
     return T().select();
   }
 
-  static async get(id) {
-    const res = await T()
+  static async get(id: number): Promise<MerchantRow | undefined> {
+    return T()
       .select()
       .where('id', id)
       .first();
-    return res;
   }
 
-  static async getByUuid(uuid) {
-    return await T()
+  static async getByUuid(uuid: string): Promise<MerchantRow | undefined> {
+    return T()
       .select()
       .where('uuid', uuid)
       .first();
   }
 
-  static async getByHash(mhash) {
-    const res = await T()
+  static async getByHash(mhash: string): Promise<MerchantRow | undefined> {
+    return T()
       .select()
       .where('mhash', mhash)
       .first();
-    return res;
   }
 
   /**
    * Create merchant. For admin use only — do NOT expose via API or UI.
    * Use: pnpm run create-merchant "Business Name"
    */
-  static async create(params) {
+  static async create(params: MerchantCreateParams): Promise<number[]> {
     return T().insert(params).returning('id');
   }
 
-  static async update(id, params) {
+  static async update(id: number, params: MerchantUpdateParams): Promise<number[]> {
     console.log(`Updating merchant ${id} with `, params);
-    return await T()
+    return T()
       .update(params)
       .where('id', id)
       .returning('id');
   }
 
-  static async getByZip(zipCode) {
-    return await T()
+  static async getByZip(zipCode: string): Promise<MerchantRow[]> {
+    return T()
       .select()
       .where('address_postal_code', zipCode);
   }
 
-  static async  customers(id) {
-    const res = await T()
+  static async customers(id: number): Promise<any[]> {
+    return T()
       .select('customers.*')
       .joinRaw('LEFT JOIN orders ON merchants.id = orders.merchant_id')
       .joinRaw('LEFT JOIN customers on orders.customer_id = customers.id')
       .where('merchants.id', id)
       .distinct();
-
-    return res;
   }
 
-  static async orders(id, filter) {
-    // @todo: implement filters {date_range, status}
-    const res = await T()
+  static async orders(id: number, filter?: Record<string, any>): Promise<any[]> {
+    return T()
       .select('orders.*')
       .joinRaw('LEFT JOIN orders ON merchants.id = orders.merchant_id')
       .where('merchants.id', id);
-
-    return res;
   }
 }
 
-module.exports = Merchants;
+export = Merchants;

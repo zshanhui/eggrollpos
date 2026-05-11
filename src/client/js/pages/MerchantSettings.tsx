@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import LangSwitcher from '../components/LangSwitcher';
+import type { MerchantRow } from '../../../shared/merchants';
 import '../../css/pages/MerchantSettings.css';
 
 function fetchApi(url: string) {
@@ -24,7 +25,7 @@ export default function MerchantSettings(props: any) {
   const { t } = useTranslation();
   const merchantUuid = props.match?.params?.uuid;
 
-  const [merchant, setMerchant] = useState<any>(null);
+  const [merchant, setMerchant] = useState<MerchantRow | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -74,10 +75,10 @@ function SettingsForm({
   onSave,
   t,
 }: {
-  merchant: any;
+  merchant: MerchantRow;
   merchantUuid: string;
   onBack: () => void;
-  onSave: (merchant: any) => void;
+  onSave: (merchant: MerchantRow) => void;
   t: (key: string) => string;
 }) {
   const [businessName, setBusinessName] = useState(merchant.business_name || '');

@@ -8,6 +8,11 @@ const MenuItems = require('../models/menu_items');
 const Modifiers = require('../models/modifiers');
 const {getNextStatus, canCancel, canRefund, Status} = require('../../shared/orders');
 
+/**
+ * @typedef {import('../../shared/merchants').MerchantRow} MerchantRow
+ * @typedef {import('../../shared/merchants').MerchantTheme} MerchantTheme
+ */
+
 // Lookup by numeric ID or UUID
 router.get('/:param', async (req, res) => {
     const param = req.params.param;
@@ -24,6 +29,11 @@ router.get('/:param', async (req, res) => {
 
 // ─── Merchant Settings (business info, theme) ───
 
+/**
+ * Normalize PATCH/PUT body accepting both camelCase and snake_case keys.
+ * @param {Record<string, any> | undefined} body
+ * @returns {{ businessName?: string; taxId?: string; whatsappNumber?: string; addressStreet?: string; theme?: import('../../shared/merchants').MerchantTheme }}
+ */
 function normalizeMerchantSettingsBody(body) {
     if (!body) return {};
     return {

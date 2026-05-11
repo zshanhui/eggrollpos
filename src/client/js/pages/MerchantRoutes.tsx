@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Status, getNextStatus, canCancel, canRefund } from '../../../shared/orders';
 import type { OrderStatus, OrderType } from '../../../shared/orders';
+import type { MerchantRow } from '../../../shared/merchants';
 import LangSwitcher from '../components/LangSwitcher';
 import '../../css/pages/MerchantRoutes.css';
 
@@ -22,7 +23,7 @@ function postApi(url: string, body: any) {
 
 export default function MerchantRoutes(props: any) {
   const merchantUuid = props.match?.params?.uuid;
-  const [merchant, setMerchant] = useState<any>(null);
+  const [merchant, setMerchant] = useState<MerchantRow | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
 

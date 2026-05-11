@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import LangSwitcher from '../components/LangSwitcher';
+import type { MerchantRow, MerchantTheme } from '../../../shared/merchants';
 import '../../css/pages/MerchantMenuItems.css';
 
 function fetchApi(url: string) {
@@ -50,7 +51,7 @@ export default function MerchantMenuItems(props: any) {
   const isAdd = props.location?.pathname?.endsWith('/add');
   const isEdit = menuItemId != null && !isAdd;
 
-  const [merchant, setMerchant] = useState<any>(null);
+  const [merchant, setMerchant] = useState<MerchantRow | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -127,7 +128,7 @@ function MenuItemsList({
   onBack,
   t,
 }: {
-  merchant: any;
+  merchant: MerchantRow;
   merchantUuid: string;
   history: any;
   onAddClick: () => void;
@@ -287,7 +288,7 @@ function ModifiersModal({
   onSaved,
   t,
 }: {
-  merchant: any;
+  merchant: MerchantRow;
   modifiers: any[];
   onClose: () => void;
   onSaved: () => void;
@@ -455,7 +456,7 @@ function MenuItemForm({
   onSuccess,
   t,
 }: {
-  merchant: any;
+  merchant: MerchantRow;
   menuItemId?: number;
   onBack: () => void;
   onSuccess: () => void;
