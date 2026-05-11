@@ -60,7 +60,7 @@ export default function MerchantSettings(props: any) {
     <SettingsForm
       merchant={merchant}
       merchantUuid={merchantUuid}
-      onBack={() => props.history.push(`/merchant/${merchantUuid}`)}
+      onBack={() => props.history.push(`/merchant-dashboard/${merchantUuid}`)}
       onSave={(updated) => setMerchant(updated)}
       t={t}
     />
@@ -150,7 +150,7 @@ function SettingsForm({
           {t('merchant.settings')} <LangSwitcher />
         </h1>
         <div className="MerchantSettings__nav">
-          <a href={`/merchant/${merchantUuid}/menuitems`}>{t('merchant.menu')}</a>
+          <a href={`/merchant-dashboard/${merchantUuid}/menuitems`}>{t('merchant.menu')}</a>
         </div>
       </header>
 

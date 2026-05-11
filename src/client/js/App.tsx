@@ -35,13 +35,13 @@ function App() {
         <Route path="/receipts/:id" exact component={Pages.Receipts} />
 
         {/* Merchant POS dashboard — UUID identifies the merchant */}
-        <Route path="/merchant/:uuid" exact component={Pages.MerchantRoutes} />
+        <Route path="/merchant-dashboard/:uuid" exact component={Pages.MerchantRoutes} />
 
         {/* Merchant menu items management */}
-        <Route path="/merchant/:uuid/menuitems/add" exact component={Pages.MerchantMenuItems} />
-        <Route path="/merchant/:uuid/menuitems/:menuItemId/edit" exact component={Pages.MerchantMenuItems} />
-        <Route path="/merchant/:uuid/menuitems" exact component={Pages.MerchantMenuItems} />
-        <Route path="/merchant/:uuid/settings" exact component={Pages.MerchantSettings} />
+        <Route path="/merchant-dashboard/:uuid/menuitems/add" exact component={Pages.MerchantMenuItems} />
+        <Route path="/merchant-dashboard/:uuid/menuitems/:menuItemId/edit" exact component={Pages.MerchantMenuItems} />
+        <Route path="/merchant-dashboard/:uuid/menuitems" exact component={Pages.MerchantMenuItems} />
+        <Route path="/merchant-dashboard/:uuid/settings" exact component={Pages.MerchantSettings} />
 
         {/* Customer online ordering — scoped to a specific merchant */}
         <Route path="/order-online/:merchantId" exact component={Pages.CustomerRoutes} />

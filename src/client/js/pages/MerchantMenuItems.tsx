@@ -86,8 +86,8 @@ export default function MerchantMenuItems(props: any) {
     return (
       <MenuItemForm
         merchant={merchant}
-        onBack={() => props.history.push(`/merchant/${merchantUuid}/menuitems`)}
-        onSuccess={() => props.history.push(`/merchant/${merchantUuid}/menuitems`)}
+        onBack={() => props.history.push(`/merchant-dashboard/${merchantUuid}/menuitems`)}
+        onSuccess={() => props.history.push(`/merchant-dashboard/${merchantUuid}/menuitems`)}
         t={t}
       />
     );
@@ -98,8 +98,8 @@ export default function MerchantMenuItems(props: any) {
       <MenuItemForm
         merchant={merchant}
         menuItemId={parseInt(menuItemId, 10)}
-        onBack={() => props.history.push(`/merchant/${merchantUuid}/menuitems`)}
-        onSuccess={() => props.history.push(`/merchant/${merchantUuid}/menuitems`)}
+        onBack={() => props.history.push(`/merchant-dashboard/${merchantUuid}/menuitems`)}
+        onSuccess={() => props.history.push(`/merchant-dashboard/${merchantUuid}/menuitems`)}
         t={t}
       />
     );
@@ -110,8 +110,8 @@ export default function MerchantMenuItems(props: any) {
       merchant={merchant}
       merchantUuid={merchantUuid}
       history={props.history}
-      onAddClick={() => props.history.push(`/merchant/${merchantUuid}/menuitems/add`)}
-      onBack={() => props.history.push(`/merchant/${merchantUuid}`)}
+      onAddClick={() => props.history.push(`/merchant-dashboard/${merchantUuid}/menuitems/add`)}
+      onBack={() => props.history.push(`/merchant-dashboard/${merchantUuid}`)}
       t={t}
     />
   );
@@ -180,7 +180,7 @@ function MenuItemsList({
         </button>
         <h1 className="MerchantMenuItems__title">{merchant.business_name} — {t('merchant.menuItems')} <LangSwitcher /></h1>
         <div className="MerchantMenuItems__actions">
-          <a href={`/merchant/${merchantUuid}/settings`} className="MerchantMenuItems__link MerchantMenuItems__link--nav">
+          <a href={`/merchant-dashboard/${merchantUuid}/settings`} className="MerchantMenuItems__link MerchantMenuItems__link--nav">
             {t('merchant.settings')}
           </a>
           <button
@@ -242,7 +242,7 @@ function MenuItemsList({
                     <button
                       type="button"
                       className="MerchantMenuItems__link"
-                      onClick={() => history.push(`/merchant/${merchantUuid}/menuitems/${item.id}/edit`)}
+                      onClick={() => history.push(`/merchant-dashboard/${merchantUuid}/menuitems/${item.id}/edit`)}
                     >
                       {t('common.edit')}
                     </button>
