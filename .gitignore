@@ -6,3 +6,6 @@ examples/
 .env
 APPLICATION.md
 .vscode/settings.json
+.claude/
+dist-server/
+eggroll-pos/
