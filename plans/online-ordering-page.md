@@ -27,13 +27,11 @@ on a mobile-first single page.
 
 **Slug generation logic:**
 ```
-merchant_slug = slugify(merchant.business_name + " " + merchant.address_city + " " + merchant.address_postal_code)
-menu_slug    = merchant.merchant_slug + "-" + slugify(menu.name)
+menu_slug = slugify(merchant.business_name + "-" + merchant.address_city + "-" + merchant.address_postal_code + "-" + menu.name)
 ```
-- `merchant_slug` is computed once when the merchant is created and stored on `merchants` (section 1.3). It is immutable.
-- Menu slug = `<merchant_slug>-<menu-name-slugified>`. Example: `instep-cafe-new-york-10001-lunch-menu`
+- Example: `instep-cafe-new-york-10001-lunch-menu`
 - Normalize: lowercase, replace spaces with hyphens, strip special chars
-- `merchant_slug` uses `address_city` and `address_postal_code` — both explicit fields, NOT parsed from the free-text `address_street`
+- Uses `address_city` and `address_postal_code` — both explicit fields, NOT parsed from the free-text `address_street`
 - On collision, append `-2`, `-3`, etc. (enforced by DB UNIQUE constraint + application retry)
 - Menu slug is immutable after creation
 
@@ -48,12 +46,11 @@ Maps which menu items belong to which menu (many-to-many).
 | `sort_order` | integer, default 0 | Controls display order within the menu |
 | PK | (`menu_id`, `menu_item_id`) | Composite primary key |
 
-### 1.3 New columns on `merchants`
+### 1.3 Columns on `merchants` (all already added by prerequisite migrations)
 
 | Column | Type | Notes |
 |--------|------|-------|
-| `merchant_slug` | string, unique, nullable | Stable slug derived from merchant identity. Used in menu slug generation and as a human-readable identifier for the public online ordering page URL. The merchant admin dashboard continues to use UUID (`/merchant/:uuid`). |
-| `address_city` | string, nullable | Set explicitly by the merchant. Required for slug dedup. NOT parsed from free-text address. |
+| `address_city` | string, nullable | Set explicitly by the merchant. Used in slug generation. NOT parsed from free-text address. |
 | `address_state` | string, nullable | Set explicitly by the merchant. For address consistency. |
 | `timezone` | string, default `'UTC'` | IANA timezone identifier (e.g. `"America/New_York"`, `"Asia/Kuala_Lumpur"`). Used to convert business hours for display and `currently_open` calculation. |
 
@@ -304,7 +301,6 @@ The existing `/order-online/:merchantId` placeholder route gets replaced by slug
 ### Step 1: Database migration
 - Create `menus` table
 - Create `menu_menu_items` junction table
-- Add `merchant_slug` column to `merchants`
 - `address_city`, `address_state`, `address_*` renames, `image_url`, and `timezone` already handled in prerequisite migrations (see section 7)
 
 ### Step 2: Server-side models
@@ -345,7 +341,6 @@ The existing `/order-online/:merchantId` placeholder route gets replaced by slug
 | `db/migrations/20260401000002_rename_address_columns.js` | ✅ Done | Rename `address`→`address_street`, `postal_code`→`address_postal_code` |
 | `db/migrations/20260401000003_add_timezone_to_merchants.js` | ✅ Done | Add `timezone` column (IANA, default UTC) for business hours conversion |
 | `db/migrations/<timestamp>_create_menus.js` | Create | Migration for `menus` table + `menu_menu_items` junction |
-| `db/migrations/<timestamp>_add_merchant_slug.js` | Create | Migration for `merchant_slug` column on `merchants` |
 | `db/seeds/07_menus.js` | Create | Seed data |
 | `src/server/models/menus.js` | Create | Menus model |
 | `src/server/routes/menus.js` | Create | Menu API routes |
