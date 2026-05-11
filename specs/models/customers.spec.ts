@@ -17,10 +17,6 @@ describe('Customers', () => {
     await resetCustomers();
   });
 
-  after(async () => {
-    await db.destroy();
-  });
-
   // ─── create ───
 
   describe('create', () => {

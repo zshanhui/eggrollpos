@@ -46,10 +46,6 @@ describe('Menus', () => {
     ]);
   });
 
-  after(async () => {
-    await db.destroy();
-  });
-
   // ─── create ───
 
   describe('create', () => {
