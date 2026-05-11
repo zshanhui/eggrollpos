@@ -13,24 +13,29 @@ const btnStyle = (active: boolean) => ({
   fontSize: '0.85rem',
 });
 
+const LANGS = [
+  { code: 'en', flag: '🇬🇧', label: 'EN' },
+  { code: 'zh', flag: '🇨🇳', label: '中文' },
+  { code: 'ms', flag: '🇲🇾', label: 'BM' },
+];
+
 export default function LangSwitcher() {
   const { i18n } = useTranslation();
   return (
     <span style={{ marginLeft: 8, display: 'inline-flex', alignItems: 'center' }}>
-      <button
-        type="button"
-        onClick={() => i18n.changeLanguage('zh')}
-        style={btnStyle(i18n.language === 'zh')}
-      >
-        中文
-      </button>
-      <button
-        type="button"
-        onClick={() => i18n.changeLanguage('en')}
-        style={{ ...btnStyle(i18n.language === 'en'), marginRight: 0 }}
-      >
-        EN
-      </button>
+      {LANGS.map(({ code, flag, label }, i) => (
+        <button
+          key={code}
+          type="button"
+          onClick={() => i18n.changeLanguage(code)}
+          style={{
+            ...btnStyle(i18n.language === code),
+            ...(i === LANGS.length - 1 ? { marginRight: 0 } : {}),
+          }}
+        >
+          {flag} {label}
+        </button>
+      ))}
     </span>
   );
 }

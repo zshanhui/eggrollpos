@@ -7,7 +7,7 @@ export default function ContactForm(props) {
   return (
     <Container className="contact-form">
       <Row>
-        <Col sm={12} md={8}>
+        <Col sm={12} md={8} className="mx-auto">
           <Form method="POST" action="/api/contact">
             <h3>{t('home.betaTitle')}</h3>
             <Form.Group controlId="ContactForm.Name">
@@ -18,15 +18,22 @@ export default function ContactForm(props) {
               <Form.Label>{t('home.contactEmail')}</Form.Label>
               <Form.Control name="email" type="email" placeholder={t('home.contactEmailPlaceholder')} />
             </Form.Group>
-            <Form.Group controlId="ContactForm.Website">
-              <Form.Label>{t('home.contactWebsite')}</Form.Label>
-              <Form.Control name="website" type="text" placeholder={t('home.contactWebsitePlaceholder')} />
-            </Form.Group>
             <Form.Group controlId="ContactForm.Description">
               <Form.Label>{t('home.contactDescription')}</Form.Label>
               <Form.Control name="description" as="textarea" rows="5" />
             </Form.Group>
-            <Button variant="primary" type="submit">
+            <Button
+              type="submit"
+              block
+              style={{
+                fontWeight: 700,
+                background: '#ff6b35',
+                borderColor: '#ff6b35',
+                color: '#fff',
+                padding: '12px 0',
+                fontSize: '1.05rem',
+              }}
+            >
               {t('home.submit')}
             </Button>
           </Form>

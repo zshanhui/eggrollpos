@@ -3,10 +3,12 @@ import { initReactI18next } from "react-i18next";
 
 import en from "../locales/en.yaml";
 import zh from "../locales/zh.yaml";
+import ms from "../locales/ms.yaml";
 
 const resources = {
   en: { translation: en },
   zh: { translation: zh },
+  ms: { translation: ms },
 };
 
 const savedLng = typeof localStorage !== "undefined" ? localStorage.getItem("i18nextLng") : null;
