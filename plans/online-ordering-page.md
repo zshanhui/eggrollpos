@@ -4,7 +4,7 @@
 
 Merchants can create **named menus** (collections of menu items), generate a
 **public slug** for that menu, and toggle it on/off with optional **business hours**.
-Customers visit a unique URL (`/order-online/:slug`) to browse the menu catalog
+Customers visit a unique URL (`/online-ordering/:slug`) to browse the menu catalog
 on a mobile-first single page.
 
 ---
@@ -172,7 +172,7 @@ Only returns `menuItems` where `is_active = true`, ordered by `sort_order ASC, n
 
 | Path | Component | Description |
 |------|-----------|-------------|
-| `/order-online/:slug` | `OnlineMenu` | Mobile-first menu catalog SPA |
+| `/online-ordering/:slug` | `OnlineMenu` | Mobile-first menu catalog SPA |
 | `/order-online/:slug/checkout` | `CheckoutPlaceholder` | "Your payment method and QR codes here..." |
 
 The existing `/order-online/:merchantId` placeholder route gets replaced by slug-based routing.
@@ -318,7 +318,7 @@ The existing `/order-online/:merchantId` placeholder route gets replaced by slug
 
 ### Step 4: Client-side customer page 🔜
 - `OnlineMenu` component at `src/client/js/pages/OnlineMenu.tsx`
-- CSS at `src/client/css/pages/OnlineMenu.css`
+- Styled with **Tailwind CSS v4** (via `@tailwindcss/vite` plugin) — no BEM or Bootstrap
 - Replace `CustomerRoutes` placeholder with the real component
 - Add checkout placeholder page
 

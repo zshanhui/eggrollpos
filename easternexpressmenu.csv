@@ -1,0 +1,244 @@
+category,item,price
+Spice Level Addition,Medium中辣,$0.00
+Spice Level Addition,Mild不辣,$0.00
+Spice Level Addition,Spicy辣,$0.00
+Chicken Lunch Special,L 1. General Tso's Chicken 左宗鸡,$9.95
+Chicken Lunch Special,L 2. Chicken w. Broccoli 芥兰鸡,$9.95
+Chicken Lunch Special,L 3. Moo Goo Gai Pan Chicken 蘑菇鸡片,$9.95
+Chicken Lunch Special,L 4. Sweet & Sour Chicken 甜酸鸡,$9.95
+Chicken Lunch Special,L 5. Crispy Chicken 脆皮鸡,$9.95
+Chicken Lunch Special,L 6. Chicken w. Garlic Sauce 鱼香鸡,$9.95
+Chicken Lunch Special,L 7. Black Pepper Chicken 黑淑鸡,$9.95
+Chicken Lunch Special,L 8. Chicken w. Mixed Vegetables 杂菜鸡,$9.95
+Chicken Lunch Special,L 9. Sesame Chicken 芝麻鸡,$9.95
+Chicken Lunch Special,L10. Orange Chicken 陈皮鸡,$9.95
+Chicken Lunch Special,L11. Cashew Nut Chicken 腰果鸡,$9.95
+Chicken Lunch Special,L12. Kung Po Chicken 宫保鸡,$9.95
+Chicken Lunch Special,L13. Chicken Chow Mein 鸡炒面,$9.95
+Chicken Lunch Special,L14. Curry Chicken 咖喱鸡,$9.95
+Chicken Lunch Special,L15. Hunan Chicken 湖南鸡,$9.95
+Beef Lunch Special,L16. Beef w. Broccoli 芥兰牛,$9.95
+Beef Lunch Special,L17. Pepper Steak w. Onion 青椒牛,$9.95
+Beef Lunch Special,L18. Beef w. Mushroom 蘑菇牛,$9.95
+Beef Lunch Special,L19. Hunan Beef 湖南牛,$9.95
+Beef Lunch Special,L20. Beef w. Garlic Sauce 鱼香牛,$9.95
+Shrimp Lunch Special,L21. Shrimp w. Broccoli 芥兰虾,$9.95
+Shrimp Lunch Special,L22. Shrimp w. Garlic Sauce 鱼香虾,$9.95
+Shrimp Lunch Special,L23. Shrimp w. Lobster Sauce 虾龙糊,$9.95
+Shrimp Lunch Special,L24. Shrimp w. Mixed Vegetables 什菜虾,$9.95
+Shrimp Lunch Special,L25. Shrimp Egg Foo Young 虾芙蓉蛋,$9.95
+Shrimp Lunch Special,L26. Scallop w. Broccoli 芥兰干贝,$9.95
+Vegetable Lunch Special,L27. Sauteed Mixed Vegetable 什菜,$9.95
+Vegetable Lunch Special,L28. Buddhist Delight 罗汉斋,$9.95
+Vegetable Lunch Special,L29. General Tso's Tofu 左宗豆腐,$9.95
+Vegetable Lunch Special,L30. Sesame Tofu 芝麻豆腐,$9.95
+Vegetable Lunch Special,L31. Broccoli w. Garlic Sauce 鱼香芥兰,$9.95
+Lo Mein Lunch Special,L32. Chicken Lo Mein 鸡捞面,$9.95
+Lo Mein Lunch Special,L33. Shrimp Lo Mein 虾捞面,$9.95
+Lo Mein Lunch Special,L34. Pork Lo Mein 肉捞面,$9.95
+Lo Mein Lunch Special,L35. Vegetable Lo Mein 菜捞面,$9.95
+Appetizers,1. Roast Pork Egg Roll (1) 春卷,$2.20
+Appetizers,2. Shrimp Egg Roll (1) 虾卷,$3.00
+Appetizers,4. Boneless Spare Ribs 无骨排,$9.95
+Appetizers,5. Shrimp Toast (4) 虾吐司,$6.95
+Appetizers,6. Steamed Dumpling 水饺(8),$8.95
+Appetizers,6a. Fried Dumpling 锅贴(8),$8.95
+Appetizers,7. Crab Rangoon (8) 蟹角,$6.95
+Appetizers,8. Teriyaki Beef on Stick (4pcs) 牛串,$9.95
+Appetizers,8a. Teriyaki Chicken (4) 鸡串,$8.95
+Appetizers,9. Fried Chicken Wings (8) 炸鸡翅,$8.50
+Appetizers,10. Po Po Platter (for 2) 宝宝盘,$13.95
+Appetizers,11. Hot & Spicy Wings (8) 麻辣翅膀,$8.50
+Appetizers,11A. Sugar Donut (10) 甜甜圈,$6.95
+Soup,12. Wonton Soup 云吞汤,$3.95
+Soup,13. Egg Drop Soup 蛋花汤,$3.95
+Soup,14. Wonton w. Egg Drop Soup 云吞蛋花汤,$3.95
+Soup,15. Chicken Noodle Soup 鸡汤面,$3.95
+Soup,16. Chicken Rice Soup 鸡饭汤,$3.95
+Soup,17. Hot & Sour Soup 酸辣汤,$3.95
+Soup,18. Vegetable Soup 青菜汤,$3.95
+Soup,19. House Special Soup 本楼汤,$3.95
+Chow Mein,20. Chicken Chow Mein 鸡炒面,$13.25
+Chow Mein,21. Pork Chow Mein 肉炒面,$13.25
+Chow Mein,22. Beef Chow Mein 牛肉炒面,$13.25
+Chow Mein,23. Shrimp Chow Mein 虾炒面,$13.25
+Chow Mein,24. Vegetable Chow Mein 蔬菜炒面,$13.25
+Chow Mein,25. House Special Chow Mein 本楼炒面,$13.25
+Fried Rice,26a. Plain Fried Rice 净炒饭,$7.00
+Fried Rice,26. Chicken Fried Rice 鸡炒饭,$11.75
+Fried Rice,27. Roast Pork Fried Rice 叉烧炒饭,$11.75
+Fried Rice,28. Beef Fried Rice 牛炒饭,$12.95
+Fried Rice,29. Shrimp Fried Rice 虾仁炒饭,$12.95
+Fried Rice,30. Vegetable Fried Rice 蔬菜炒饭,$11.75
+Fried Rice,31. House Special Fried Rice 本楼炒菜,$12.95
+Lo Mein,32a. Plain Lo Mein 净捞面,$9.95
+Lo Mein,32. Chicken Lo Mein 鸡捞面,$13.25
+Lo Mein,33. Roast Pork Lo Mein 叉烧捞面,$13.25
+Lo Mein,34. Beef Lo Mein 牛肉捞面,$13.95
+Lo Mein,35. Shrimp Lo Mein 虾捞面,$13.95
+Lo Mein,36. Vegetable Lo Mein 菜捞面,$12.95
+Lo Mein,37. House Special Lo Mein 本楼捞面,$13.95
+Chicken,38a. Chicken w. Brown Sauce 鸡汁,$13.25
+Chicken,38. Chicken w. Broccoli 芥兰鸡,$13.25
+Chicken,39. Moo Goo Gai Pan 蘑菇鸡片,$13.25
+Chicken,40. Chicken w. Snow Peas 雪豆鸡,$13.25
+Chicken,41. Chicken w. Curry Sauce 咖喱鸡,$13.25
+Chicken,42. Chicken w. Cashew Nuts 腰果鸡,$13.25
+Chicken,43. Chicken w. Mixed Vegetables 杂菜鸡,$13.25
+Chicken,44. Kung Po Chicken 宫保鸡,$13.25
+Chicken,45. Chicken w. Garlic Sauce 鱼香鸡,$13.25
+Chicken,46. Hunan Chicken 湖南鸡,$13.25
+Chicken,47. Crispy Chicken 脆皮鸡,$13.25
+Chicken,48. Szechuan Chicken 四川鸡,$13.25
+Chicken,49. Black Pepper Chicken 黑椒鸡,$13.25
+Pork,50. Roast Pork w. Broccoli 芥兰叉烧,$13.50
+Pork,51. Roast Pork w. Chinese Vegetable 白菜叉烧,$13.50
+Pork,52. Roast Pork w. Snow Peas 雪豆叉烧,$13.50
+Pork,53. Roast Pork w. Mixed Vegetable 什菜叉烧,$13.50
+Pork,54. Roast Pork w. Garlic Sauce 鱼香叉烧,$13.50
+Beef,56a. Beef w. Brown Sauce 牛肉酱汁,$14.75
+Beef,56. Beef w. Broccoli 芥兰牛,$14.75
+Beef,57. Beef w. Chinese Vegetables 白菜牛,$14.75
+Beef,58. Pepper Steak w. Onion 青椒牛,$14.75
+Beef,59. Beef w. Mushroom 蘑菇牛,$14.75
+Beef,60. Beef w. Snow Peas 雪豆牛,$14.75
+Beef,61. Beef w. Mixed Vegetables 什菜牛,$14.75
+Beef,62. Curry Beef w. Onion 咖喱牛,$14.75
+Beef,63. Beef w. Garlic Sauce 鱼香牛,$14.75
+Beef,64. Hunan Beef 湖南牛,$14.75
+Beef,65. Szechuan Beef 四川牛,$14.75
+Jumbo Shrimp,66. Shrimp w. Broccoli 芥兰虾,$15.75
+Jumbo Shrimp,67. Shrimp w. Lobster Sauce 虾龙糊,$15.75
+Jumbo Shrimp,68. Shrimp w. Chinese Vegetables 白菜虾,$15.75
+Jumbo Shrimp,69.Scallop w. Broccoli 芥兰干贝,$16.00
+Jumbo Shrimp,70. Shrimp w. Snow Peas 雪豆虾,$15.75
+Jumbo Shrimp,71.Shrimp w. Mixed Vegetables 什菜虾,$15.75
+Jumbo Shrimp,72. Shrimp w. Garlic Sauce 鱼香虾,$15.75
+Jumbo Shrimp,73. Hunan Shrimp 湖南虾,$15.75
+Jumbo Shrimp,74. Szechuan Shrimp 四川虾,$15.75
+Egg Foo Young,75. Mushroom Egg Foo Young 蘑菇芙蓉蛋,$13.50
+Egg Foo Young,76. Roast Pork Egg Foo Young 叉烧芙蓉蛋,$13.50
+Egg Foo Young,77. Chicken Egg Foo Young 鸡芙蓉蛋,$13.50
+Egg Foo Young,78. Shrimp Egg Foo Young 虾芙蓉蛋,$13.50
+Egg Foo Young,79. Beef Egg Foo Young 牛芙蓉蛋,$13.50
+Sweet & Sour,80. Sweet & Sour Chicken 甜酸鸡,$13.50
+Vegetables,84a. Broccoli w. Brown Sauce 净芥兰,$13.50
+Vegetables,84. Buddhist Delight 罗汉斋,$13.50
+Vegetables,85. Sauteed Mixed Vegetables 什菜,$13.50
+Vegetables,86. Szechuan Bean Curd 四川豆腐,$13.50
+Vegetables,87. Broccoli w. Garlic Sauce 鱼香芥兰,$13.50
+Vegetables,89. General Tso's Tofu 左宗豆腐,$13.50
+Vegetables,90. Sesame Tofu 芝麻豆腐,$13.50
+Diet Menu,D1. Steamed Mixed Vegetables 水煮杂菜,$12.50
+Diet Menu,D2. Steamed Broccoli 水煮芥兰,$12.50
+Diet Menu,D3. Steamed Mixed Vegetables w. Chicken 水煮杂菜鸡,$12.50
+Diet Menu,D4. Steamed Broccoli w. Chicken 水煮芥兰鸡,$12.50
+Diet Menu,D5. Steamed Broccoli w. Snow Peas水煮雪豆芥兰,$12.50
+Diet Menu,D6. Steamed Broccoli w. Lo Mein 水煮芥兰捞面,$12.50
+Diet Menu,D7. Steamed Shrimp w. Mixed Veg 白煮杂菜虾,$14.50
+Diet Menu,D8. Steamed Shrimp w. Broccoli,$14.50
+Chef's Specialties,S1. Happy Family 全家福,$16.00
+Chef's Specialties,S2. Hot & Spicy Shrimp 干烧虾,$16.00
+Chef's Specialties,S3. Shrimp & Scallop in Hot Garlic Sauce 鱼香双干,$17.50
+Chef's Specialties,S4. Seafood Delight 海鲜大会,$20.50
+Chef's Specialties,S5. Chicken & Shrimp Sauteed 爆双丁,$14.50
+Chef's Specialties,S6. Dragon & Phoenix 龙凤配,$16.00
+Chef's Specialties,S7. Mongolian Triple Delight 蒙古三祥,$16.00
+Chef's Specialties,S8. Sesame Beef 芝麻牛,$16.00
+Chef's Specialties,S9. Sesame Chicken 芝麻鸡,$14.50
+Chef's Specialties,S10. Hot & Spicy Beef 干烧牛,$16.00
+Chef's Specialties,S11. Triple Delight 炒三祥,$16.00
+Chef's Specialties,S12. General Tso's Chicken 左宗鸡,$14.50
+Chef's Specialties,S13. Chicken with Orange Flavor 陈皮鸡,$14.50
+Chef's Specialties,S13. Beef with Orange Flavor 陈皮牛,$16.00
+Chef's Specialties,S14. Double Delight 炒双祥,$16.00
+Chicken Dinner Combination,C 1. Generak Tso's Chicken 左宗鸡,$13.25
+Chicken Dinner Combination,C 2. Chicken w. Broccoli 芥兰鸡,$13.25
+Chicken Dinner Combination,C 3. Moo Goo Gai Pan Chicken 蘑菇鸡片,$13.25
+Chicken Dinner Combination,C 4. Sweet & Sour Chicken 甜酸鸡,$13.25
+Chicken Dinner Combination,C 5. Crispy Chicken 脆皮鸡,$13.25
+Chicken Dinner Combination,C 6. Chicken w. Garlic Sauce 鱼香鸡,$13.25
+Chicken Dinner Combination,C 7. Black Pepper Chicken 黑淑鸡,$13.25
+Chicken Dinner Combination,C 8. Chicken w. Mixed Vegetables 杂菜鸡,$13.25
+Chicken Dinner Combination,C 9. Sesame Chicken 芝麻鸡,$13.25
+Chicken Dinner Combination,C10. Orange Chicken 陈皮鸡,$13.25
+Chicken Dinner Combination,Cl1. Cashew Nut Chicken 腰果鸡,$13.25
+Chicken Dinner Combination,C12. Kung Po Chicken 宫保鸡,$13.25
+Chicken Dinner Combination,C13. Chicken Chow Mein 鸡炒面,$13.25
+Chicken Dinner Combination,C14. Curry Chicken 咖喱鸡,$13.25
+Chicken Dinner Combination,C15. Hunan Chicken 湖南鸡,$13.25
+Beef Dinner Combination,C16. Beef w. Broccoli 芥兰牛,$13.25
+Beef Dinner Combination,Cl7. Pepper Steak w. Onion 青椒牛,$13.25
+Beef Dinner Combination,C18. Beef w. Mushroom 蘑菇牛,$13.25
+Beef Dinner Combination,C19. Hunan Beef 湖南牛,$13.25
+Beef Dinner Combination,C20. Beef w. Garlic Sauce 鱼香牛,$13.25
+Shrimp Dinner Combination,C21. Shrimp w. Broccoli 芥兰虾,$13.25
+Shrimp Dinner Combination,C22. Shrimp w. Garlic Sauce 鱼香虾,$13.25
+Shrimp Dinner Combination,C23. Shrimp w. Lobster Sauce 虾龙糊,$13.25
+Shrimp Dinner Combination,C24. Shrimp w. Mixed Vegetables 什菜虾,$13.25
+Shrimp Dinner Combination,C25. Shrimp Egg Foo Young 虾芙蓉蛋,$13.25
+Shrimp Dinner Combination,C26. Scallop w. Broccoli 芥兰干贝,$11.95
+Vegetable Dinner Combination,C27. Sauteed Mixed Vegetable 什菜,$13.25
+Vegetable Dinner Combination,C28. Buddhist Delight 罗汉斋,$13.25
+Vegetable Dinner Combination,C29. General Tso's Tofu 左宗豆腐,$13.25
+Vegetable Dinner Combination,C30. Sesame Tofu 芝麻豆腐,$13.25
+Vegetable Dinner Combination,C31. Broccoli w. Garlic Sauce 鱼香芥兰,$13.25
+Lo Mein Dinner Combination,C32. Chicken Lo Mein 鸡捞面,$13.25
+Lo Mein Dinner Combination,C33. Shrimp Lo Mein 虾捞面,$13.25
+Lo Mein Dinner Combination,C34. Pork Lo Mein 肉捞面,$13.25
+Lo Mein Dinner Combination,C35. Vegetable Lo Mein 菜捞面,$13.25
+Side Order,Fortune Cookies (5),$1.50
+Side Order,Crispy Noodles (Per Bag),$1.50
+Side Order,Boiled Rice,$3.00
+Beverage,Pepsi,$2.75
+Beverage,Diet Pepsi,$2.75
+Beverage,Mountain Dew,$2.75
+Beverage,Mug Root Beer,$2.75
+Beverage,Pepsi Wild Cherry,$2.75
+Beverage,Dr Pepper,$2.75
+Beverage,Brisk Iced Tea Lemon,$2.75
+Beverage,Gatorade Fruit Punch,$2.75
+Beverage,Gatorade Cool Blue,$2.75
+Beverage,Poppi Wild Berry,$3.00
+Beverage,Poppi Watermelon,$3.00
+Beverage,Pure Leaf Sweet Tea,$3.25
+Beverage,Lipton Zero Sugar Green Tea Citrus,$2.00
+,--- MODIFIERS ---,
+Rice Type,White Rice 白饭,$0.00
+Rice Type,Plain Fried Rice 净炒饭,$0.00
+Rice Type,Onion Fried Rice 洋葱炒饭,$0.00
+Rice Type,Pork Fried Rice 肉炒饭,$3.00
+Rice Type,Vegetable Fried Rice 蔬菜炒饭,$3.00
+Rice Type,Chicken Fried Rice 鸡肉炒饭,$3.00
+Rice Type,Beef Fried Rice 牛肉炒饭,$4.00
+Rice Type,Shrimp Fried Rice 虾炒饭,$4.00
+Rice Type,House Fried Rice 本楼炒饭,$4.00
+Rice Type,Plain Lo Mein 净捞面,$3.00
+Rice Type,Vegetable Lo Mein 蔬菜捞面,$4.00
+Rice Type,Pork Lo Mein 肉捞面,$4.00
+Rice Type,Chicken Lo Mein 鸡肉捞面,$4.00
+Rice Type,Beef Lo Mein 牛肉捞面,$4.00
+Rice Type,Shrimp Lo Mein虾捞面,$4.00
+Rice Type,House Lo Mein 本楼捞面,$4.00
+Spice Level Addition,Mild不辣,$0.00
+Spice Level Addition,Medium中辣,$0.00
+Spice Level Addition,Spicy辣,$0.00
+Choose a Size,Small,$0.00
+Choose a Size,Large,$3.00
+Egg Roll Choice,Pork Egg Roll,$0.00
+Egg Roll Choice,Shrimp Egg Roll,$0.80
+Base Options,White Rice 白米饭,$0.00
+Base Options,Pork Fried Rice 叉烧炒饭,$0.00
+Base Options,Chicken Fried Rice 鸡肉炒饭,$2.50
+Base Options,Beef Fried Rice 牛肉炒饭,$2.50
+Base Options,Shrimp Fried Rice 虾炒饭,$2.50
+Base Options,House Fried Rice 本楼炒饭,$2.50
+Base Options,Plain Lo Mein 净捞面,$2.50
+Base Options,Vegetable Lo Mein 蔬菜捞面,$3.00
+Base Options,Pork Lo Mein 肉捞面,$3.00
+Base Options,Chicken Lo Mein 鸡肉捞面,$3.00
+Base Options,Beef Lo Mein 牛肉捞面,$3.00
+Choose a Size,Pint,$0.00
+Choose a Size,Quart,$2.00
+Soda Option,20oz,$0.00
+Soda Option,2Lt.,$1.00
