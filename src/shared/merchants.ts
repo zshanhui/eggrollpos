@@ -23,7 +23,7 @@ export interface MerchantRow {
   whatsapp_number: string | null;
   theme: MerchantTheme | null;
   timezone: string | null;
-  mhash: string | null;
+  hash_id: string | null;
   zomato_id: number | null;
   created_at: string | null;
 }
@@ -44,7 +44,7 @@ export interface MerchantCreateParams {
   tax_id?: string | null;
   whatsapp_number?: string | null;
   theme?: MerchantTheme;
-  mhash?: string | null;
+  hash_id?: string | null;
 }
 
 /**

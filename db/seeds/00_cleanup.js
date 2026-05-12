@@ -12,6 +12,7 @@ exports.seed = function (knex) {
     .then(() => knex('orders').del())
     .then(() => knex('menus').del())
     .then(() => knex('menu_items').del())
+    .then(() => knex('menu_categories').del())
     .then(() => knex('modifiers').del())
     .then(() => knex('customers').del())
     .then(() => knex('merchants').del());
