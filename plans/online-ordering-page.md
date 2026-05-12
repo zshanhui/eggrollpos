@@ -298,22 +298,25 @@ The existing `/order-online/:merchantId` placeholder route gets replaced by slug
 
 ## 6. Implementation Steps
 
-### Step 1: Database migration
-- Create `menus` table
-- Create `menu_menu_items` junction table
-- `address_city`, `address_state`, `address_*` renames, `image_url`, and `timezone` already handled in prerequisite migrations (see section 7)
+### Step 1: ✅ Database migration
+- ✅ Create `menus` table — `db/migrations/20260511000001_create_menus.js`
+- ✅ Create `menu_menu_items` junction table (same migration)
+- ✅ `address_city`, `address_state`, `address_*` renames, `image_url`, and `timezone` in prerequisite migrations
 
-### Step 2: Server-side models
-- `Menus` model (`src/server/models/menus.js`) — CRUD + `getBySlug`
-- Seed data: 2 example menus for the seed merchants
+### Step 2: ✅ Server-side models
+- ✅ `Menus` model (`src/server/models/menus.ts`) — CRUD + `getByMenuSlug` + junction ops
+- ✅ Seed data: 2 example menus — `db/seeds/07_menus.js`
+- ✅ `00_cleanup.js` — FK-safe table cleanup so seeds are repeatable on PostgreSQL
+- ✅ 22 unit tests — `specs/models/menus.spec.ts`
 
-### Step 3: Server-side routes
-- Merchant admin routes: `/api/merchants/:merchantId/menus` CRUD
-- Public route: `GET /api/menus/:slug`
-  - Filters menu items to `is_active = true` only
-  - Computes `currently_open` from stored UTC hours + merchant timezone
+### Step 3: ✅ Server-side routes
+- ✅ Merchant admin routes: `/api/merchants/:merchantId/menus` CRUD
+- ✅ Public route: `GET /api/menus/:slug`
+  - ✅ Filters menu items to `is_active = true` only
+  - ✅ Computes `currently_open` from stored UTC hours
+- ✅ Mounted in `merchants.js` (admin) and `index.js` (public)
 
-### Step 4: Client-side customer page
+### Step 4: Client-side customer page 🔜
 - `OnlineMenu` component at `src/client/js/pages/OnlineMenu.tsx`
 - CSS at `src/client/css/pages/OnlineMenu.css`
 - Replace `CustomerRoutes` placeholder with the real component
@@ -324,10 +327,10 @@ The existing `/order-online/:merchantId` placeholder route gets replaced by slug
 - Update `App.tsx` with new routes
 - Wire up API calls
 
-### Step 6: Slug generation
-- Utility function: `generateMenuSlug(merchant, menuName)` → slug string
-- Called on menu create; slug is immutable after creation
-- Backfill merchant slugs for existing merchants
+### Step 6: Slug generation — Done in Step 2
+- ✅ Slug generation in `Menus.create()` — from merchant identity + menu name
+- ✅ Collision handling (append `-2`, `-3`, etc.)
+- ✅ Slug is immutable after creation
 
 ---
 
@@ -340,13 +343,18 @@ The existing `/order-online/:merchantId` placeholder route gets replaced by slug
 | `db/migrations/20260401000001_add_state_to_merchants.js` | ✅ Done | Add `address_state` column to `merchants` |
 | `db/migrations/20260401000002_rename_address_columns.js` | ✅ Done | Rename `address`→`address_street`, `postal_code`→`address_postal_code` |
 | `db/migrations/20260401000003_add_timezone_to_merchants.js` | ✅ Done | Add `timezone` column (IANA, default UTC) for business hours conversion |
-| `db/migrations/<timestamp>_create_menus.js` | Create | Migration for `menus` table + `menu_menu_items` junction |
-| `db/seeds/07_menus.js` | Create | Seed data |
-| `src/server/models/menus.js` | Create | Menus model |
-| `src/server/routes/menus.js` | Create | Menu API routes |
-| `src/server/index.js` | Edit | Mount menu routes |
-| `src/client/js/pages/OnlineMenu.tsx` | Create | Customer-facing menu catalog |
-| `src/client/css/pages/OnlineMenu.css` | Create | Mobile-first styles |
+| `db/migrations/20260511000001_create_menus.js` | ✅ Done | Migration for `menus` table + `menu_menu_items` junction |
+| `db/seeds/00_cleanup.js` | ✅ Done | FK-safe table cleanup for repeatable seeds |
+| `db/seeds/07_menus.js` | ✅ Done | Seed data (2 menus, 6 junction rows) |
+| `src/server/models/menus.ts` | ✅ Done | Menus model (8 methods, TypeScript) |
+| `specs/models/menus.spec.ts` | ✅ Done | 22 unit tests |
+| `src/server/routes/menus.ts` | ✅ Done | Menu API routes (admin CRUD + public slug) |
+| `.mocharc.yml` | ✅ Done | Mocha config for TypeScript via tsx/cjs |
+| `src/server/index.js` | ✅ Done | Mount public menu routes |
+| `src/server/routes/merchants.js` | ✅ Done | Mount admin menu routes |
+| `package.json` | ✅ Done | tsx dev support, test/db scripts |
+| `src/client/js/pages/OnlineMenu.tsx` | 🔜 Create | Customer-facing menu catalog |
+| `src/client/css/pages/OnlineMenu.css` | 🔜 Create | Mobile-first styles |
 | `src/client/js/pages/MerchantMenus.tsx` | Create | Merchant menu management |
 | `src/client/js/pages/CheckoutPlaceholder.tsx` | Create | Checkout placeholder page |
 | `src/client/js/App.tsx` | Edit | Add new routes, update customer route |

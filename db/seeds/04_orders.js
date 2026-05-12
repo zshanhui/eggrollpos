@@ -4,9 +4,9 @@ exports.seed = function(knex) {
     .then(function () {
       return knex('orders').insert([
         // Active orders across all statuses for Eastern Express (merchant 3)
-        {id: 1,  merchant_id: 3, customer_id: 1, pickup_in: 15, status: 'waiting_for_acceptance', order_type: 'pickup',   uuid: 'a0000001-0001-0001-0001-000000000001', confirmed_at: knex.fn.now(), comments: 'Please include extra napkins'},
-        {id: 2,  merchant_id: 3, customer_id: 2, pickup_in: 30, status: 'waiting_for_acceptance', order_type: 'delivery', uuid: 'a0000002-0002-0002-0002-000000000002', confirmed_at: knex.fn.now(), comments: 'Ring doorbell, leave at door'},
-        {id: 3,  merchant_id: 3, customer_id: 3, pickup_in: 20, status: 'accepted',               order_type: 'pickup',   uuid: 'a0000003-0003-0003-0003-000000000003', confirmed_at: knex.fn.now(), comments: ''},
+        {id: 1,  merchant_id: 3, customer_id: 1, pickup_in: 15, status: 'waiting_for_acceptance', order_type: 'pickup',   uuid: 'a0000001-0001-0001-0001-000000000001', confirmed_at: knex.fn.now()},
+        {id: 2,  merchant_id: 3, customer_id: 2, pickup_in: 30, status: 'waiting_for_acceptance', order_type: 'delivery', uuid: 'a0000002-0002-0002-0002-000000000002', confirmed_at: knex.fn.now()},
+        {id: 3,  merchant_id: 3, customer_id: 3, pickup_in: 20, status: 'accepted',               order_type: 'pickup',   uuid: 'a0000003-0003-0003-0003-000000000003', confirmed_at: knex.fn.now()},
         {id: 4,  merchant_id: 3, customer_id: 4, pickup_in: 45, status: 'accepted',               order_type: 'delivery', uuid: 'a0000004-0004-0004-0004-000000000004', confirmed_at: knex.fn.now()},
         {id: 5,  merchant_id: 3, customer_id: 5, pickup_in: 30, status: 'preparing',              order_type: 'pickup',   uuid: 'a0000005-0005-0005-0005-000000000005', confirmed_at: knex.fn.now()},
         {id: 6,  merchant_id: 3, customer_id: 6, pickup_in: 60, status: 'preparing',              order_type: 'delivery', uuid: 'a0000006-0006-0006-0006-000000000006', confirmed_at: knex.fn.now()},
