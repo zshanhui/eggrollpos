@@ -70,6 +70,7 @@ adminRouter.post('/', async (req, res) => {
     const items = await Menus.getItemsForMenu(menu.id);
     res.status(201).json({ menu: { ...menu, menuItems: items } });
   } catch (err: any) {
+    console.error('POST /menus error:', err.message || err);
     if (err.message === 'Merchant not found') {
       return res.status(404).json({ error: 'Merchant not found' });
     }
@@ -143,6 +144,25 @@ publicRouter.get('/:slug', async (req, res) => {
 
   const items = await Menus.getItemsForMenu(result.id);
 
+  // Group items by category
+  const categoriesMap = new Map<number | string, { id: number | null; name: string; items: any[] }>();
+  const uncategorized: any[] = [];
+
+  for (const item of items) {
+    if (item.category_id) {
+      if (!categoriesMap.has(item.category_id)) {
+        categoriesMap.set(item.category_id, {
+          id: item.category_id,
+          name: item.category_name,
+          items: [],
+        });
+      }
+      categoriesMap.get(item.category_id)!.items.push(item);
+    } else {
+      uncategorized.push(item);
+    }
+  }
+
   res.json({
     menu: {
       id: result.id,
@@ -161,7 +181,8 @@ publicRouter.get('/:slug', async (req, res) => {
         address_postal_code: result.merchant__address_postal_code,
         type: result.merchant__type,
       },
-      menuItems: items,
+      categories: Array.from(categoriesMap.values()),
+      uncategorized,
     },
   });
 });

@@ -1,7 +1,12 @@
+import crypto from 'crypto';
 import db from './db';
 import type { MerchantRow, MerchantCreateParams, MerchantUpdateParams } from '../../shared/merchants';
 
 const T = () => db('merchants');
+
+export function generateHashId(): string {
+  return 'mc_' + crypto.randomBytes(6).toString('base64url');
+}
 
 class Merchants {
   merchants: MerchantRow[];
@@ -28,10 +33,10 @@ class Merchants {
       .first();
   }
 
-  static async getByHash(mhash: string): Promise<MerchantRow | undefined> {
+  static async getByHashId(hashId: string): Promise<MerchantRow | undefined> {
     return T()
       .select()
-      .where('mhash', mhash)
+      .where('hash_id', hashId)
       .first();
   }
 
@@ -40,7 +45,8 @@ class Merchants {
    * Use: pnpm run create-merchant "Business Name"
    */
   static async create(params: MerchantCreateParams): Promise<number[]> {
-    return T().insert(params).returning('id');
+    const hash_id = generateHashId();
+    return T().insert({ ...params, hash_id }).returning('id');
   }
 
   static async update(id: number, params: MerchantUpdateParams): Promise<number[]> {
@@ -74,4 +80,4 @@ class Merchants {
   }
 }
 
-export = Merchants;
+export default Merchants;

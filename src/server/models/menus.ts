@@ -72,7 +72,7 @@ class Menus {
       suffix++;
     }
 
-    const [id] = await T().insert({
+    const insertedIds = await T().insert({
       merchant_id: merchantId,
       name,
       slug,
@@ -80,6 +80,7 @@ class Menus {
       is_published: isPublished ?? false,
       business_hours: businessHours || null,
     });
+    const id = Array.isArray(insertedIds) ? insertedIds[0] : insertedIds;
     const row = await T().where('id', id).first();
 
     if (menuItemIds && menuItemIds.length > 0) {
@@ -124,6 +125,7 @@ class Menus {
   static async getItemsForMenu(menuId: number) {
     const rows = await JunctionT()
       .join('menu_items', 'menu_menu_items.menu_item_id', 'menu_items.id')
+      .leftJoin('menu_categories', 'menu_items.category_id', 'menu_categories.id')
       .leftJoin('menu_item_modifiers', 'menu_items.id', 'menu_item_modifiers.menu_item_id')
       .leftJoin('modifiers', 'menu_item_modifiers.modifier_id', 'modifiers.id')
       .select(
@@ -132,6 +134,9 @@ class Menus {
         'menu_items.description',
         'menu_items.price_cents',
         'menu_items.image_url',
+        'menu_items.category_id',
+        'menu_categories.name as category_name',
+        'menu_categories.sort_order as category_sort_order',
         'menu_menu_items.sort_order',
         'modifiers.id as modifier_id',
         'modifiers.name as modifier_name',
@@ -139,8 +144,7 @@ class Menus {
       )
       .where('menu_menu_items.menu_id', menuId)
       .where('menu_items.is_active', true)
-      .orderBy('menu_menu_items.sort_order', 'asc')
-      .orderBy('menu_items.name', 'asc');
+      .orderByRaw('menu_categories.sort_order ASC NULLS LAST, menu_menu_items.sort_order ASC, menu_items.name ASC');
 
     // Group modifiers under each item — one query, no N+1
     const itemsMap = new Map<number, any>();
@@ -152,6 +156,8 @@ class Menus {
           description: r.description,
           price_cents: r.price_cents,
           image_url: r.image_url,
+          category_id: r.category_id,
+          category_name: r.category_name,
           modifiers: [],
         });
       }

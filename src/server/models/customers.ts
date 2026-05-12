@@ -24,4 +24,4 @@ class Customers {
   }
 }
 
-export = Customers;
+export default Customers;

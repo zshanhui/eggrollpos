@@ -3,24 +3,21 @@ const router = express.Router();
 const _ = require('lodash');
 const Actions = require('../services/actions');
 const Orders = require('../models/orders');
-const Merchants = require('../models/merchants');
+const Merchants = require('../models/merchants').default;
 const MenuItems = require('../models/menu_items');
 const Modifiers = require('../models/modifiers');
 const {getNextStatus, canCancel, canRefund, Status} = require('../../shared/orders');
 const { adminRouter: menusRouter } = require('./menus');
+const { categoriesRouter } = require('./menu_categories');
 
 /**
  * @typedef {import('../../shared/merchants').MerchantRow} MerchantRow
  * @typedef {import('../../shared/merchants').MerchantTheme} MerchantTheme
  */
 
-// Lookup by numeric ID or UUID
+// Lookup by hash_id first, then fall back to UUID for backward compatibility
 router.get('/:param', async (req, res) => {
-    const param = req.params.param;
-    const isNumericId = /^\d+$/.test(param);
-    const merchant = isNumericId
-        ? await Merchants.get(parseInt(param, 10))
-        : await Merchants.getByUuid(param);
+    const merchant = await Merchants.getByHashId(req.params.param) || await Merchants.getByUuid(req.params.param);
     if (merchant) {
         res.json(merchant);
     } else {
@@ -333,5 +330,6 @@ router.delete('/:merchantId/modifiers/:modifierId', async (req, res) => {
 
 // Menu management CRUD (under /api/merchants/:merchantId/menus)
 router.use('/:merchantId/menus', menusRouter);
+router.use('/:merchantId/menu-categories', categoriesRouter);
 
 module.exports = router;
