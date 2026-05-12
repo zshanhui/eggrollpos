@@ -12,7 +12,7 @@ const path = require('path');
 const fs = require('fs');
 
 const BASE_URL = process.env.BASE_URL || 'http://localhost:3001';
-const MERCHANT_UUID = 'mc000003-0003-0003-0003-000000000003';
+const MERCHANT_UUID = 'mc_m4zun00d';
 const OUTPUT_DIR = path.join(__dirname, '../docs/screenshots');
 
 async function main() {
@@ -67,7 +67,7 @@ async function main() {
     console.log('Saved: i18n-customer-order-online.jpg');
 
     // 4. Merchant orders list
-    await page.goto(`${BASE_URL}/merchant/${MERCHANT_UUID}`, {
+    await page.goto(`${BASE_URL}/merchant-dashboard/${MERCHANT_UUID}`, {
       waitUntil: 'networkidle',
       timeout: 15000,
     });
@@ -98,7 +98,7 @@ async function main() {
     }
 
     // 6. Merchant menu items list
-    await page.goto(`${BASE_URL}/merchant/${MERCHANT_UUID}/menuitems`, {
+    await page.goto(`${BASE_URL}/merchant-dashboard/${MERCHANT_UUID}/menuitems`, {
       waitUntil: 'networkidle',
       timeout: 15000,
     });
@@ -112,7 +112,7 @@ async function main() {
     console.log('Saved: i18n-merchant-menu-items.jpg');
 
     // 7. Merchant add menu item form
-    await page.goto(`${BASE_URL}/merchant/${MERCHANT_UUID}/menuitems/add`, {
+    await page.goto(`${BASE_URL}/merchant-dashboard/${MERCHANT_UUID}/menuitems/add`, {
       waitUntil: 'networkidle',
       timeout: 15000,
     });
@@ -126,7 +126,7 @@ async function main() {
     console.log('Saved: i18n-merchant-add-menu-item.jpg');
 
     // 8. Modifiers modal (open from menu items)
-    await page.goto(`${BASE_URL}/merchant/${MERCHANT_UUID}/menuitems`, {
+    await page.goto(`${BASE_URL}/merchant-dashboard/${MERCHANT_UUID}/menuitems`, {
       waitUntil: 'networkidle',
       timeout: 15000,
     });

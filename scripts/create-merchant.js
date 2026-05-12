@@ -19,6 +19,7 @@
  */
 
 require('dotenv').config();
+const crypto = require('crypto');
 const knex = require('knex');
 const { v4: uuidv4 } = require('uuid');
 const path = require('path');
@@ -62,6 +63,7 @@ async function main() {
 
   try {
     const uuid = uuidv4();
+    const hash_id = 'mc_' + crypto.randomBytes(6).toString('base64url');
     await db('merchants').insert({
       business_name: businessName.trim(),
       address: address || null,
@@ -69,6 +71,7 @@ async function main() {
       description: description || null,
       type: type || null,
       uuid,
+      hash_id,
     });
 
     const row = await db('merchants').where('uuid', uuid).first();
@@ -81,10 +84,11 @@ async function main() {
     console.log('');
     console.log('  ID:            ', row.id);
     console.log('  UUID:          ', row.uuid);
+    console.log('  Code:          ', row.hash_id);
     console.log('  Business Name: ', row.business_name);
     console.log('');
-    console.log('  Dashboard URL: /merchant/' + row.uuid);
-    console.log('  (e.g. http://localhost:3001/merchant/' + row.uuid + ')');
+    console.log('  Dashboard URL: /merchant-dashboard/' + row.hash_id);
+    console.log('  (e.g. http://localhost:3001/merchant-dashboard/' + row.hash_id + ')');
   } catch (err) {
     console.error('Error:', err.message);
     process.exit(1);

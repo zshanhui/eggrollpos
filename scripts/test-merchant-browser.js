@@ -10,7 +10,7 @@
 const { chromium } = require('playwright');
 
 const BASE_URL = process.env.BASE_URL || 'http://localhost:3001';
-const MERCHANT_UUID = 'mc000003-0003-0003-0003-000000000003';
+const MERCHANT_UUID = 'mc_m4zun00d';
 
 async function runTests() {
   const browser = await chromium.launch({ headless: true });
@@ -33,7 +33,7 @@ async function runTests() {
     });
     const mobilePage = await mobileContext.newPage();
 
-    await mobilePage.goto(`${BASE_URL}/merchant/${MERCHANT_UUID}`, {
+    await mobilePage.goto(`${BASE_URL}/merchant-dashboard/${MERCHANT_UUID}`, {
       waitUntil: 'networkidle',
       timeout: 15000,
     });
@@ -80,7 +80,7 @@ async function runTests() {
     });
     const desktopPage = await desktopContext.newPage();
 
-    await desktopPage.goto(`${BASE_URL}/merchant/${MERCHANT_UUID}`, {
+    await desktopPage.goto(`${BASE_URL}/merchant-dashboard/${MERCHANT_UUID}`, {
       waitUntil: 'networkidle',
       timeout: 15000,
     });
@@ -116,7 +116,7 @@ async function runTests() {
     // ─── Menu items page ───
     console.log('\n--- Menu items page ---');
     const menuPage = await (await browser.newContext({ viewport: { width: 1280, height: 800 } })).newPage();
-    await menuPage.goto(`${BASE_URL}/merchant/${MERCHANT_UUID}/menuitems`, {
+    await menuPage.goto(`${BASE_URL}/merchant-dashboard/${MERCHANT_UUID}/menuitems`, {
       waitUntil: 'networkidle',
       timeout: 15000,
     });

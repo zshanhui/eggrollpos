@@ -13,7 +13,7 @@ const path = require('path');
 const fs = require('fs');
 
 const BASE_URL = process.env.BASE_URL || 'http://localhost:3001';
-const MERCHANT_UUID = 'mc000003-0003-0003-0003-000000000003';
+const MERCHANT_UUID = 'mc_m4zun00d';
 const OUTPUT_DIR = path.join(__dirname, '../docs/screenshots');
 const RECORD_VIDEO = process.env.VIDEO === '1';
 
@@ -39,7 +39,7 @@ async function main() {
 
   try {
     // Orders list (mobile view)
-    await page.goto(`${BASE_URL}/merchant/${MERCHANT_UUID}`, {
+    await page.goto(`${BASE_URL}/merchant-dashboard/${MERCHANT_UUID}`, {
       waitUntil: 'networkidle',
       timeout: 15000,
     });
@@ -61,7 +61,7 @@ async function main() {
     console.log('Saved: merchant-order-detail-mobile.png');
 
     // Menu items list
-    await page.goto(`${BASE_URL}/merchant/${MERCHANT_UUID}/menuitems`, {
+    await page.goto(`${BASE_URL}/merchant-dashboard/${MERCHANT_UUID}/menuitems`, {
       waitUntil: 'networkidle',
       timeout: 15000,
     });
@@ -73,7 +73,7 @@ async function main() {
     console.log('Saved: merchant-menu-items-list-mobile.png');
 
     // Menu item add form
-    await page.goto(`${BASE_URL}/merchant/${MERCHANT_UUID}/menuitems/add`, {
+    await page.goto(`${BASE_URL}/merchant-dashboard/${MERCHANT_UUID}/menuitems/add`, {
       waitUntil: 'networkidle',
       timeout: 15000,
     });
@@ -85,7 +85,7 @@ async function main() {
     console.log('Saved: merchant-menu-item-add-mobile.png');
 
     // Merchant settings (dark theme)
-    await page.goto(`${BASE_URL}/merchant/${MERCHANT_UUID}/settings`, {
+    await page.goto(`${BASE_URL}/merchant-dashboard/${MERCHANT_UUID}/settings`, {
       waitUntil: 'networkidle',
       timeout: 15000,
     });
@@ -112,7 +112,7 @@ async function main() {
 
     // Desktop view - orders list (with Settings link)
     await page.setViewportSize({ width: 1280, height: 800 });
-    await page.goto(`${BASE_URL}/merchant/${MERCHANT_UUID}`, {
+    await page.goto(`${BASE_URL}/merchant-dashboard/${MERCHANT_UUID}`, {
       waitUntil: 'networkidle',
       timeout: 15000,
     });
@@ -123,7 +123,7 @@ async function main() {
     console.log('Saved: merchant-orders-list-desktop.png');
 
     // Merchant settings desktop
-    await page.goto(`${BASE_URL}/merchant/${MERCHANT_UUID}/settings`, {
+    await page.goto(`${BASE_URL}/merchant-dashboard/${MERCHANT_UUID}/settings`, {
       waitUntil: 'networkidle',
       timeout: 15000,
     });
