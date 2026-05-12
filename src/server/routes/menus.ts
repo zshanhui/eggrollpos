@@ -70,7 +70,6 @@ adminRouter.post('/', async (req, res) => {
     const items = await Menus.getItemsForMenu(menu.id);
     res.status(201).json({ menu: { ...menu, menuItems: items } });
   } catch (err: any) {
-    console.error('POST /menus error:', err.message || err);
     if (err.message === 'Merchant not found') {
       return res.status(404).json({ error: 'Merchant not found' });
     }

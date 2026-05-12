@@ -59,6 +59,19 @@ describe('Menus', () => {
       expect(isPublished(menu.is_published)).to.equal(false);
     });
 
+    it('returns a row with a valid id that can be retrieved via get()', async () => {
+      const menu = await Menus.create({ merchantId: 1, name: 'Verify ID' });
+
+      expect(menu.id).to.be.a('number');
+      expect(menu.id).to.be.greaterThan(0);
+
+      // Verify the row actually exists in the DB (not just returned from insert)
+      const retrieved = await Menus.get(menu.id);
+      expect(retrieved).to.exist;
+      expect(retrieved.name).to.equal('Verify ID');
+      expect(retrieved.slug).to.equal(menu.slug);
+    });
+
     it('handles slug collision by appending a suffix', async () => {
       await Menus.create({ merchantId: 1, name: 'Lunch Menu' });
       const menu = await Menus.create({ merchantId: 1, name: 'Lunch Menu' });

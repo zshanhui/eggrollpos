@@ -72,7 +72,7 @@ class Menus {
       suffix++;
     }
 
-    const insertedIds = await T().insert({
+    await T().insert({
       merchant_id: merchantId,
       name,
       slug,
@@ -80,8 +80,8 @@ class Menus {
       is_published: isPublished ?? false,
       business_hours: businessHours || null,
     });
-    const id = Array.isArray(insertedIds) ? insertedIds[0] : insertedIds;
-    const row = await T().where('id', id).first();
+    // Query by unique slug — avoids DB-specific return value differences from .insert()
+    const row = await T().where('slug', slug).first();
 
     if (menuItemIds && menuItemIds.length > 0) {
       await Menus.setItemsForMenu(row.id, menuItemIds);
