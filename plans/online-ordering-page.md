@@ -234,7 +234,7 @@ The existing `/order-online/:merchantId` placeholder route gets replaced by slug
 - Font sizes: 16px body, 18px item name, 14px description, 20px price
 - Sticky header/footer use `position: sticky` with safe-area-inset for notched phones
 - No horizontal scroll; text truncates with ellipsis for long names/descriptions
-- Minimal dependencies: custom BEM-style CSS only (consistent with newer merchant pages); no Bootstrap components used on this page
+- Minimal dependencies: Tailwind CSS v4 utilities only; no Bootstrap components used on this page
 
 ---
 
@@ -316,16 +316,27 @@ The existing `/order-online/:merchantId` placeholder route gets replaced by slug
   - ✅ Computes `currently_open` from stored UTC hours
 - ✅ Mounted in `merchants.js` (admin) and `index.js` (public)
 
-### Step 4: Client-side customer page 🔜
-- `OnlineMenu` component at `src/client/js/pages/OnlineMenu.tsx`
-- Styled with **Tailwind CSS v4** (via `@tailwindcss/vite` plugin) — no BEM or Bootstrap
-- Replace `CustomerRoutes` placeholder with the real component
-- Add checkout placeholder page
+### Step 4: ✅ Client-side customer page
+- ✅ `OnlineMenu` component at `src/client/js/pages/OnlineMenu.tsx` — mobile-first menu catalog with Tailwind CSS v4
+- ✅ Skeleton loading, error (404), empty, closed-banner, and normal states
+- ✅ Items grouped by category with modifier pills and price formatting
+- ✅ Sticky merchant header with open/closed badge, sticky checkout footer
+- ✅ `CheckoutPlaceholder` page at `src/client/js/pages/CheckoutPlaceholder.tsx`
+- ✅ Tailwind CSS v4 wired up via `@tailwindcss/vite` plugin + `tailwind.css` with safe-area utilities
+- ✅ Routes: `/online-ordering/:slug` and `/online-ordering/:slug/checkout`
+- ✅ Switched from `Router` + `createBrowserHistory` to `BrowserRouter` (fixed navigation white-page bug)
+- ✅ `Lazy.tsx` error boundary + module-change reload fix
+- ✅ i18n keys added (`menus:`, `checkout:` sections in en.yaml + zh.yaml)
 
-### Step 5: Client-side merchant management
-- `MerchantMenus` component (list + create/edit forms)
-- Update `App.tsx` with new routes
-- Wire up API calls
+### Step 5: ✅ Client-side merchant management
+- ✅ `MerchantMenus` component at `src/client/js/pages/MerchantMenus.tsx` — list, create, edit views
+- ✅ Menu list with publish toggles, item counts, slug display, edit/delete actions
+- ✅ Menu form: name, description, publish toggle, business hours grid (mon–sun), menu item checkboxes
+- ✅ Routes at `/merchant-dashboard/:uuid/online-menus[/add][/:menuId/edit]`
+- ✅ Nav links added in `MerchantRoutes.tsx` and `MerchantSettings.tsx`
+- ✅ Menu categories CRUD (`menu_categories` table, model, routes, seeds)
+- ✅ Shared categories (`merchant_id = null`) visible to all merchants, merchant-specific categories editable
+- ✅ i18n keys for all merchant menu management UI
 
 ### Step 6: Slug generation — Done in Step 2
 - ✅ Slug generation in `Menus.create()` — from merchant identity + menu name
@@ -344,19 +355,28 @@ The existing `/order-online/:merchantId` placeholder route gets replaced by slug
 | `db/migrations/20260401000002_rename_address_columns.js` | ✅ Done | Rename `address`→`address_street`, `postal_code`→`address_postal_code` |
 | `db/migrations/20260401000003_add_timezone_to_merchants.js` | ✅ Done | Add `timezone` column (IANA, default UTC) for business hours conversion |
 | `db/migrations/20260511000001_create_menus.js` | ✅ Done | Migration for `menus` table + `menu_menu_items` junction |
+| `db/migrations/20260512000001_create_menu_categories.js` | ✅ Done | Migration for `menu_categories` table + FK on `menu_items` |
 | `db/seeds/00_cleanup.js` | ✅ Done | FK-safe table cleanup for repeatable seeds |
 | `db/seeds/07_menus.js` | ✅ Done | Seed data (2 menus, 6 junction rows) |
+| `db/seeds/08_menu_categories.js` | ✅ Done | 4 shared categories + item assignments |
 | `src/server/models/menus.ts` | ✅ Done | Menus model (8 methods, TypeScript) |
-| `specs/models/menus.spec.ts` | ✅ Done | 22 unit tests |
+| `src/server/models/menu_categories.ts` | ✅ Done | MenuCategories model (CRUD + shared/merchant scoping) |
+| `specs/models/menus.spec.ts` | ✅ Done | 23 unit tests |
 | `src/server/routes/menus.ts` | ✅ Done | Menu API routes (admin CRUD + public slug) |
+| `src/server/routes/menu_categories.ts` | ✅ Done | Category CRUD (shared categories read-only to merchants) |
 | `.mocharc.yml` | ✅ Done | Mocha config for TypeScript via tsx/cjs |
 | `src/server/index.js` | ✅ Done | Mount public menu routes |
-| `src/server/routes/merchants.js` | ✅ Done | Mount admin menu routes |
+| `src/server/routes/merchants.js` | ✅ Done | Mount admin menu + categories routes, UUID fallback fix |
 | `package.json` | ✅ Done | tsx dev support, test/db scripts |
-| `src/client/js/pages/OnlineMenu.tsx` | 🔜 Create | Customer-facing menu catalog |
-| `src/client/css/pages/OnlineMenu.css` | 🔜 Create | Mobile-first styles |
-| `src/client/js/pages/MerchantMenus.tsx` | Create | Merchant menu management |
-| `src/client/js/pages/CheckoutPlaceholder.tsx` | Create | Checkout placeholder page |
-| `src/client/js/App.tsx` | Edit | Add new routes, update customer route |
-| `src/client/js/api/index.tsx` | Edit | Add API client functions |
-| `src/server/services/actions.js` | Edit | Add menu service functions |
+| `vite.config.ts` | ✅ Done | Tailwind CSS v4 plugin |
+| `src/client/css/tailwind.css` | ✅ Done | Tailwind base + safe-area-inset utilities |
+| `src/client/js/index.tsx` | ✅ Done | Import tailwind.css |
+| `src/client/js/App.tsx` | ✅ Done | BrowserRouter + new routes (OnlineMenu, CheckoutPlaceholder, MerchantMenus) |
+| `src/client/js/components/Lazy.tsx` | ✅ Done | Error boundary + module-change reload |
+| `src/client/js/pages/OnlineMenu.tsx` | ✅ Done | Customer-facing menu catalog (Tailwind) |
+| `src/client/js/pages/CheckoutPlaceholder.tsx` | ✅ Done | Checkout placeholder page |
+| `src/client/js/pages/MerchantMenus.tsx` | ✅ Done | Merchant menu management (list/add/edit) |
+| `src/client/js/pages/MerchantRoutes.tsx` | ✅ Done | Nav link to online menus |
+| `src/client/js/pages/MerchantSettings.tsx` | ✅ Done | Nav link to online menus |
+| `src/client/locales/en.yaml` | ✅ Done | i18n keys for menus, checkout, categories |
+| `src/client/locales/zh.yaml` | ✅ Done | Chinese translations for all new keys |
