@@ -1,13 +1,10 @@
 import React from 'react';
-import {Router, Route, Switch} from 'react-router-dom';
-import {createBrowserHistory} from 'history';
+import {BrowserRouter, Route, Switch} from 'react-router-dom';
 
 import Lazy from './components/Lazy';
 import HomeLanding from './pages/HomeLanding';
 
 // Global types are defined in src/types/global.d.ts
-
-const history = createBrowserHistory();
 
 interface PageProps {
   [key: string]: any;
@@ -19,15 +16,18 @@ const Pages = {
   MerchantRoutes: (props: PageProps) => <Lazy {...props} module={import('./pages/MerchantRoutes')} />,
   MerchantMenuItems: (props: PageProps) => <Lazy {...props} module={import('./pages/MerchantMenuItems')} />,
   MerchantSettings: (props: PageProps) => <Lazy {...props} module={import('./pages/MerchantSettings')} />,
+  MerchantMenus: (props: PageProps) => <Lazy {...props} module={import('./pages/MerchantMenus')} />,
   CustomerRoutes: (props: PageProps) => <Lazy {...props} module={import('./pages/CustomerRoutes')} />,
   Menus: (props: PageProps) => <Lazy {...props} module={import('./pages/Menus')} />,
+  OnlineMenu: (props: PageProps) => <Lazy {...props} module={import('./pages/OnlineMenu')} />,
+  CheckoutPlaceholder: (props: PageProps) => <Lazy {...props} module={import('./pages/CheckoutPlaceholder')} />,
 }
 
 const SERVER_DATA = window.__VARS__ ? window.__VARS__ : null;
 
 function App() {
   return <div>
-    <Router history={history}>
+    <BrowserRouter>
 
       <Switch>
         <Route path="/" exact component={HomeLanding} />
@@ -42,15 +42,19 @@ function App() {
         <Route path="/merchant-dashboard/:uuid/menuitems/:menuItemId/edit" exact component={Pages.MerchantMenuItems} />
         <Route path="/merchant-dashboard/:uuid/menuitems" exact component={Pages.MerchantMenuItems} />
         <Route path="/merchant-dashboard/:uuid/settings" exact component={Pages.MerchantSettings} />
+        <Route path="/merchant-dashboard/:uuid/online-menus/add" exact component={Pages.MerchantMenus} />
+        <Route path="/merchant-dashboard/:uuid/online-menus/:menuId/edit" exact component={Pages.MerchantMenus} />
+        <Route path="/merchant-dashboard/:uuid/online-menus" exact component={Pages.MerchantMenus} />
 
-        {/* Customer online ordering — scoped to a specific merchant */}
-        <Route path="/order-online/:merchantId" exact component={Pages.CustomerRoutes} />
+        {/* Customer online ordering — public, slug-based */}
+        <Route path="/online-ordering/:slug/checkout" exact component={Pages.CheckoutPlaceholder} />
+        <Route path="/online-ordering/:slug" exact component={Pages.OnlineMenu} />
 
         {/* Customer menu webview for an existing order */}
         <Route path="/orders/:orderUuid/menus" exact component={Pages.Menus} />
       </Switch>
 
-    </Router>
+    </BrowserRouter>
   </div>
 }
 

@@ -48,23 +48,11 @@ function weekdayLabel(day: string): string {
 
 function Skeleton() {
   return (
-    <div className="max-w-lg mx-auto px-4 py-6 space-y-4 bg-stone-50 min-h-screen">
-      <div className="flex items-center gap-3 mb-8">
-        <div className="w-14 h-14 rounded-full bg-stone-200 animate-pulse" />
-        <div className="space-y-2">
-          <div className="h-5 w-36 bg-stone-200 rounded animate-pulse" />
-          <div className="h-4 w-56 bg-stone-200 rounded animate-pulse" />
-        </div>
-      </div>
-      <div className="h-5 w-32 bg-stone-200 rounded animate-pulse mb-4" />
+    <div className="max-w-lg mx-auto p-4 space-y-4">
+      <div className="h-24 bg-gray-200 rounded animate-pulse" />
+      <div className="h-6 w-48 bg-gray-200 rounded animate-pulse" />
       {[1, 2, 3].map((i) => (
-        <div key={i} className="flex gap-3 p-4 bg-white rounded-2xl shadow-sm">
-          <div className="w-20 h-20 bg-stone-200 rounded-xl animate-pulse flex-shrink-0" />
-          <div className="flex-1 space-y-2">
-            <div className="h-5 w-28 bg-stone-200 rounded animate-pulse" />
-            <div className="h-4 w-full bg-stone-100 rounded animate-pulse" />
-          </div>
-        </div>
+        <div key={i} className="h-20 bg-gray-100 rounded animate-pulse" />
       ))}
     </div>
   );
@@ -72,12 +60,9 @@ function Skeleton() {
 
 function NotFound({ t }: { t: (key: string) => string }) {
   return (
-    <div className="max-w-lg mx-auto min-h-screen flex items-center justify-center bg-stone-50">
-      <div className="text-center p-8">
-        <div className="text-5xl mb-4">🍽️</div>
-        <h1 className="text-xl font-bold text-stone-700 mb-2">{t('menus.notFound')}</h1>
-        <p className="text-stone-500">{t('menus.notFoundDesc')}</p>
-      </div>
+    <div className="max-w-lg mx-auto p-8 text-center">
+      <h1 className="text-xl font-semibold text-gray-700 mb-2">{t('menus.notFound')}</h1>
+      <p className="text-gray-500">{t('menus.notFoundDesc')}</p>
     </div>
   );
 }
@@ -105,41 +90,20 @@ function ClosedBanner({ hours, t }: { hours: Record<string, { open: string | nul
     .join(', ');
 
   return (
-    <div className="mx-4 mb-4 p-4 bg-amber-50 border border-amber-200 rounded-2xl text-amber-800 text-sm flex items-start gap-3">
-      <span className="text-lg flex-shrink-0">🕐</span>
-      <div>
-        <p className="font-semibold">{t('menus.currentlyClosed')}</p>
-        <p className="text-amber-700 mt-0.5">{hoursText}</p>
-      </div>
+    <div className="mx-4 mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg text-amber-800 text-sm">
+      <p className="font-medium">{t('menus.currentlyClosed')}</p>
+      <p>{t('menus.hours')}: {hoursText}</p>
     </div>
   );
 }
 
 function Empty({ t }: { t: (key: string) => string }) {
   return (
-    <div className="py-16 text-center">
-      <div className="text-4xl mb-3">📋</div>
-      <p className="text-stone-400 font-medium">{t('menus.noItems')}</p>
+    <div className="py-12 text-center text-gray-400">
+      {t('menus.noItems')}
     </div>
   );
 }
-
-const TYPE_ICONS: Record<string, string> = {
-  cafe: '☕',
-  restaurant: '🍜',
-  fast_casual: '🌯',
-  bakery: '🥖',
-  bar: '🍸',
-};
-
-const CATEGORY_COLORS = [
-  'border-l-amber-400',
-  'border-l-emerald-400',
-  'border-l-rose-400',
-  'border-l-sky-400',
-  'border-l-purple-400',
-  'border-l-orange-400',
-];
 
 export default function OnlineMenu(props: any) {
   const { t } = useTranslation();
@@ -168,55 +132,44 @@ export default function OnlineMenu(props: any) {
   const { merchant, categories, uncategorized, currently_open, business_hours } = menu;
 
   return (
-    <div className="max-w-lg mx-auto min-h-screen flex flex-col bg-stone-50">
-      {/* Sticky header */}
-      <header className="sticky top-0 z-10 bg-white/90 backdrop-blur-lg border-b border-stone-100 px-4 py-4 safe-top shadow-sm">
-        <div className="flex items-center gap-3 mb-1">
-          <div className="w-12 h-12 rounded-xl bg-amber-100 flex items-center justify-center text-xl flex-shrink-0">
-            {TYPE_ICONS[merchant.type] || '🏪'}
-          </div>
-          <div className="min-w-0">
-            <h1 className="text-lg font-bold text-stone-900 truncate">{merchant.business_name}</h1>
-            <p className="text-xs text-stone-400 truncate">
-              {[merchant.address_street, merchant.address_city].filter(Boolean).join(', ')}
-            </p>
-          </div>
-        </div>
-        <div className="flex items-center gap-2 mt-1" style={{ paddingLeft: '60px' }}>
-          <span className="text-xs bg-stone-100 text-stone-500 px-2.5 py-1 rounded-full capitalize font-medium">
+    <div className="max-w-lg mx-auto min-h-screen flex flex-col bg-white">
+      {/* Sticky header — merchant info */}
+      <header className="sticky top-0 z-10 bg-white border-b border-gray-100 px-4 py-4 safe-top">
+        <h1 className="text-lg font-bold text-gray-900">{merchant.business_name}</h1>
+        <p className="text-sm text-gray-500">
+          {[merchant.address_street, merchant.address_city, merchant.address_state, merchant.address_postal_code]
+            .filter(Boolean)
+            .join(', ')}
+        </p>
+        <div className="flex items-center gap-2 mt-1">
+          <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full capitalize">
             {merchant.type.replace(/_/g, ' ')}
           </span>
-          <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${currently_open ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-500'}`}>
-            {currently_open ? '● ' + t('menus.open') : '● ' + t('menus.closed')}
+          <span className={`text-xs px-2 py-0.5 rounded-full ${currently_open ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+            {currently_open ? t('menus.open') : t('menus.closed')}
           </span>
         </div>
       </header>
 
       {/* Menu title */}
-      <div className="px-4 pt-6 pb-4">
-        <h2 className="text-xl font-bold text-stone-800">{menu.name}</h2>
-        {menu.description && (
-          <p className="text-sm text-stone-400 mt-1">{menu.description}</p>
-        )}
+      <div className="px-4 pt-4 pb-2">
+        <h2 className="text-base font-semibold text-gray-800">{menu.name}</h2>
+        {menu.description && <p className="text-sm text-gray-400 mt-0.5">{menu.description}</p>}
       </div>
 
       {/* Closed banner */}
       {!currently_open && <ClosedBanner hours={business_hours} t={t} />}
 
-      {/* Items */}
-      <main className="flex-1 px-4 pb-28">
+      {/* Items by category */}
+      <main className="flex-1 px-4 pb-24">
         {categories.length === 0 && uncategorized.length === 0 && <Empty t={t} />}
 
-        {categories.map((cat, catIdx) => (
+        {categories.map((cat) => (
           <section key={cat.id} className="mb-6">
-            <div className="flex items-center gap-2 mb-3">
-              <h3 className="text-xs font-bold text-stone-400 uppercase tracking-widest">{cat.name}</h3>
-              <div className="flex-1 h-px bg-stone-200" />
-              <span className="text-xs text-stone-300 font-medium">{cat.items.length}</span>
-            </div>
-            <div className="space-y-3">
-              {cat.items.map((item, i) => (
-                <ItemCard key={item.id} item={item} accent={CATEGORY_COLORS[catIdx % CATEGORY_COLORS.length]} index={i} />
+            <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">{cat.name}</h3>
+            <div className="space-y-2">
+              {cat.items.map((item) => (
+                <ItemCard key={item.id} item={item} />
               ))}
             </div>
           </section>
@@ -224,20 +177,20 @@ export default function OnlineMenu(props: any) {
 
         {uncategorized.length > 0 && (
           <section className="mb-6">
-            <div className="space-y-3">
-              {uncategorized.map((item, i) => (
-                <ItemCard key={item.id} item={item} accent="border-l-stone-300" index={i} />
+            <div className="space-y-2">
+              {uncategorized.map((item) => (
+                <ItemCard key={item.id} item={item} />
               ))}
             </div>
           </section>
         )}
       </main>
 
-      {/* Sticky footer */}
-      <footer className="sticky bottom-0 z-10 px-4 py-4 safe-bottom bg-gradient-to-t from-stone-50 via-stone-50 to-transparent">
+      {/* Sticky footer — checkout button */}
+      <footer className="sticky bottom-0 z-10 bg-white border-t border-gray-100 px-4 py-4 safe-bottom">
         <button
           onClick={() => props.history.push(`/online-ordering/${slug}/checkout`)}
-          className="w-full bg-stone-900 hover:bg-stone-800 active:scale-[0.98] text-white font-semibold py-3.5 rounded-2xl text-base transition-all shadow-lg shadow-stone-900/10"
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-xl text-base transition-colors"
         >
           {t('menus.proceedToCheckout')}
         </button>
@@ -246,39 +199,29 @@ export default function OnlineMenu(props: any) {
   );
 }
 
-function ItemCard({ item, accent, index }: { item: MenuItem; accent: string; index: number }) {
+function ItemCard({ item }: { item: MenuItem }) {
   return (
-    <div className={`flex items-start gap-3 p-4 bg-white rounded-2xl border-l-[3px] ${accent} shadow-sm hover:shadow-md transition-shadow`}>
-      {/* Image */}
-      <div className="w-20 h-20 rounded-xl flex-shrink-0 flex items-center justify-center overflow-hidden">
+    <div className="flex items-start gap-3 p-3 bg-gray-50 rounded-xl">
+      <div className="w-14 h-14 bg-gray-200 rounded-lg flex-shrink-0 flex items-center justify-center overflow-hidden">
         {item.image_url ? (
           <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />
         ) : (
-          <div className="w-full h-full bg-stone-100 flex items-center justify-center">
-            <span className="text-stone-300 text-2xl select-none">
-              {['🥘', '🥗', '🍜', '🍰', '☕', '🥩', '🍔', '🌮', '🥐', '🍱'][index % 10]}
-            </span>
-          </div>
+          <span className="text-gray-400 text-xl">+</span>
         )}
       </div>
-
-      {/* Content */}
       <div className="flex-1 min-w-0">
         <div className="flex justify-between items-baseline gap-2">
-          <p className="font-semibold text-stone-800 text-[15px] leading-snug">{item.name}</p>
-          <p className="font-bold text-amber-700 text-[15px] flex-shrink-0">{formatPrice(item.price_cents)}</p>
+          <p className="font-medium text-gray-900 text-base truncate">{item.name}</p>
+          <p className="font-semibold text-gray-900 text-base flex-shrink-0">{formatPrice(item.price_cents)}</p>
         </div>
         {item.description && (
-          <p className="text-[13px] text-stone-400 mt-0.5 line-clamp-2 leading-relaxed">{item.description}</p>
+          <p className="text-sm text-gray-500 mt-0.5 line-clamp-2">{item.description}</p>
         )}
         {item.modifiers.length > 0 && (
-          <div className="flex flex-wrap gap-1.5 mt-2">
+          <div className="flex flex-wrap gap-1 mt-1.5">
             {item.modifiers.map((mod) => (
-              <span key={mod.id} className="text-[11px] bg-stone-50 border border-stone-200 text-stone-500 px-2 py-0.5 rounded-lg font-medium">
-                +{mod.name}
-                {mod.price_adjustment_cents > 0 && (
-                  <span className="text-amber-600 ml-0.5">{formatPrice(mod.price_adjustment_cents)}</span>
-                )}
+              <span key={mod.id} className="text-xs bg-white border border-gray-200 text-gray-600 px-2 py-0.5 rounded-full">
+                {mod.name} {mod.price_adjustment_cents > 0 ? `(+${formatPrice(mod.price_adjustment_cents)})` : ''}
               </span>
             ))}
           </div>

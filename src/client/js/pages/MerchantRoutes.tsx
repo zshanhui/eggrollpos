@@ -172,6 +172,7 @@ function OrdersListPage({ merchantId, merchantName, merchantUuid, onSelectOrder,
       <div className="OrdersGrid__header">
         <h1 className="OrdersGrid__title">{merchantName}<LangSwitcher /></h1>
         <div className="OrdersGrid__nav">
+          <a href={`/merchant-dashboard/${merchantUuid}/online-menus`}>{t('merchant.menus')}</a>
           <a href={`/merchant-dashboard/${merchantUuid}/menuitems`}>{t('merchant.menu')}</a>
           <a href={`/merchant-dashboard/${merchantUuid}/settings`}>{t('merchant.settings')}</a>
           <span className="OrdersGrid__count">{filteredOrders.length}</span>

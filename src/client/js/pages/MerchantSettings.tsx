@@ -151,6 +151,7 @@ function SettingsForm({
           {t('merchant.settings')} <LangSwitcher />
         </h1>
         <div className="MerchantSettings__nav">
+          <a href={`/merchant-dashboard/${merchantUuid}/online-menus`}>{t('merchant.menus')}</a>
           <a href={`/merchant-dashboard/${merchantUuid}/menuitems`}>{t('merchant.menu')}</a>
         </div>
       </header>
