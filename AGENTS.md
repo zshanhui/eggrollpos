@@ -22,7 +22,7 @@ NODE_ENV=development npx tsx ./bin/www   # Express on :3000
 npx vite                                  # Vite on :3001
 ```
 
-Do NOT use `pnpm run dev` directly (it uses `nodemon` which invokes `node`, not `tsx`). If you need file watching, use `nodemon --exec tsx ./bin/www`.
+`pnpm run dev` uses `concurrently` to run both Vite and `nodemon --exec tsx`, which works correctly. You can also start servers separately as shown above.
 
 **Important**: Never leave compiled `.js` files next to `.ts` files in `src/shared/`. Vite will serve the `.js` files (CJS format) instead of transforming the `.ts` files (ESM), causing the frontend to break silently (merchant page stuck on spinner).
 
@@ -37,7 +37,8 @@ Both use the same migrations/seeds: `npx knex migrate:latest --knexfile db/knexf
 
 ### Routing
 
-- The merchant dashboard route is `/merchant` (exact match, not `/merchant/:id`). The component hardcodes `merchant_id = 3`.
+- The merchant dashboard route is `/merchant-dashboard/:uuid` (e.g. `/merchant-dashboard/a0000001-0001-0001-0001-000000000001`).
+- The online ordering route is `/online-ordering/:slug` (e.g. `/online-ordering/instep-cafe-new-york-10001-lunch-menu`).
 - The `pnpm run type-check` has pre-existing TypeScript errors in the client code; the project compiles and runs fine via Vite regardless.
 
 ### pnpm build scripts
@@ -51,6 +52,13 @@ Merchant accounts are **only** creatable via the admin script — not via UI or 
 ```bash
 pnpm run create-merchant "Business Name" [--address "addr"] [--postal-code 94105] [--description "desc"] [--type cafe]
 ```
+
+### Seed data for testing
+
+When using SQLite mode (`DB_CLIENT=sqlite3`), seed merchants have these UUIDs (see `README.md` for full list):
+- Merchant 1 (INSTEP Cafe): UUID `a0000001-0001-0001-0001-000000000001`
+- Merchant 2: UUID `a0000002-0002-0002-0002-000000000002`
+- Published menu slug: `instep-cafe-new-york-10001-lunch-menu`
 
 ### Optional integrations
 
