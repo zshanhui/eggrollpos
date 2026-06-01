@@ -8,7 +8,7 @@ import { Status } from '../../shared/orders';
 import type { OrderType } from '../../shared/orders';
 
 interface CreateOrderParams {
-  merchantId: number;
+  merchantId: string;
   customerName: string;
   customerPhone?: string;
   orderType?: OrderType;
@@ -129,9 +129,10 @@ export async function getLineItems({ orderId }: { orderId: number }) {
 }
 
 export async function createOrder({ merchantId, customerName, customerPhone, orderType = 'pickup', items }: CreateOrderParams) {
-  const merchant = await Merchants.get(merchantId);
+  const merchant = await Merchants.getByUuid(merchantId)
+    ?? await Merchants.getByHashId(merchantId);
   if (!merchant) {
-    throw new Error(`Merchant #${merchantId} not found`);
+    throw new Error(`Merchant '${merchantId}' not found`);
   }
 
   if (!items || items.length === 0) {
@@ -144,7 +145,7 @@ export async function createOrder({ merchantId, customerName, customerPhone, ord
   });
   const customerId = customerIds[0];
 
-  const orderUuid = await Orders.create({ merchantId, customerId, orderType });
+  const orderUuid = await Orders.create({ merchantId: merchant.id, customerId, orderType });
   const { order } = await Orders.getByUuid(orderUuid);
 
   for (const item of items) {

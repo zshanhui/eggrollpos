@@ -71,7 +71,13 @@ export const completeAddingLineItems = async (orderUuid, comments = '') => {
   return response;
 }
 
-export const createOrder = async ({ merchantId, customerName, customerPhone, orderType, items }) => {
+export const createOrder = async ({ merchantId, customerName, customerPhone, orderType, items }: {
+  merchantId: string;
+  customerName: string;
+  customerPhone?: string;
+  orderType?: string;
+  items: { menuItemId: number; quantity: number }[];
+}) => {
   const response = await fetchResource(CREATE_ORDER_URL, createPostBodyRequest({
     merchantId,
     customerName,

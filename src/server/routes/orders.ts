@@ -41,9 +41,9 @@ router.post('/lineitems', async (req, res) => {
 router.post('/', async (req, res) => {
   const { merchantId, customerName, customerPhone, orderType, items } = req.body;
 
-  if (!merchantId || !customerName || !Array.isArray(items) || items.length === 0) {
+  if (!merchantId || typeof merchantId !== 'string' || !customerName || !Array.isArray(items) || items.length === 0) {
     return res.status(400).json({
-      error: 'merchantId, customerName, and a non-empty items array are required',
+      error: 'merchantId (uuid or hash_id string), customerName, and a non-empty items array are required',
     });
   }
 

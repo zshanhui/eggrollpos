@@ -5,6 +5,9 @@ import * as Actions from '../../src/server/services/actions';
 
 const migrationsDir = path.resolve(__dirname, '../../db/migrations');
 
+const MERCHANT_UUID = 'test0001-0001-0001-0001-000000000001';
+const MERCHANT_HASH = 'mc_testcafe01';
+
 async function resetAll() {
   await db('line_items').del();
   await db('orders').del();
@@ -17,7 +20,7 @@ async function resetAll() {
 }
 
 describe('Actions.createOrder', () => {
-  let merchantId: number;
+  let internalMerchantId: number;
   let menuItemId1: number;
   let menuItemId2: number;
 
@@ -26,13 +29,15 @@ describe('Actions.createOrder', () => {
     await db.migrate.latest({ directory: migrationsDir, tableName: 'knex_migrations' });
     await resetAll();
 
-    [merchantId] = await db('merchants').insert({
+    [internalMerchantId] = await db('merchants').insert({
       business_name: 'Test Cafe',
       type: 'cafe',
+      uuid: MERCHANT_UUID,
+      hash_id: MERCHANT_HASH,
     });
 
     [menuItemId1] = await db('menu_items').insert({
-      merchant_id: merchantId,
+      merchant_id: internalMerchantId,
       name: 'Latte',
       description: 'Hot latte',
       price_cents: 450,
@@ -40,7 +45,7 @@ describe('Actions.createOrder', () => {
     });
 
     [menuItemId2] = await db('menu_items').insert({
-      merchant_id: merchantId,
+      merchant_id: internalMerchantId,
       name: 'Croissant',
       description: 'Butter croissant',
       price_cents: 350,
@@ -54,9 +59,9 @@ describe('Actions.createOrder', () => {
     await db('customers').del();
   });
 
-  it('creates an order with customer, line items, and returns a UUID', async () => {
+  it('creates an order using merchant UUID', async () => {
     const result = await Actions.createOrder({
-      merchantId,
+      merchantId: MERCHANT_UUID,
       customerName: 'Jane Doe',
       orderType: 'pickup',
       items: [
@@ -70,7 +75,7 @@ describe('Actions.createOrder', () => {
 
     const order = await db('orders').where('uuid', result.orderUuid).first();
     expect(order).to.exist;
-    expect(order.merchant_id).to.equal(merchantId);
+    expect(order.merchant_id).to.equal(internalMerchantId);
     expect(order.status).to.equal('waiting_for_acceptance');
 
     const customer = await db('customers').where('id', order.customer_id).first();
@@ -81,9 +86,20 @@ describe('Actions.createOrder', () => {
     expect(lineItems.map(li => li.menu_item_id)).to.include.members([menuItemId1, menuItemId2]);
   });
 
+  it('creates an order using merchant hash_id', async () => {
+    const result = await Actions.createOrder({
+      merchantId: MERCHANT_HASH,
+      customerName: 'Hash User',
+      items: [{ menuItemId: menuItemId1, quantity: 1 }],
+    });
+
+    const order = await db('orders').where('uuid', result.orderUuid).first();
+    expect(order.merchant_id).to.equal(internalMerchantId);
+  });
+
   it('stores customer phone when provided', async () => {
     const result = await Actions.createOrder({
-      merchantId,
+      merchantId: MERCHANT_UUID,
       customerName: 'Bob',
       customerPhone: '+1234567890',
       items: [{ menuItemId: menuItemId1, quantity: 1 }],
@@ -96,7 +112,7 @@ describe('Actions.createOrder', () => {
 
   it('defaults orderType to pickup', async () => {
     const result = await Actions.createOrder({
-      merchantId,
+      merchantId: MERCHANT_UUID,
       customerName: 'Carol',
       items: [{ menuItemId: menuItemId1, quantity: 1 }],
     });
@@ -107,7 +123,7 @@ describe('Actions.createOrder', () => {
 
   it('supports delivery orderType', async () => {
     const result = await Actions.createOrder({
-      merchantId,
+      merchantId: MERCHANT_UUID,
       customerName: 'Dave',
       orderType: 'delivery',
       items: [{ menuItemId: menuItemId1, quantity: 1 }],
@@ -120,7 +136,7 @@ describe('Actions.createOrder', () => {
   it('throws when merchant does not exist', async () => {
     try {
       await Actions.createOrder({
-        merchantId: 99999,
+        merchantId: 'nonexistent-uuid-0000-0000-000000000000',
         customerName: 'Ghost',
         items: [{ menuItemId: menuItemId1, quantity: 1 }],
       });
@@ -133,7 +149,7 @@ describe('Actions.createOrder', () => {
   it('throws when items array is empty', async () => {
     try {
       await Actions.createOrder({
-        merchantId,
+        merchantId: MERCHANT_UUID,
         customerName: 'Empty Order',
         items: [],
       });
