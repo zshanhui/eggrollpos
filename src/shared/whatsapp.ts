@@ -58,3 +58,27 @@ export interface IngestResult {
   stored: number;
   entries: WhatsAppLogInsertRow[];
 }
+
+export type WhatsAppOptInSource = 'web_checkout' | 'whatsapp_inbound' | 'qr';
+
+export interface WhatsAppOptInRow {
+  id: number;
+  customer_id: number;
+  merchant_id: number;
+  order_id: number | null;
+  wa_id: string | null;
+  phone_e164: string | null;
+  opt_in_source: WhatsAppOptInSource;
+  marketing_allowed: boolean;
+  opted_in_at: string;
+}
+
+export interface WhatsAppOptInCreateParams {
+  customerId: number;
+  merchantId: number;
+  orderId?: number | null;
+  phoneE164?: string | null;
+  waId?: string | null;
+  optInSource?: WhatsAppOptInSource;
+  marketingAllowed?: boolean;
+}

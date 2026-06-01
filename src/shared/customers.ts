@@ -17,4 +17,5 @@ export interface CustomerCreateParams {
   name: string;
   psid?: string | null;
   mobile_phone?: string | null;
+  email?: string | null;
 }

@@ -1,5 +1,7 @@
-import { Router } from 'express';
+import { Router, type Request, type Response } from 'express';
 import Menus from '../models/menus';
+import { submitMenuCheckout, CheckoutError } from '../services/checkout';
+import type { MenuCheckoutRequest } from '../../shared/checkout';
 
 // ─── currently_open ───
 

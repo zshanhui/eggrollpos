@@ -47,7 +47,7 @@ function App() {
         <Route path="/merchant-dashboard/:uuid/online-menus" exact component={Pages.MerchantMenus} />
 
         {/* Customer online ordering — public, slug-based */}
-        <Route path="/online-ordering/:slug/checkout" exact component={Pages.CheckoutPlaceholder} />
+        <Route path="/online-ordering/:slug/checkout" exact component={Pages.Checkout} />
         <Route path="/online-ordering/:slug" exact component={Pages.OnlineMenu} />
 
         {/* Customer menu webview for an existing order */}

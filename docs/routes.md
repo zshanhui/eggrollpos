@@ -26,6 +26,14 @@ Mounted when `WHATSAPP_VERIFY_TOKEN` or `WHATSAPP_ENABLED` is set (see `.env.exa
 
 ---
 
+
+### Public menus — `/api/menus`
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| `GET` | `/:slug` | Published menu catalog for online ordering |
+| `POST` | `/:slug/checkout` | Place order (cart, contact, mock payment, optional WhatsApp opt-in) |
+
 ### Contact — `/api/contact`
 
 | Method | Path | Purpose |
