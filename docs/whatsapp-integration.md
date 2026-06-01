@@ -12,6 +12,142 @@ This document describes how to integrate **eggroll-pos** online ordering with th
 
 ---
 
+## 5-Step Incremental Plan
+
+Ship WhatsApp in five increments. Each step is independently testable and delivers user-visible or operator-visible value before moving on.
+
+| Step | Name | Outcome | Depends on |
+|------|------|---------|------------|
+| **1** | Discoverability | Customers can reach the merchant on WhatsApp from the online menu | None |
+| **2** | Platform wiring | Meta app connected; webhooks verified; messages auditable | Step 1 (optional) |
+| **3** | Order notifications | Customers who opt in receive WhatsApp updates for key order events | Steps 2 and 4 |
+| **4** | Checkout & consent | Web checkout captures phone + opt-in and links to orders | Step 1 |
+| **5** | Chat ordering | Customers can build and submit orders inside WhatsApp | Steps 2–4 |
+
+**Recommended build order:** 1 → 2 → 4 → 3 → 5 (connect Meta and checkout consent before enabling outbound templates).
+
+### Step 1 — Discoverability (`wa.me` links)
+
+**Goal:** No Cloud API yet; meet customers on WhatsApp using the merchant's existing `whatsapp_number`.
+
+**Work:**
+
+- Validate `whatsapp_number` in Merchant Settings (E.164).
+- On `/online-ordering/:slug`, show a primary CTA: `https://wa.me/{digits}?text=…` with pre-filled menu context (merchant name + slug URL).
+- Optional: QR code on merchant dashboard for print/sticker.
+
+**Done when:** A customer taps the button and opens a chat with the correct business number and prefilled text.
+
+**Effort:** Small (UI + URL builder only).
+
+---
+
+### Step 2 — Platform wiring (webhook + audit log)
+
+**Goal:** Secure, observable connection to Meta without sending customer notifications yet.
+
+**Work:**
+
+- Register Meta Developer app, test WABA, `phone_number_id`, system user token.
+- Add env vars: `WHATSAPP_ACCESS_TOKEN`, `WHATSAPP_APP_SECRET`, `WHATSAPP_VERIFY_TOKEN`, `WHATSAPP_PHONE_NUMBER_ID`, `PUBLIC_BASE_URL`.
+- Implement `GET/POST /api/webhooks/whatsapp` (verify challenge, verify `X-Hub-Signature-256`, return 200 quickly).
+- Migration: `whatsapp_message_log` (store inbound + status webhooks; idempotent on `wamid`).
+- Feature flag: `WHATSAPP_ENABLED`.
+- Local dev: HTTPS tunnel (ngrok / Cloudflare).
+
+**Done when:** Meta test payloads appear in the log; signature failures are rejected.
+
+**Effort:** Medium (server route + DB + ops).
+
+---
+
+### Step 3 — Order notifications (utility templates)
+
+**Goal:** Proactive order updates outside the 24-hour chat window via approved **utility** templates.
+
+**Work:**
+
+- Create templates from Template Library: `ORDER_CONFIRMATION`, `ORDER_PICK_UP`, `ORDER_OR_TRANSACTION_CANCEL` (per locale: `en_US`, `zh_CN`, `ms_MY`).
+- `WhatsAppService.sendTemplate()` + `whatsapp_outbox` queue worker.
+- Hook sends after:
+  - `POST /api/orders/complete` → confirmation + receipt URL
+  - Merchant status → `ready_for_pickup` / `ready_for_delivery` → pickup/delivery template
+  - Cancel/refund → cancel template
+- Merchant settings: toggles for which statuses trigger WhatsApp.
+
+**Done when:** Opted-in customer receives templates on submit and "ready for pickup"; duplicates are not sent on webhook retry.
+
+**Effort:** Medium (templates, outbox, order hooks).
+
+**Requires:** Step 2 (send + status webhooks), Step 4 (opt-in + phone).
+
+---
+
+### Step 4 — Checkout & consent
+
+**Goal:** Lawful, reliable link between web orders and WhatsApp recipients.
+
+**Work:**
+
+- Finish `/online-ordering/:slug/checkout` (cart → submit).
+- Fields: mobile phone (E.164), checkbox "Send order updates on WhatsApp" + short policy link.
+- Migration: `whatsapp_opt_ins` (`customer_id`, `merchant_id`, `wa_id`, `opted_in_at`, `opt_in_source`).
+- On submit: upsert customer `mobile_phone`, record opt-in, associate with `order_uuid`.
+- Normalize phones server-side; reject invalid numbers before `complete`.
+
+**Done when:** Completed web orders store opt-in; customers without opt-in do not receive templates.
+
+**Effort:** Medium (checkout UI + API + migration).
+
+**Requires:** Step 1 (consistent phone/display number story).
+
+---
+
+### Step 5 — Chat ordering (inbound assistant)
+
+**Goal:** Order intake in WhatsApp syncs to the same POS order grid as web orders.
+
+**Work:**
+
+- Parse inbound `messages` webhooks: text, `interactive` list/button replies.
+- `whatsapp_sessions` table: `wa_id` → active `order_uuid` (TTL).
+- Commands / buttons map to existing APIs:
+  - Browse menu → sections from `GET /api/menus/:slug`
+  - Add item → `POST /api/orders/lineitems`
+  - Submit → `POST /api/orders/complete`
+- Auto-reply when shop closed (`currently_open` / `business_hours`).
+- Service messages inside 24h window; fall back to template + menu link when window closed.
+
+**Done when:** Customer places a full order via chat; merchant sees it in `/merchant-dashboard/:uuid` without manual re-entry.
+
+**Effort:** Large (state machine, interactive UX, error handling).
+
+**Requires:** Steps 2–4.
+
+---
+
+### Step summary diagram
+
+```mermaid
+flowchart LR
+  S1[1 Discoverability]
+  S2[2 Platform wiring]
+  S4[4 Checkout and consent]
+  S3[3 Notifications]
+  S5[5 Chat ordering]
+  S1 --> S2
+  S1 --> S4
+  S2 --> S3
+  S4 --> S3
+  S2 --> S5
+  S3 --> S5
+  S4 --> S5
+```
+
+For full architecture, data models, and Meta API background, see the sections below.
+
+---
+
 ## 1. Goals
 
 | Goal | Description |
