@@ -1,24 +1,24 @@
-const crypto = require('crypto');
-const WhatsAppMessageLog = require('../../models/whatsapp_message_log');
+import crypto from 'crypto';
+import WhatsAppMessageLog from '../../models/whatsapp_message_log';
+import type {
+  IngestResult,
+  WhatsAppLogInsertRow,
+  WhatsAppWebhookPayload,
+} from '../../../shared/whatsapp';
 
-/**
- * Build idempotent log rows from a Meta WhatsApp webhook payload.
- * @param {object} payload parsed JSON body
- * @returns {object[]}
- */
-function extractLogEntries(payload) {
-  const entries = [];
+export function extractLogEntries(payload: WhatsAppWebhookPayload): WhatsAppLogInsertRow[] {
+  const entries: WhatsAppLogInsertRow[] = [];
   if (!payload || typeof payload !== 'object') {
     return entries;
   }
 
-  const objectType = payload.object;
+  const objectType = payload.object ?? null;
   const entryList = Array.isArray(payload.entry) ? payload.entry : [];
 
   for (const entry of entryList) {
     const changes = Array.isArray(entry.changes) ? entry.changes : [];
     for (const change of changes) {
-      const value = change.value || {};
+      const value = change.value ?? {};
       const phoneNumberId = value.metadata?.phone_number_id ?? null;
       const field = change.field ?? null;
 
@@ -62,10 +62,10 @@ function extractLogEntries(payload) {
         }
       }
 
-      if (
-        (!value.messages || value.messages.length === 0) &&
-        (!value.statuses || value.statuses.length === 0)
-      ) {
+      const hasMessages = Array.isArray(value.messages) && value.messages.length > 0;
+      const hasStatuses = Array.isArray(value.statuses) && value.statuses.length > 0;
+
+      if (!hasMessages && !hasStatuses) {
         const hash = crypto
           .createHash('sha256')
           .update(JSON.stringify({ entry_id: entry.id, field, value }))
@@ -92,16 +92,12 @@ function extractLogEntries(payload) {
   return entries;
 }
 
-/**
- * @param {Buffer|string} rawBody
- * @returns {Promise<{ stored: number; entries: object[] }>}
- */
-async function ingestWebhookPayload(rawBody) {
+export async function ingestWebhookPayload(rawBody: Buffer | string): Promise<IngestResult> {
   const text = Buffer.isBuffer(rawBody) ? rawBody.toString('utf8') : rawBody;
-  let payload;
+  let payload: WhatsAppWebhookPayload;
   try {
-    payload = JSON.parse(text);
-  } catch (err) {
+    payload = JSON.parse(text) as WhatsAppWebhookPayload;
+  } catch {
     throw new Error('Invalid JSON webhook payload');
   }
 
@@ -109,8 +105,3 @@ async function ingestWebhookPayload(rawBody) {
   const stored = await WhatsAppMessageLog.insertManyIgnoreDuplicates(rows);
   return { stored: stored.length, entries: rows };
 }
-
-module.exports = {
-  extractLogEntries,
-  ingestWebhookPayload,
-};

@@ -1,14 +1,14 @@
-const crypto = require('crypto');
+import crypto from 'crypto';
+import type { Request } from 'express';
 
-const SIGNATURE_HEADER = 'x-hub-signature-256';
+export const SIGNATURE_HEADER = 'x-hub-signature-256';
 const PREFIX = 'sha256=';
 
-/**
- * @param {Buffer|string} rawBody
- * @param {string} signatureHeader value of X-Hub-Signature-256
- * @param {string} appSecret Meta app secret
- */
-function verifyWebhookSignature(rawBody, signatureHeader, appSecret) {
+export function verifyWebhookSignature(
+  rawBody: Buffer | string,
+  signatureHeader: string,
+  appSecret: string
+): boolean {
   if (!signatureHeader || !appSecret) {
     return false;
   }
@@ -24,12 +24,6 @@ function verifyWebhookSignature(rawBody, signatureHeader, appSecret) {
   return crypto.timingSafeEqual(Buffer.from(expected, 'utf8'), Buffer.from(digest, 'utf8'));
 }
 
-function getSignatureHeader(req) {
+export function getSignatureHeader(req: Request): string {
   return req.get(SIGNATURE_HEADER) || req.get('X-Hub-Signature-256') || '';
 }
-
-module.exports = {
-  verifyWebhookSignature,
-  getSignatureHeader,
-  SIGNATURE_HEADER,
-};

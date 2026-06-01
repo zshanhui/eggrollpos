@@ -1,62 +1,44 @@
-/**
- * WhatsApp Cloud API configuration from environment.
- */
-
-function isTruthy(value) {
+function isTruthy(value: string | undefined): boolean {
   if (value == null || value === '') return false;
   return value === '1' || value.toLowerCase() === 'true' || value.toLowerCase() === 'yes';
 }
 
-function isWhatsAppEnabled() {
+export function isWhatsAppEnabled(): boolean {
   return isTruthy(process.env.WHATSAPP_ENABLED);
 }
 
-function isWebhookConfigured() {
+export function isWebhookConfigured(): boolean {
   return Boolean(process.env.WHATSAPP_VERIFY_TOKEN);
 }
 
-function shouldMountWebhook() {
+export function shouldMountWebhook(): boolean {
   return isWebhookConfigured() || isWhatsAppEnabled();
 }
 
-function getVerifyToken() {
+export function getVerifyToken(): string {
   return process.env.WHATSAPP_VERIFY_TOKEN || '';
 }
 
-function getAppSecret() {
+export function getAppSecret(): string {
   return process.env.WHATSAPP_APP_SECRET || '';
 }
 
-function getAccessToken() {
+export function getAccessToken(): string {
   return process.env.WHATSAPP_ACCESS_TOKEN || '';
 }
 
-function getPhoneNumberId() {
+export function getPhoneNumberId(): string {
   return process.env.WHATSAPP_PHONE_NUMBER_ID || '';
 }
 
-function getApiVersion() {
+export function getApiVersion(): string {
   return process.env.WHATSAPP_API_VERSION || 'v25.0';
 }
 
-function getPublicBaseUrl() {
+export function getPublicBaseUrl(): string {
   return (process.env.PUBLIC_BASE_URL || '').replace(/\/$/, '');
 }
 
-function isIngestReady() {
+export function isIngestReady(): boolean {
   return isWhatsAppEnabled() && Boolean(getAppSecret());
 }
-
-module.exports = {
-  isTruthy,
-  isWhatsAppEnabled,
-  isWebhookConfigured,
-  shouldMountWebhook,
-  getVerifyToken,
-  getAppSecret,
-  getAccessToken,
-  getPhoneNumberId,
-  getApiVersion,
-  getPublicBaseUrl,
-  isIngestReady,
-};

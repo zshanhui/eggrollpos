@@ -1,10 +1,11 @@
-const { expect } = require('chai');
-const WhatsAppMessageLog = require('../../src/server/models/whatsapp_message_log');
+import { expect } from 'chai';
+import WhatsAppMessageLog from '../../src/server/models/whatsapp_message_log';
+import type { WhatsAppLogInsertRow } from '../../src/shared/whatsapp';
 
 describe('whatsapp_message_log model', function () {
   this.timeout(10000);
 
-  const row = {
+  const row: WhatsAppLogInsertRow = {
     dedupe_key: `test-${Date.now()}`,
     wa_message_id: 'wamid.test',
     direction: 'inbound',
@@ -18,7 +19,7 @@ describe('whatsapp_message_log model', function () {
   it('inserts a row and ignores duplicates', async () => {
     const first = await WhatsAppMessageLog.insertIgnoreDuplicate(row);
     expect(first).to.exist;
-    expect(first.dedupe_key).to.equal(row.dedupe_key);
+    expect(first!.dedupe_key).to.equal(row.dedupe_key);
 
     const second = await WhatsAppMessageLog.insertIgnoreDuplicate(row);
     expect(second).to.equal(null);

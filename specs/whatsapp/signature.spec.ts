@@ -1,14 +1,12 @@
-const { expect } = require('chai');
-const crypto = require('crypto');
-const {
-  verifyWebhookSignature,
-} = require('../../src/server/services/whatsapp/signature');
+import { expect } from 'chai';
+import crypto from 'crypto';
+import { verifyWebhookSignature } from '../../src/server/services/whatsapp/signature';
 
 describe('WhatsApp webhook signature', () => {
   const secret = 'test-app-secret';
   const body = Buffer.from('{"object":"whatsapp_business_account"}', 'utf8');
 
-  function sign(payload, appSecret) {
+  function sign(payload: Buffer, appSecret: string): string {
     const digest = crypto.createHmac('sha256', appSecret).update(payload).digest('hex');
     return `sha256=${digest}`;
   }

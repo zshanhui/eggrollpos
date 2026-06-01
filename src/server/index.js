@@ -11,7 +11,7 @@ const merchantsRouter = require("./routes/merchants");
 const ordersRouter = require("./routes/orders");
 const { publicRouter: menusPublicRouter } = require("./routes/menus");
 const whatsappConfig = require("./services/whatsapp/config");
-const whatsappWebhookRouter = require("./routes/whatsapp_webhook");
+const { whatsappWebhookRouter } = require("./routes/whatsapp_webhook");
 
 const Actions = require("./services/actions");
 

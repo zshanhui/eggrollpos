@@ -1,9 +1,10 @@
-const { expect } = require('chai');
-const { extractLogEntries } = require('../../src/server/services/whatsapp/ingest');
+import { expect } from 'chai';
+import { extractLogEntries } from '../../src/server/services/whatsapp/ingest';
+import type { WhatsAppWebhookPayload } from '../../src/shared/whatsapp';
 
 describe('WhatsApp webhook ingest', () => {
   it('extracts inbound messages and delivery statuses', () => {
-    const payload = {
+    const payload: WhatsAppWebhookPayload = {
       object: 'whatsapp_business_account',
       entry: [
         {
@@ -43,17 +44,17 @@ describe('WhatsApp webhook ingest', () => {
     expect(rows).to.have.length(2);
 
     const inbound = rows.find((r) => r.direction === 'inbound');
-    expect(inbound.dedupe_key).to.equal('wamid.inbound123:inbound');
-    expect(inbound.wa_id).to.equal('16505551234');
-    expect(inbound.event_kind).to.equal('text');
+    expect(inbound!.dedupe_key).to.equal('wamid.inbound123:inbound');
+    expect(inbound!.wa_id).to.equal('16505551234');
+    expect(inbound!.event_kind).to.equal('text');
 
     const status = rows.find((r) => r.direction === 'status');
-    expect(status.dedupe_key).to.equal('wamid.outbound456:delivered');
-    expect(status.event_kind).to.equal('delivered');
+    expect(status!.dedupe_key).to.equal('wamid.outbound456:delivered');
+    expect(status!.event_kind).to.equal('delivered');
   });
 
   it('dedupes generic events by content hash', () => {
-    const payload = {
+    const payload: WhatsAppWebhookPayload = {
       object: 'whatsapp_business_account',
       entry: [
         {

@@ -1,16 +1,17 @@
-const express = require('express');
-const router = express.Router();
-const debug = require('debug')('sqc_app:whatsapp:webhook');
+import { Router, type Request, type Response } from 'express';
+import debug from 'debug';
+import * as config from '../services/whatsapp/config';
+import { verifyWebhookSignature, getSignatureHeader } from '../services/whatsapp/signature';
+import { ingestWebhookPayload } from '../services/whatsapp/ingest';
 
-const config = require('../services/whatsapp/config');
-const { verifyWebhookSignature, getSignatureHeader } = require('../services/whatsapp/signature');
-const { ingestWebhookPayload } = require('../services/whatsapp/ingest');
+const log = debug('sqc_app:whatsapp:webhook');
+const router = Router();
 
 /**
  * Meta webhook verification (GET).
  * https://developers.facebook.com/docs/whatsapp/cloud-api/guides/set-up-webhooks
  */
-router.get('/', (req, res) => {
+router.get('/', (req: Request, res: Response) => {
   const mode = req.query['hub.mode'];
   const token = req.query['hub.verify_token'];
   const challenge = req.query['hub.challenge'];
@@ -20,25 +21,25 @@ router.get('/', (req, res) => {
   }
 
   if (!config.isWebhookConfigured()) {
-    debug('verification rejected: WHATSAPP_VERIFY_TOKEN not set');
+    log('verification rejected: WHATSAPP_VERIFY_TOKEN not set');
     return res.sendStatus(503);
   }
 
   if (token !== config.getVerifyToken()) {
-    debug('verification rejected: token mismatch');
+    log('verification rejected: token mismatch');
     return res.sendStatus(403);
   }
 
-  debug('verification succeeded');
-  res.status(200).type('text/plain').send(challenge || '');
+  log('verification succeeded');
+  res.status(200).type('text/plain').send(String(challenge ?? ''));
 });
 
 /**
  * Meta webhook events (POST). Respond immediately; persist asynchronously.
  */
-router.post('/', (req, res) => {
+router.post('/', (req: Request, res: Response) => {
   if (!config.isIngestReady()) {
-    debug('ingest skipped: WHATSAPP_ENABLED or WHATSAPP_APP_SECRET not set');
+    log('ingest skipped: WHATSAPP_ENABLED or WHATSAPP_APP_SECRET not set');
     return res.sendStatus(503);
   }
 
@@ -49,7 +50,7 @@ router.post('/', (req, res) => {
 
   const signature = getSignatureHeader(req);
   if (!verifyWebhookSignature(rawBody, signature, config.getAppSecret())) {
-    debug('signature verification failed');
+    log('signature verification failed');
     return res.sendStatus(403);
   }
 
@@ -58,7 +59,7 @@ router.post('/', (req, res) => {
   setImmediate(() => {
     ingestWebhookPayload(rawBody)
       .then((result) => {
-        debug('stored %d log row(s) from %d parsed entries', result.stored, result.entries.length);
+        log('stored %d log row(s) from %d parsed entries', result.stored, result.entries.length);
       })
       .catch((err) => {
         console.error('[whatsapp webhook] ingest failed:', err);
@@ -66,4 +67,5 @@ router.post('/', (req, res) => {
   });
 });
 
-module.exports = router;
+export default router;
+export { router as whatsappWebhookRouter };
