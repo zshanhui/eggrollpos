@@ -15,6 +15,17 @@ API routes are mounted in `src/server/index.js`. All other paths fall through to
 
 ## API Routes
 
+### WhatsApp webhooks — `/api/webhooks/whatsapp`
+
+Mounted when `WHATSAPP_VERIFY_TOKEN` or `WHATSAPP_ENABLED` is set (see `.env.example`).
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| `GET` | `/` | Meta webhook verification (query: `hub.mode`, `hub.verify_token`, `hub.challenge`) |
+| `POST` | `/` | Receive WhatsApp events (requires `WHATSAPP_ENABLED`, `WHATSAPP_APP_SECRET`; logs to `whatsapp_message_log`) |
+
+---
+
 ### Contact — `/api/contact`
 
 | Method | Path | Purpose |

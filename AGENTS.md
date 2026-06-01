@@ -60,6 +60,15 @@ When using SQLite mode (`DB_CLIENT=sqlite3`), seed merchants have these UUIDs (s
 - Merchant 2: UUID `a0000002-0002-0002-0002-000000000002`
 - Published menu slug: `instep-cafe-new-york-10001-lunch-menu`
 
+### WhatsApp Cloud API (platform wiring)
+
+Webhook endpoint (mounted when `WHATSAPP_VERIFY_TOKEN` or `WHATSAPP_ENABLED` is set):
+
+- `GET /api/webhooks/whatsapp` — Meta subscription verification (`hub.verify_token` must match `WHATSAPP_VERIFY_TOKEN`)
+- `POST /api/webhooks/whatsapp` — Ingest events when `WHATSAPP_ENABLED=true` and `WHATSAPP_APP_SECRET` is set; verifies `X-Hub-Signature-256`, returns 200 immediately, persists to `whatsapp_message_log`
+
+Copy `.env.example` for variable names. Local testing requires an HTTPS tunnel (ngrok, Cloudflare) pointing at port 3000. See `docs/whatsapp-integration.md`.
+
 ### Optional integrations
 
 The contact form currently logs submissions to stdout; a database-backed admin UI is planned.
