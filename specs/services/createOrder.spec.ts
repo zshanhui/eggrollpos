@@ -1,8 +1,7 @@
 import { expect } from 'chai';
 import path from 'path';
 import db from '../../src/server/models/db';
-
-const Actions = require('../../src/server/services/actions');
+import * as Actions from '../../src/server/services/actions';
 
 const migrationsDir = path.resolve(__dirname, '../../db/migrations');
 

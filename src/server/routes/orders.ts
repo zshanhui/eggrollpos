@@ -1,15 +1,15 @@
-const express = require('express');
-const router = express.Router();
-const _ = require('lodash');
-const Actions = require('../services/actions');
+import express from 'express';
+import _ from 'lodash';
+import * as Actions from '../services/actions';
+import Orders from '../models/orders';
 
-const Orders = require('../models/orders');
+const router = express.Router();
 
 router.get('/:uuid', async (req, res) => {
-
   const uuid = req.params.uuid;
   if (!uuid) {
     res.sendStatus(400);
+    return;
   }
 
   const orderWithMenus = await Orders.getByUuid(uuid, {
@@ -19,6 +19,7 @@ router.get('/:uuid', async (req, res) => {
 
   if (!orderWithMenus) {
     res.sendStatus(500);
+    return;
   }
 
   res.json(orderWithMenus);
@@ -29,9 +30,10 @@ router.post('/lineitems', async (req, res) => {
   if (!params.orderUuid || !params.menuItemId || Number(params.quantity) < 1 || Number(params.quantity) > 10) {
     console.error('Missing one of required params: orderUuid, lineItemId, quantity');
     res.sendStatus(500);
+    return;
   }
 
-  const results = await Actions.addOrderLineItem(params);
+  const results = await Actions.addOrderLineItem(params as any);
 
   res.json(results);
 });
@@ -62,7 +64,7 @@ router.post('/', async (req, res) => {
       items,
     });
     res.status(201).json(result);
-  } catch (err) {
+  } catch (err: any) {
     console.error('Failed to create order:', err.message);
     res.status(422).json({ error: err.message });
   }
@@ -73,13 +75,14 @@ router.post('/complete', async (req, res) => {
   const comments = req.body.comments || '';
   if (!orderUuid) {
     res.sendStatus(500);
+    return;
   }
 
-  const {lineItems, customer, order} = await Actions.verifyOrderLineItemsCompleted(orderUuid);
+  const { lineItems, customer, order } = await Actions.verifyOrderLineItemsCompleted(orderUuid);
   if (comments.trim() && order && order.id) {
     await Orders.update(order.id, { comments: comments.trim() });
   }
   res.sendStatus(200);
 });
 
-module.exports = router;
+export default router;

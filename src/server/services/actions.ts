@@ -1,15 +1,21 @@
-const Orders = require('../models/orders');
-const CustomersModule = require('../models/customers');
-const Customers = CustomersModule.default || CustomersModule;
-const MerchantsModule = require('../models/merchants');
-const Merchants = MerchantsModule.default || MerchantsModule;
-const LineItems = require('../models/lineItems');
-const MenuItems = require('../models/menu_items');
-const Receipts = require('../models/receipts');
+import Orders from '../models/orders';
+import Customers from '../models/customers';
+import Merchants from '../models/merchants';
+import LineItems from '../models/lineItems';
+import MenuItems from '../models/menu_items';
+import Receipts from '../models/receipts';
+import { Status } from '../../shared/orders';
+import type { OrderType } from '../../shared/orders';
 
-const {Status} = require('../../shared/orders');
+interface CreateOrderParams {
+  merchantId: number;
+  customerName: string;
+  customerPhone?: string;
+  orderType?: OrderType;
+  items: { menuItemId: number; quantity: number }[];
+}
 
-async function getMerchantMenu(merchantId) {
+export async function getMerchantMenu(merchantId: number) {
   const menu = await MenuItems.getByMerchantId(merchantId);
   if (!menu) {
     throw Error(`No menu with this merchant id #${merchantId} found`);
@@ -17,7 +23,7 @@ async function getMerchantMenu(merchantId) {
   return menu;
 }
 
-async function getMerchantOrders(merchantId, filter) {
+export async function getMerchantOrders(merchantId: number, filter: Record<string, any>) {
   try {
     let orders = await Orders.list(merchantId, filter);
     return orders;
@@ -27,7 +33,7 @@ async function getMerchantOrders(merchantId, filter) {
   }
 }
 
-async function addOrderLineItem({orderUuid, menuItemId, quantity}) {
+export async function addOrderLineItem({ orderUuid, menuItemId, quantity }: { orderUuid: string; menuItemId: number; quantity: number }) {
   if (!orderUuid || !menuItemId || !quantity) {
     return null;
   }
@@ -47,7 +53,7 @@ async function addOrderLineItem({orderUuid, menuItemId, quantity}) {
   return results;
 }
 
-async function removeLineItem({lineItemId, orderId}) {
+export async function removeLineItem({ lineItemId, orderId }: { lineItemId: number; orderId: number }) {
   if (!orderId || !lineItemId) {
     return null;
   }
@@ -55,7 +61,7 @@ async function removeLineItem({lineItemId, orderId}) {
   return await LineItems.remove({lineItemId, orderId});
 }
 
-async function updateLineItemQuantity({lineItemId, quantity}) {
+export async function updateLineItemQuantity({ lineItemId, quantity }: { lineItemId: number; quantity: number }) {
   if (!lineItemId || !quantity) {
     return null;
   }
@@ -67,7 +73,7 @@ async function updateLineItemQuantity({lineItemId, quantity}) {
   return results;
 }
 
-async function verifyOrderLineItemsCompleted(orderUuid) {
+export async function verifyOrderLineItemsCompleted(orderUuid: string) {
   const {order} = await Orders.getByUuid(orderUuid);
 
   if (!order.id || order.status !== Status.WAITING_FOR_ACCEPTANCE) {
@@ -89,10 +95,10 @@ async function verifyOrderLineItemsCompleted(orderUuid) {
     lineItems,
     customer,
     order,
-  }
+  };
 }
 
-async function createReceipt({orderId, paymentMethod}) {
+export async function createReceipt({ orderId, paymentMethod }: { orderId: number; paymentMethod: string }) {
   const order = await Orders.getWithID(orderId);
   if (!order || !order.id) {
     throw Error(`No order with order id #${orderId} found`);
@@ -109,7 +115,7 @@ async function createReceipt({orderId, paymentMethod}) {
   return receiptId;
 }
 
-async function getReceipt({receiptId}) {
+export async function getReceipt({ receiptId }: { receiptId: number }) {
   const receipt = await Receipts.getWithId(receiptId);
   if (!receipt || !receipt.id) {
     throw Error(`No receipt with receipt id #${receiptId} found`);
@@ -117,12 +123,12 @@ async function getReceipt({receiptId}) {
   return receipt;
 }
 
-async function getLineItems({orderId}) {
+export async function getLineItems({ orderId }: { orderId: number }) {
   const lineItems = await Orders.lineItems(orderId);
   return lineItems;
 }
 
-async function createOrder({ merchantId, customerName, customerPhone, orderType = 'pickup', items }) {
+export async function createOrder({ merchantId, customerName, customerPhone, orderType = 'pickup', items }: CreateOrderParams) {
   const merchant = await Merchants.get(merchantId);
   if (!merchant) {
     throw new Error(`Merchant #${merchantId} not found`);
@@ -151,16 +157,3 @@ async function createOrder({ merchantId, customerName, customerPhone, orderType 
 
   return { orderUuid, orderId: order.id };
 }
-
-module.exports = {
-  getMerchantOrders,
-  getMerchantMenu,
-  addOrderLineItem,
-  updateLineItemQuantity,
-  removeLineItem,
-  verifyOrderLineItemsCompleted,
-  getReceipt,
-  getLineItems,
-  createReceipt,
-  createOrder,
-};

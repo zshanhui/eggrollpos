@@ -8,7 +8,7 @@ const logger = require("morgan");
 const ReactRouter = require("./routes/index");
 const leadsRouter = require("./routes/leads");
 const merchantsRouter = require("./routes/merchants");
-const ordersRouter = require("./routes/orders");
+const ordersRouter = require("./routes/orders").default;
 const { publicRouter: menusPublicRouter } = require("./routes/menus");
 
 const Actions = require("./services/actions");
