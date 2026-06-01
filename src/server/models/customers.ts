@@ -10,9 +10,11 @@ class Customers {
     this.customer = customer;
   }
 
-  static async create({ name }: CustomerCreateParams): Promise<number[]> {
+  static async create({ name, mobile_phone }: CustomerCreateParams): Promise<number[]> {
+    const row: Record<string, any> = { name };
+    if (mobile_phone != null) row.mobile_phone = mobile_phone;
     return Table()
-      .insert({ name })
+      .insert(row)
       .returning('id');
   }
 

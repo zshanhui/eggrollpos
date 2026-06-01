@@ -112,14 +112,15 @@ class Order {
   }
 
   static async create({merchantId, customerId, orderType = 'pickup'}) {
-    const res = await Table().insert({
+    const orderUuid = uuid.v4();
+    await Table().insert({
       merchant_id: merchantId,
       customer_id: customerId,
       status: Status.WAITING_FOR_ACCEPTANCE,
       order_type: orderType,
-      uuid: uuid.v4(),
-    }).returning('uuid');
-    return res[0];
+      uuid: orderUuid,
+    });
+    return orderUuid;
   }
 
   static async update(id, params) {

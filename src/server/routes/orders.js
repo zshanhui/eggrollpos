@@ -36,6 +36,38 @@ router.post('/lineitems', async (req, res) => {
   res.json(results);
 });
 
+router.post('/', async (req, res) => {
+  const { merchantId, customerName, customerPhone, orderType, items } = req.body;
+
+  if (!merchantId || !customerName || !Array.isArray(items) || items.length === 0) {
+    return res.status(400).json({
+      error: 'merchantId, customerName, and a non-empty items array are required',
+    });
+  }
+
+  for (const item of items) {
+    if (!item.menuItemId || !item.quantity || item.quantity < 1 || item.quantity > 10) {
+      return res.status(400).json({
+        error: 'Each item must have a menuItemId and quantity (1-10)',
+      });
+    }
+  }
+
+  try {
+    const result = await Actions.createOrder({
+      merchantId,
+      customerName,
+      customerPhone,
+      orderType,
+      items,
+    });
+    res.status(201).json(result);
+  } catch (err) {
+    console.error('Failed to create order:', err.message);
+    res.status(422).json({ error: err.message });
+  }
+});
+
 router.post('/complete', async (req, res) => {
   const orderUuid = req.body.orderUuid;
   const comments = req.body.comments || '';

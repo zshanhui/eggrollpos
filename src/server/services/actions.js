@@ -1,6 +1,8 @@
 const Orders = require('../models/orders');
-const Customers = require('../models/customers');
-const Merchants = require('../models/merchants');
+const CustomersModule = require('../models/customers');
+const Customers = CustomersModule.default || CustomersModule;
+const MerchantsModule = require('../models/merchants');
+const Merchants = MerchantsModule.default || MerchantsModule;
 const LineItems = require('../models/lineItems');
 const MenuItems = require('../models/menu_items');
 const Receipts = require('../models/receipts');
@@ -120,6 +122,36 @@ async function getLineItems({orderId}) {
   return lineItems;
 }
 
+async function createOrder({ merchantId, customerName, customerPhone, orderType = 'pickup', items }) {
+  const merchant = await Merchants.get(merchantId);
+  if (!merchant) {
+    throw new Error(`Merchant #${merchantId} not found`);
+  }
+
+  if (!items || items.length === 0) {
+    throw new Error('At least one item is required');
+  }
+
+  const customerIds = await Customers.create({
+    name: customerName,
+    ...(customerPhone ? { mobile_phone: customerPhone } : {}),
+  });
+  const customerId = customerIds[0];
+
+  const orderUuid = await Orders.create({ merchantId, customerId, orderType });
+  const { order } = await Orders.getByUuid(orderUuid);
+
+  for (const item of items) {
+    await LineItems.create({
+      orderId: order.id,
+      menuItemId: item.menuItemId,
+      quantity: item.quantity,
+    });
+  }
+
+  return { orderUuid, orderId: order.id };
+}
+
 module.exports = {
   getMerchantOrders,
   getMerchantMenu,
@@ -129,5 +161,6 @@ module.exports = {
   verifyOrderLineItemsCompleted,
   getReceipt,
   getLineItems,
-  createReceipt
+  createReceipt,
+  createOrder,
 };
