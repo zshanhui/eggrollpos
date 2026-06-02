@@ -6,6 +6,10 @@ import Customers from '../../src/server/models/customers';
 const migrationsDir = path.resolve(__dirname, '../../db/migrations');
 
 async function resetCustomers() {
+  await db('whatsapp_opt_ins').del();
+  await db('receipts').del();
+  await db('line_items').del();
+  await db('orders').del();
   await db('customers').del();
   await db.raw("DELETE FROM sqlite_sequence WHERE name = 'customers'");
 }

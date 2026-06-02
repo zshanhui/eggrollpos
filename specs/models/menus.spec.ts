@@ -23,6 +23,11 @@ describe('Menus', () => {
     // Reset tables to a clean state (respect FK order: children first)
     await db('menu_menu_items').del();
     await db('menus').del();
+    await db('whatsapp_opt_ins').del();
+    await db('receipts').del();
+    await db('line_items').del();
+    await db('orders').del();
+    await db('customers').del();
     await db('menu_items').del();
     await db('merchants').del();
     await db.raw("DELETE FROM sqlite_sequence WHERE name IN ('menus','menu_items','merchants')");
