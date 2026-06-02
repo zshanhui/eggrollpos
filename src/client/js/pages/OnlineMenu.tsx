@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
+import { addToCart, loadCart, cartItemCount, type OnlineCart } from '../lib/onlineCart';
 
 interface MenuItem {
   id: number;
@@ -112,6 +113,11 @@ export default function OnlineMenu(props: any) {
   const [menu, setMenu] = useState<Menu | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [cart, setCart] = useState<OnlineCart | null>(null);
+
+  const refreshCart = useCallback(() => {
+    if (slug) setCart(loadCart(slug));
+  }, [slug]);
 
   useEffect(() => {
     setLoading(true);
@@ -125,6 +131,10 @@ export default function OnlineMenu(props: any) {
       .catch(() => setError(t('menus.loadFailed')))
       .finally(() => setLoading(false));
   }, [slug, t]);
+
+  useEffect(() => {
+    refreshCart();
+  }, [refreshCart, menu]);
 
   if (loading) return <Skeleton />;
   if (error || !menu) return <NotFound t={t} />;
@@ -169,7 +179,13 @@ export default function OnlineMenu(props: any) {
             <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">{cat.name}</h3>
             <div className="space-y-2">
               {cat.items.map((item) => (
-                <ItemCard key={item.id} item={item} />
+                <ItemCard
+                  key={item.id}
+                  item={item}
+                  addLabel={t('menus.addToCart')}
+                  disabled={!currently_open}
+                  onAdd={() => setCart(addToCart(slug, merchant.business_name, item, 1))}
+                />
               ))}
             </div>
           </section>
@@ -179,7 +195,13 @@ export default function OnlineMenu(props: any) {
           <section className="mb-6">
             <div className="space-y-2">
               {uncategorized.map((item) => (
-                <ItemCard key={item.id} item={item} />
+                <ItemCard
+                  key={item.id}
+                  item={item}
+                  addLabel={t('menus.addToCart')}
+                  disabled={!currently_open}
+                  onAdd={() => setCart(addToCart(slug, merchant.business_name, item, 1))}
+                />
               ))}
             </div>
           </section>
@@ -190,16 +212,28 @@ export default function OnlineMenu(props: any) {
       <footer className="sticky bottom-0 z-10 bg-white border-t border-gray-100 px-4 py-4 safe-bottom">
         <button
           onClick={() => props.history.push(`/online-ordering/${slug}/checkout`)}
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-xl text-base transition-colors"
+          disabled={!currently_open || cartItemCount(cart) === 0}
+          className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium py-3 rounded-xl text-base transition-colors"
         >
           {t('menus.proceedToCheckout')}
+          {cartItemCount(cart) > 0 ? ` (${cartItemCount(cart)})` : ''}
         </button>
       </footer>
     </div>
   );
 }
 
-function ItemCard({ item }: { item: MenuItem }) {
+function ItemCard({
+  item,
+  onAdd,
+  addLabel,
+  disabled,
+}: {
+  item: MenuItem;
+  onAdd: () => void;
+  addLabel: string;
+  disabled: boolean;
+}) {
   return (
     <div className="flex items-start gap-3 p-3 bg-gray-50 rounded-xl">
       <div className="w-14 h-14 bg-gray-200 rounded-lg flex-shrink-0 flex items-center justify-center overflow-hidden">
@@ -226,6 +260,14 @@ function ItemCard({ item }: { item: MenuItem }) {
             ))}
           </div>
         )}
+        <button
+          type="button"
+          onClick={onAdd}
+          disabled={disabled}
+          className="mt-2 text-sm font-medium text-blue-600 disabled:text-gray-400"
+        >
+          {addLabel}
+        </button>
       </div>
     </div>
   );

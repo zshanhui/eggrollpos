@@ -15,6 +15,25 @@ API routes are mounted in `src/server/index.js`. All other paths fall through to
 
 ## API Routes
 
+### WhatsApp webhooks — `/api/webhooks/whatsapp`
+
+Mounted when `WHATSAPP_VERIFY_TOKEN` or `WHATSAPP_ENABLED` is set (see `.env.example`).
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| `GET` | `/` | Meta webhook verification (query: `hub.mode`, `hub.verify_token`, `hub.challenge`) |
+| `POST` | `/` | Receive WhatsApp events (requires `WHATSAPP_ENABLED`, `WHATSAPP_APP_SECRET`; logs to `whatsapp_message_log`) |
+
+---
+
+
+### Public menus — `/api/menus`
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| `GET` | `/:slug` | Published menu catalog for online ordering |
+| `POST` | `/:slug/checkout` | Place order (cart, contact, mock payment, optional WhatsApp opt-in) |
+
 ### Contact — `/api/contact`
 
 | Method | Path | Purpose |
@@ -144,7 +163,7 @@ Defined in `src/client/js/App.tsx`. All routes are code-split via `Lazy` wrapper
 | `/merchant-dashboard/:uuid/menuitems/:menuItemId/edit` | `MerchantMenuItems` | Edit menu item |
 | `/merchant-dashboard/:uuid/settings` | `MerchantSettings` | Business info + theme |
 | `/online-ordering/:slug` | `OnlineMenu` | Customer-facing menu (by menu slug) |
-| `/online-ordering/:slug/checkout` | `CheckoutPlaceholder` | Checkout (coming soon) |
+| `/online-ordering/:slug/checkout` | `Checkout` | Online checkout (contact, payment, WhatsApp opt-in) |
 | `/orders/:orderUuid/menus` | `Menus` | Customer menu webview (legacy) |
 
 ### Seed merchant UUIDs
