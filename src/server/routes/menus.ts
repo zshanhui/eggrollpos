@@ -1,5 +1,7 @@
-import { Router } from 'express';
+import { Router, type Request, type Response } from 'express';
 import Menus from '../models/menus';
+import { submitMenuCheckout, CheckoutError } from '../services/checkout';
+import type { MenuCheckoutRequest } from '../../shared/checkout';
 
 // ─── currently_open ───
 
@@ -134,6 +136,22 @@ adminRouter.delete('/:menuId', async (req, res) => {
 // ─── Public router (mounted at /api/menus) ───
 
 export const publicRouter = Router();
+
+
+publicRouter.post('/:slug/checkout', async (req, res) => {
+  try {
+    const result = await submitMenuCheckout(
+      req.params.slug,
+      req.body as MenuCheckoutRequest
+    );
+    res.json(result);
+  } catch (err) {
+    if (err instanceof CheckoutError) {
+      return res.status(err.status).json({ error: err.message });
+    }
+    throw err;
+  }
+});
 
 publicRouter.get('/:slug', async (req, res) => {
   const result = await Menus.getByMenuSlug(req.params.slug);

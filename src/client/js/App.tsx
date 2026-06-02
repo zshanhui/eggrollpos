@@ -20,7 +20,7 @@ const Pages = {
   CustomerRoutes: (props: PageProps) => <Lazy {...props} module={import('./pages/CustomerRoutes')} />,
   Menus: (props: PageProps) => <Lazy {...props} module={import('./pages/Menus')} />,
   OnlineMenu: (props: PageProps) => <Lazy {...props} module={import('./pages/OnlineMenu')} />,
-  CheckoutPlaceholder: (props: PageProps) => <Lazy {...props} module={import('./pages/CheckoutPlaceholder')} />,
+  Checkout: (props: PageProps) => <Lazy {...props} module={import('./pages/Checkout')} />,
 }
 
 const SERVER_DATA = window.__VARS__ ? window.__VARS__ : null;
@@ -47,7 +47,7 @@ function App() {
         <Route path="/merchant-dashboard/:uuid/online-menus" exact component={Pages.MerchantMenus} />
 
         {/* Customer online ordering — public, slug-based */}
-        <Route path="/online-ordering/:slug/checkout" exact component={Pages.CheckoutPlaceholder} />
+        <Route path="/online-ordering/:slug/checkout" exact component={Pages.Checkout} />
         <Route path="/online-ordering/:slug" exact component={Pages.OnlineMenu} />
 
         {/* Customer menu webview for an existing order */}

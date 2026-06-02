@@ -10,6 +10,8 @@ const leadsRouter = require("./routes/leads");
 const merchantsRouter = require("./routes/merchants");
 const ordersRouter = require("./routes/orders").default;
 const { publicRouter: menusPublicRouter } = require("./routes/menus");
+const whatsappConfig = require("./services/whatsapp/config");
+const { whatsappWebhookRouter } = require("./routes/whatsapp_webhook");
 
 const Actions = require("./services/actions");
 
@@ -20,6 +22,16 @@ app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "ejs");
 
 app.use(logger("dev"));
+
+// WhatsApp webhooks need the raw body for X-Hub-Signature-256 verification
+if (whatsappConfig.shouldMountWebhook()) {
+  app.use(
+    "/api/webhooks/whatsapp",
+    express.raw({ type: "application/json" }),
+    whatsappWebhookRouter
+  );
+}
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
