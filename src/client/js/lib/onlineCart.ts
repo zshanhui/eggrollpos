@@ -67,7 +67,7 @@ export function addToCart(
     cart.lines.push({
       menuItemId: item.id,
       name: item.name,
-      priceCents: item.price_cents,
+      priceCents: Number(item.price_cents),
       quantity: Math.min(10, delta),
     });
   }

@@ -20,7 +20,7 @@ const Pages = {
   CustomerRoutes: (props: PageProps) => <Lazy {...props} module={import('./pages/CustomerRoutes')} />,
   Menus: (props: PageProps) => <Lazy {...props} module={import('./pages/Menus')} />,
   OnlineMenu: (props: PageProps) => <Lazy {...props} module={import('./pages/OnlineMenu')} />,
-  CheckoutPlaceholder: (props: PageProps) => <Lazy {...props} module={import('./pages/CheckoutPlaceholder')} />,
+  Checkout: (props: PageProps) => <Lazy {...props} module={import('./pages/Checkout')} />,
 }
 
 const SERVER_DATA = window.__VARS__ ? window.__VARS__ : null;
