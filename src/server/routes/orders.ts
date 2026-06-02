@@ -26,7 +26,7 @@ router.get('/:uuid', async (req, res) => {
 });
 
 router.post('/lineitems', async (req, res) => {
-  const params = _.pick(req.body, ['orderUuid', 'menuItemId', 'quantity']);
+  const params = _.pick(req.body ?? {}, ['orderUuid', 'menuItemId', 'quantity']);
   if (!params.orderUuid || !params.menuItemId || Number(params.quantity) < 1 || Number(params.quantity) > 10) {
     console.error('Missing one of required params: orderUuid, lineItemId, quantity');
     res.sendStatus(500);
@@ -39,7 +39,7 @@ router.post('/lineitems', async (req, res) => {
 });
 
 router.post('/', async (req, res) => {
-  const { merchantId, customerName, customerPhone, orderType, items } = req.body;
+  const { merchantId, customerName, customerPhone, orderType, items } = req.body ?? {};
 
   if (!merchantId || typeof merchantId !== 'string' || !customerName || !Array.isArray(items) || items.length === 0) {
     return res.status(400).json({
@@ -76,8 +76,9 @@ router.post('/', async (req, res) => {
 });
 
 router.post('/complete', async (req, res) => {
-  const orderUuid = req.body.orderUuid;
-  const comments = req.body.comments || '';
+  const body = req.body ?? {};
+  const orderUuid = body.orderUuid;
+  const comments = body.comments || '';
   if (!orderUuid) {
     res.sendStatus(500);
     return;

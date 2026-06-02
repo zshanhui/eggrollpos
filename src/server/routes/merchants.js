@@ -108,11 +108,12 @@ router.get('/:merchantId/orders/:orderId', async (req, res) => {
 });
 
 router.post('/:merchantId/orders', async (req, res) => {
-    if (!req.body.orderId) {
+    const body = req.body ?? {};
+    if (!body.orderId) {
         return res.json({error: 'no order id provided'});
     }
 
-    const { orderId, status, cancelReason } = req.body;
+    const { orderId, status, cancelReason } = body;
 
     if (status === Status.CANCELED) {
         if (!cancelReason) {
