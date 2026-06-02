@@ -3,7 +3,7 @@ import Customers from '../models/customers';
 import Orders from '../models/orders';
 import LineItems from '../models/lineItems';
 import WhatsAppOptIns from '../models/whatsapp_opt_ins';
-import Actions from './actions';
+import * as Actions from './actions';
 import {
   hasContactMethod,
   normalizeEmail,
@@ -112,7 +112,7 @@ export async function submitMenuCheckout(
     throw new CheckoutError(500, 'Failed to create customer');
   }
 
-  const { uuid: orderUuid } = await Orders.create({
+  const orderUuid = await Orders.create({
     merchantId,
     customerId: customerIdNum,
     orderType,

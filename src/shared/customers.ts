@@ -6,6 +6,7 @@ export interface CustomerRow {
   psid: string | null;
   name: string | null;
   mobile_phone: string | null;
+  email: string | null;
   created_at: string | null;
 }
 
@@ -17,5 +18,4 @@ export interface CustomerCreateParams {
   name: string;
   psid?: string | null;
   mobile_phone?: string | null;
-  email?: string | null;
 }

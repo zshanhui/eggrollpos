@@ -16,8 +16,12 @@ class Customers {
     mobile_phone = null,
     email = null,
   }: CustomerCreateParams): Promise<number[]> {
+    const row: Record<string, unknown> = { name };
+    if (psid != null) row.psid = psid;
+    if (mobile_phone != null) row.mobile_phone = mobile_phone;
+    if (email != null) row.email = email;
     return Table()
-      .insert({ name, psid, mobile_phone, email })
+      .insert(row)
       .returning('id');
   }
 
