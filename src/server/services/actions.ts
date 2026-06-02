@@ -7,12 +7,18 @@ import Receipts from '../models/receipts';
 import { Status } from '../../shared/orders';
 import type { OrderType } from '../../shared/orders';
 
+interface CreateOrderItem {
+  menuItemId: number;
+  quantity: number;
+  modifierIds?: number[];
+}
+
 interface CreateOrderParams {
   merchantId: string;
   customerName: string;
   customerPhone?: string;
   orderType?: OrderType;
-  items: { menuItemId: number; quantity: number }[];
+  items: CreateOrderItem[];
 }
 
 export async function getMerchantMenu(merchantId: number) {
@@ -149,11 +155,14 @@ export async function createOrder({ merchantId, customerName, customerPhone, ord
   const { order } = await Orders.getByUuid(orderUuid);
 
   for (const item of items) {
-    await LineItems.create({
+    const lineItemId = await LineItems.create({
       orderId: order.id,
       menuItemId: item.menuItemId,
       quantity: item.quantity,
     });
+    if (item.modifierIds && item.modifierIds.length > 0) {
+      await LineItems.addModifiers(lineItemId, item.modifierIds);
+    }
   }
 
   return { orderUuid, orderId: order.id };

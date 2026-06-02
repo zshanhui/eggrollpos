@@ -9,12 +9,15 @@ const MERCHANT_UUID = 'test0001-0001-0001-0001-000000000001';
 const MERCHANT_HASH = 'mc_testcafe01';
 
 async function resetAll() {
+  await db('line_item_modifiers').del();
   await db('line_items').del();
   await db('orders').del();
   await db('customers').del();
+  await db('menu_item_modifiers').del();
+  await db('modifiers').del();
   await db('menu_items').del();
   await db('merchants').del();
-  for (const t of ['line_items', 'orders', 'customers', 'menu_items', 'merchants']) {
+  for (const t of ['line_item_modifiers', 'line_items', 'orders', 'customers', 'modifiers', 'menu_items', 'merchants']) {
     await db.raw(`DELETE FROM sqlite_sequence WHERE name = '${t}'`);
   }
 }
@@ -23,6 +26,8 @@ describe('Actions.createOrder', () => {
   let internalMerchantId: number;
   let menuItemId1: number;
   let menuItemId2: number;
+  let modifierId1: number;
+  let modifierId2: number;
 
   before(async () => {
     await db.raw('PRAGMA foreign_keys = ON');
@@ -51,9 +56,22 @@ describe('Actions.createOrder', () => {
       price_cents: 350,
       is_active: 1,
     });
+
+    [modifierId1] = await db('modifiers').insert({
+      merchant_id: internalMerchantId,
+      name: 'Extra Shot',
+      price_adjustment_cents: 75,
+    });
+
+    [modifierId2] = await db('modifiers').insert({
+      merchant_id: internalMerchantId,
+      name: 'Oat Milk',
+      price_adjustment_cents: 50,
+    });
   });
 
   afterEach(async () => {
+    await db('line_item_modifiers').del();
     await db('line_items').del();
     await db('orders').del();
     await db('customers').del();
@@ -131,6 +149,41 @@ describe('Actions.createOrder', () => {
 
     const order = await db('orders').where('uuid', result.orderUuid).first();
     expect(order.order_type).to.equal('delivery');
+  });
+
+  it('attaches modifiers to line items', async () => {
+    const result = await Actions.createOrder({
+      merchantId: MERCHANT_UUID,
+      customerName: 'Mod User',
+      items: [
+        { menuItemId: menuItemId1, quantity: 1, modifierIds: [modifierId1, modifierId2] },
+        { menuItemId: menuItemId2, quantity: 1 },
+      ],
+    });
+
+    const order = await db('orders').where('uuid', result.orderUuid).first();
+    const lineItems = await db('line_items').where('order_id', order.id).orderBy('id', 'asc');
+    expect(lineItems).to.have.lengthOf(2);
+
+    const modsForLatte = await db('line_item_modifiers').where('line_item_id', lineItems[0].id);
+    expect(modsForLatte).to.have.lengthOf(2);
+    expect(modsForLatte.map(m => m.modifier_id)).to.include.members([modifierId1, modifierId2]);
+
+    const modsForCroissant = await db('line_item_modifiers').where('line_item_id', lineItems[1].id);
+    expect(modsForCroissant).to.have.lengthOf(0);
+  });
+
+  it('works with empty modifierIds array', async () => {
+    const result = await Actions.createOrder({
+      merchantId: MERCHANT_UUID,
+      customerName: 'No Mods',
+      items: [{ menuItemId: menuItemId1, quantity: 1, modifierIds: [] }],
+    });
+
+    const order = await db('orders').where('uuid', result.orderUuid).first();
+    const lineItems = await db('line_items').where('order_id', order.id);
+    const mods = await db('line_item_modifiers').where('line_item_id', lineItems[0].id);
+    expect(mods).to.have.lengthOf(0);
   });
 
   it('throws when merchant does not exist', async () => {

@@ -76,7 +76,7 @@ export const createOrder = async ({ merchantId, customerName, customerPhone, ord
   customerName: string;
   customerPhone?: string;
   orderType?: string;
-  items: { menuItemId: number; quantity: number }[];
+  items: { menuItemId: number; quantity: number; modifierIds?: number[] }[];
 }) => {
   const response = await fetchResource(CREATE_ORDER_URL, createPostBodyRequest({
     merchantId,

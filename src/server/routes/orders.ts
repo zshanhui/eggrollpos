@@ -53,6 +53,11 @@ router.post('/', async (req, res) => {
         error: 'Each item must have a menuItemId and quantity (1-10)',
       });
     }
+    if (item.modifierIds !== undefined && !Array.isArray(item.modifierIds)) {
+      return res.status(400).json({
+        error: 'modifierIds must be an array of modifier IDs when provided',
+      });
+    }
   }
 
   try {
