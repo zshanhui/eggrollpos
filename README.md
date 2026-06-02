@@ -218,6 +218,7 @@ DATABASE_URL=postgres://user:pass@host:5432/eggrollpos
 | POST | `/api/merchants/:id/modifiers` | Create modifier (REST) |
 | PUT/PATCH | `/api/merchants/:id/modifiers/:modifierId` | Update modifier (REST) |
 | DELETE | `/api/merchants/:id/modifiers/:modifierId` | Delete modifier (REST) |
+| POST | `/api/orders` | Create order (customer, line items, modifiers) |
 | GET | `/api/orders/:uuid` | Get order with menus and line items |
 | POST | `/api/orders/lineitems` | Add line item to order |
 | POST | `/api/orders/complete` | Complete order selection |
