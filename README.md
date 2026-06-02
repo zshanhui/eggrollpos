@@ -202,27 +202,7 @@ DATABASE_URL=postgres://user:pass@host:5432/eggrollpos
 
 ## API Endpoints
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/merchants/by-uuid/:uuid` | Look up merchant by UUID |
-| GET | `/api/merchants/:id/orders` | Get merchant orders (with date/status filters) |
-| GET | `/api/merchants/:id/orders/:orderId` | Get single order detail |
-| POST | `/api/merchants/:id/orders` | Update order status |
-| GET | `/api/merchants/:id/menu` | Get merchant menu items |
-| GET | `/api/merchants/:id/menu-items` | List menu items (REST) |
-| POST | `/api/merchants/:id/menu-items` | Create menu item (REST) |
-| GET | `/api/merchants/:id/menu-items/:menuItemId` | Get single menu item (REST) |
-| PUT/PATCH | `/api/merchants/:id/menu-items/:menuItemId` | Update menu item (REST) |
-| DELETE | `/api/merchants/:id/menu-items/:menuItemId` | Delete menu item (REST) |
-| GET | `/api/merchants/:id/modifiers` | List modifiers (REST) |
-| POST | `/api/merchants/:id/modifiers` | Create modifier (REST) |
-| PUT/PATCH | `/api/merchants/:id/modifiers/:modifierId` | Update modifier (REST) |
-| DELETE | `/api/merchants/:id/modifiers/:modifierId` | Delete modifier (REST) |
-| GET | `/api/orders/:uuid` | Get order with menus and line items |
-| POST | `/api/orders/lineitems` | Add line item to order |
-| POST | `/api/orders/complete` | Complete order selection |
-| POST | `/api/contact` | Submit contact/lead form |
-| GET | `/r/:receiptId` | Get receipt data |
+See [docs/routes.md](docs/routes.md) for the full API reference, including request/response schemas and client routes.
 
 ## Database Migrations
 

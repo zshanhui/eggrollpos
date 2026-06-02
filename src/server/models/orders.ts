@@ -1,34 +1,70 @@
-const db = require('./db');
-const uuid = require('uuid');
-const camelcaseKeys = require('camelcase-keys');
-
-const {Status} = require('../../shared/orders');
+import db from './db';
+import * as uuid from 'uuid';
+import camelcaseKeys from 'camelcase-keys';
+import { Status, OrderStatus, OrderType } from '../../shared/orders';
 
 const Table = () => db('orders');
 const MenuItemsTable = () => db('menu_items');
 const LineItemsTable = () => db('line_items');
 
-class Order {
-  constructor(order) { this.order = order }
+interface OrderRow {
+  id: number;
+  merchant_id: number;
+  customer_id: number;
+  pickup_in: number | null;
+  status: OrderStatus;
+  uuid: string;
+  created_at: string;
+  confirmed_at: string | null;
+  accepted_at: string | null;
+  paid: boolean | null;
+  payment_method: string | null;
+  order_type: OrderType;
+  cancel_reason: string | null;
+  comments: string | null;
+  ready_at: string | null;
+}
 
-  static async getByUuid(uuid, extras = {}) {
+interface OrderFilter {
+  startDate?: string;
+  endDate?: string;
+  status?: OrderStatus;
+}
+
+interface CreateParams {
+  merchantId: number;
+  customerId: number;
+  orderType?: OrderType;
+}
+
+interface SubtotalParams {
+  id: number;
+  taxRate: number;
+}
+
+class Order {
+  order: OrderRow;
+
+  constructor(order: OrderRow) { this.order = order; }
+
+  static async getByUuid(uuid: string, extras: { withMenus?: boolean; withLineItems?: boolean } = {}) {
     let order = await Table()
       .select()
       .where('uuid', uuid)
-      .first()
+      .first();
 
     let menuItems;
     if (order.id && extras.withMenus) {
       menuItems = await MenuItemsTable()
         .select()
-        .where('merchant_id', order.merchant_id)
+        .where('merchant_id', order.merchant_id);
     }
 
     let lineItems;
     if (order.id && extras.withLineItems) {
       lineItems = await LineItemsTable()
         .select()
-        .where('order_id', order.id)
+        .where('order_id', order.id);
     }
 
     return {
@@ -40,8 +76,8 @@ class Order {
     };
   }
 
-  static async list(merchantId, filter) {
-    const isSqlite = db.client.config.client === 'sqlite3';
+  static async list(merchantId: number, filter: OrderFilter) {
+    const isSqlite = (db as any).client.config.client === 'sqlite3';
     const pickupEtaExpr = isSqlite
       ? `datetime(orders.confirmed_at, '+' || orders.pickup_in || ' minutes') as pickup_eta`
       : `orders.confirmed_at + (orders.pickup_in * interval '1 minute') as pickup_eta`;
@@ -98,7 +134,7 @@ class Order {
     }
 
     if (filter.status) {
-      const validStatuses = [
+      const validStatuses: OrderStatus[] = [
         Status.WAITING_FOR_ACCEPTANCE, Status.ACCEPTED, Status.PREPARING,
         Status.READY_FOR_PICKUP, Status.READY_FOR_DELIVERY, Status.PICKUP_SUCCESS,
         Status.DELIVERY_IN_PROGRESS, Status.DELIVERED, Status.CANCELED, Status.REFUNDED
@@ -111,18 +147,19 @@ class Order {
     return this._groupMenuItemsByOrder(camelcaseKeys(res));
   }
 
-  static async create({merchantId, customerId, orderType = 'pickup'}) {
-    const res = await Table().insert({
+  static async create({ merchantId, customerId, orderType = 'pickup' }: CreateParams): Promise<string> {
+    const orderUuid = uuid.v4();
+    await Table().insert({
       merchant_id: merchantId,
       customer_id: customerId,
       status: Status.WAITING_FOR_ACCEPTANCE,
       order_type: orderType,
-      uuid: uuid.v4(),
-    }).returning('uuid');
-    return res[0];
+      uuid: orderUuid,
+    });
+    return orderUuid;
   }
 
-  static async update(id, params) {
+  static async update(id: number, params: Record<string, any>) {
     if (params.status === Status.ACCEPTED) {
       params.accepted_at = db.fn.now();
     }
@@ -137,15 +174,15 @@ class Order {
     return res[0];
   }
 
-  static async getWithID(id) {
+  static async getWithID(id: number) {
     return await Table()
       .select()
       .where('id', id)
       .first();
   }
 
-  static async getDetailWithID(id) {
-    const isSqlite = db.client.config.client === 'sqlite3';
+  static async getDetailWithID(id: number) {
+    const isSqlite = (db as any).client.config.client === 'sqlite3';
     const dateExpr = isSqlite ? 'date(orders.created_at)' : '(orders.created_at)::date';
     const dateExprO2 = isSqlite ? 'date(o2.created_at)' : '(o2.created_at)::date';
 
@@ -175,7 +212,7 @@ class Order {
     }, {deep: true});
   }
 
-  static async lineItems(id) {
+  static async lineItems(id: number) {
     return await Table()
       .select()
       .join('line_items', {'orders.id': 'line_items.order_id'})
@@ -183,11 +220,11 @@ class Order {
       .where('orders.id', id);
   }
 
-  static async calculateTotals(id) {
+  static async calculateTotals(id: number) {
     const lines = await this.lineItems(id);
     const TAX = .07;
     let subTotal = 0;
-    lines.forEach(line => {
+    lines.forEach((line: any) => {
       subTotal += (parseInt(line.price_cents) * line.quantity);
     });
 
@@ -197,9 +234,9 @@ class Order {
     };
   }
 
-  static async calculateSubtotal({id, taxRate}) {
+  static async calculateSubtotal({ id, taxRate }: SubtotalParams) {
     const lineItems = await(this.lineItems(id));
-    const subtotalCents = lineItems.reduce((a,c) => a + parseInt(c.price_cents), 0);
+    const subtotalCents = lineItems.reduce((a: number, c: any) => a + parseInt(c.price_cents), 0);
     const taxCents = Math.ceil(subtotalCents * taxRate);
     const totalCents = subtotalCents + taxCents;
     return {
@@ -209,8 +246,8 @@ class Order {
     };
   }
 
-  static async _groupMenuItemsByOrder(order) {
-    const grouped = {}
+  static _groupMenuItemsByOrder(order: any[]) {
+    const grouped: Record<string, any> = {};
 
     order.forEach(ord => {
       const lineItem = {
@@ -239,13 +276,13 @@ class Order {
     return grouped;
   }
 
-  static async getWithCustomerId(customerId) {
+  static async getWithCustomerId(customerId: number) {
     return await Table()
       .select()
       .where('customer_id', customerId)
       .orderBy('created_at', 'desc')
-      .first()
+      .first();
   }
 }
 
-module.exports = Order;
+export default Order;

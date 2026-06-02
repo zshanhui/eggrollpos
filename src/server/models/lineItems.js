@@ -1,6 +1,7 @@
 const db = require('./db');
 
 const T = () => db('line_items');
+const ModifiersT = () => db('line_item_modifiers');
 
 class LineItems {
   constructor(lineItems) { this.lineItems = lineItems }
@@ -12,6 +13,23 @@ class LineItems {
       quantity,
     }).returning('id');
     return res[0];
+  }
+
+  static async addModifiers(lineItemId, modifierIds) {
+    if (!modifierIds || modifierIds.length === 0) return;
+    await ModifiersT().insert(
+      modifierIds.map(modifierId => ({
+        line_item_id: lineItemId,
+        modifier_id: modifierId,
+      }))
+    );
+  }
+
+  static async getModifiers(lineItemId) {
+    return ModifiersT()
+      .join('modifiers', 'line_item_modifiers.modifier_id', 'modifiers.id')
+      .select('modifiers.*')
+      .where('line_item_modifiers.line_item_id', lineItemId);
   }
 
   static async update(id, params) {

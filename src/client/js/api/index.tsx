@@ -2,6 +2,7 @@ const ORDERS_URL = '/api/merchants/$id/orders';
 const ORDER_MENUS_URL = '/api/orders/$uuid';
 const LINE_ITEMS_URL = '/api/orders/lineitems';
 const ORDER_ADD_COMPLETE_URL = '/api/orders/complete';
+const CREATE_ORDER_URL = '/api/orders';
 
 const defaultGetOptions = {
   method: 'GET',
@@ -66,6 +67,23 @@ export const completeAddingLineItems = async (orderUuid, comments = '') => {
   const response = await fetchResource(ORDER_ADD_COMPLETE_URL, createPostBodyRequest({
     orderUuid,
     comments,
+  }));
+  return response;
+}
+
+export const createOrder = async ({ merchantId, customerName, customerPhone, orderType, items }: {
+  merchantId: string;
+  customerName: string;
+  customerPhone?: string;
+  orderType?: string;
+  items: { menuItemId: number; quantity: number; modifierIds?: number[] }[];
+}) => {
+  const response = await fetchResource(CREATE_ORDER_URL, createPostBodyRequest({
+    merchantId,
+    customerName,
+    customerPhone,
+    orderType,
+    items,
   }));
   return response;
 }

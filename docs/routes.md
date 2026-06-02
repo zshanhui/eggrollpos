@@ -76,9 +76,40 @@ API routes are mounted in `src/server/index.js`. All other paths fall through to
 
 | Method | Path | Purpose |
 |--------|------|---------|
+| `POST` | `/` | Create order (see details below) |
 | `GET` | `/:uuid` | Get order by UUID (with menus and line items) |
 | `POST` | `/lineitems` | Add line item (`orderUuid`, `menuItemId`, `quantity`, `comments`) |
 | `POST` | `/complete` | Mark order complete (`orderUuid`) |
+
+**POST `/` — Create order**
+
+Used by the online ordering frontend after checkout. Creates a customer, order, line items, and attaches modifiers.
+
+```json
+{
+  "merchantId": "a0000001-0001-0001-0001-000000000001",
+  "customerName": "Jane Doe",
+  "customerPhone": "+15551234567",
+  "orderType": "pickup",
+  "items": [
+    { "menuItemId": 3, "quantity": 2, "modifierIds": [1, 2] },
+    { "menuItemId": 27, "quantity": 1 }
+  ]
+}
+```
+
+| Field | Type | Required | Notes |
+|-------|------|----------|-------|
+| `merchantId` | `string` | yes | Merchant UUID or `hash_id` |
+| `customerName` | `string` | yes | |
+| `customerPhone` | `string` | no | |
+| `orderType` | `"pickup"` \| `"delivery"` | no | Defaults to `"pickup"` |
+| `items` | `array` | yes | ≥ 1 entry |
+| `items[].menuItemId` | `number` | yes | |
+| `items[].quantity` | `number` | yes | 1–10 |
+| `items[].modifierIds` | `number[]` | no | Modifier IDs to attach to this line item |
+
+Returns `201 { orderUuid, orderId }`, `400` for validation errors, `422` for business rule violations.
 
 ---
 
@@ -112,8 +143,9 @@ Defined in `src/client/js/App.tsx`. All routes are code-split via `Lazy` wrapper
 | `/merchant-dashboard/:uuid/menuitems/add` | `MerchantMenuItems` | Add menu item |
 | `/merchant-dashboard/:uuid/menuitems/:menuItemId/edit` | `MerchantMenuItems` | Edit menu item |
 | `/merchant-dashboard/:uuid/settings` | `MerchantSettings` | Business info + theme |
-| `/order-online/:merchantId` | `CustomerRoutes` | Customer-facing ordering |
-| `/orders/:orderUuid/menus` | `Menus` | Customer menu webview |
+| `/online-ordering/:slug` | `OnlineMenu` | Customer-facing menu (by menu slug) |
+| `/online-ordering/:slug/checkout` | `CheckoutPlaceholder` | Checkout (coming soon) |
+| `/orders/:orderUuid/menus` | `Menus` | Customer menu webview (legacy) |
 
 ### Seed merchant UUIDs
 
