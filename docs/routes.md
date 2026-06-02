@@ -143,8 +143,9 @@ Defined in `src/client/js/App.tsx`. All routes are code-split via `Lazy` wrapper
 | `/merchant-dashboard/:uuid/menuitems/add` | `MerchantMenuItems` | Add menu item |
 | `/merchant-dashboard/:uuid/menuitems/:menuItemId/edit` | `MerchantMenuItems` | Edit menu item |
 | `/merchant-dashboard/:uuid/settings` | `MerchantSettings` | Business info + theme |
-| `/order-online/:merchantId` | `CustomerRoutes` | Customer-facing ordering |
-| `/orders/:orderUuid/menus` | `Menus` | Customer menu webview |
+| `/online-ordering/:slug` | `OnlineMenu` | Customer-facing menu (by menu slug) |
+| `/online-ordering/:slug/checkout` | `CheckoutPlaceholder` | Checkout (coming soon) |
+| `/orders/:orderUuid/menus` | `Menus` | Customer menu webview (legacy) |
 
 ### Seed merchant UUIDs
 
