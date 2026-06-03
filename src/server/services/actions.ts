@@ -145,11 +145,10 @@ export async function createOrder({ merchantId, customerName, customerPhone, ord
     throw new Error('At least one item is required');
   }
 
-  const customerIds = await Customers.create({
+  const customerId = await Customers.create({
     name: customerName,
     ...(customerPhone ? { mobile_phone: customerPhone } : {}),
   });
-  const customerId = customerIds[0];
 
   const orderUuid = await Orders.create({ merchantId: merchant.id, customerId, orderType });
   const { order } = await Orders.getByUuid(orderUuid);

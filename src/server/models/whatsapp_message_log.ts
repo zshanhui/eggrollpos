@@ -3,6 +3,7 @@ import type {
   WhatsAppLogInsertRow,
   WhatsAppMessageLogRow,
 } from '../../shared/whatsapp';
+import { extractInsertId } from '../db/insert-id';
 
 const Table = () => db('whatsapp_message_log');
 
@@ -21,7 +22,7 @@ class WhatsAppMessageLog {
     row: WhatsAppLogInsertRow
   ): Promise<WhatsAppMessageLogRow | null> {
     try {
-      const [id] = await Table().insert({
+      const result = await Table().insert({
         dedupe_key: row.dedupe_key,
         wa_message_id: row.wa_message_id ?? null,
         direction: row.direction,
@@ -31,8 +32,8 @@ class WhatsAppMessageLog {
         wa_id: row.wa_id ?? null,
         payload_json: row.payload_json,
       });
-      const pk = typeof id === 'object' && id !== null && 'id' in id ? (id as { id: number }).id : id;
-      return Table().where({ id: pk as number }).first();
+      const id = extractInsertId(result);
+      return Table().where({ id }).first();
     } catch (err) {
       if (isDuplicateKeyError(err)) {
         return null;

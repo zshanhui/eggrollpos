@@ -12,7 +12,7 @@
     "build:all": "npm run build && npm run build:server",
     "preview": "vite preview",
     "type-check": "tsc --noEmit",
-    "test": "DB_CLIENT=sqlite3 DB_FILENAME=test.db NODE_ENV=development mocha specs/**/*",
+    "test": "DB_CLIENT=sqlite3 DB_FILENAME=test.db NODE_ENV=development mocha specs/**/* --exit",
     "test:pg": "NODE_ENV=development mocha specs/**/*",
     "create-merchant": "node scripts/create-merchant.js",
     "screenshots:merchant": "node scripts/capture-merchant-screenshots.js",

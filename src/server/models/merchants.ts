@@ -1,6 +1,7 @@
 import crypto from 'crypto';
 import db from './db';
 import type { MerchantRow, MerchantCreateParams, MerchantUpdateParams } from '../../shared/merchants';
+import { extractInsertId } from '../db/insert-id';
 
 const T = () => db('merchants');
 
@@ -44,17 +45,19 @@ class Merchants {
    * Create merchant. For admin use only — do NOT expose via API or UI.
    * Use: pnpm run create-merchant "Business Name"
    */
-  static async create(params: MerchantCreateParams): Promise<number[]> {
+  static async create(params: MerchantCreateParams): Promise<number> {
     const hash_id = generateHashId();
-    return T().insert({ ...params, hash_id }).returning('id');
+    const result = await T().insert({ ...params, hash_id }).returning('id');
+    return extractInsertId(result);
   }
 
-  static async update(id: number, params: MerchantUpdateParams): Promise<number[]> {
+  static async update(id: number, params: MerchantUpdateParams): Promise<number> {
     console.log(`Updating merchant ${id} with `, params);
-    return T()
+    const result = await T()
       .update(params)
       .where('id', id)
       .returning('id');
+    return extractInsertId(result);
   }
 
   static async getByZip(zipCode: string): Promise<MerchantRow[]> {

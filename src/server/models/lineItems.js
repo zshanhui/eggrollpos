@@ -1,4 +1,5 @@
 const db = require('./db');
+const { extractInsertId } = require('../db/insert-id');
 
 const T = () => db('line_items');
 const ModifiersT = () => db('line_item_modifiers');
@@ -12,7 +13,7 @@ class LineItems {
       menu_item_id: menuItemId,
       quantity,
     }).returning('id');
-    return res[0];
+    return extractInsertId(res);
   }
 
   static async addModifiers(lineItemId, modifierIds) {
@@ -33,10 +34,11 @@ class LineItems {
   }
 
   static async update(id, params) {
-    return await T()
+    const res = await T()
       .update({...params})
       .where('id', id)
-      .returning('id')
+      .returning('id');
+    return extractInsertId(res);
   }
 
   static async remove({lineItemId, orderId}) {

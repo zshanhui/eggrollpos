@@ -1,4 +1,5 @@
 import db from './db';
+import { extractInsertId } from '../db/insert-id';
 
 const T = () => db('menu_categories');
 
@@ -21,11 +22,12 @@ class MenuCategories {
     name: string;
     sortOrder?: number;
   }) {
-    const [id] = await T().insert({
+    const result = await T().insert({
       merchant_id: params.merchantId ?? null,
       name: params.name,
       sort_order: params.sortOrder ?? 0,
     });
+    const id = extractInsertId(result);
     return T().where('id', id).first();
   }
 

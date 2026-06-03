@@ -54,7 +54,7 @@ app.get("/r/:receiptId", async (req, res) => {
 });
 
 /* This should come after all other routes */
-app.use("/*", ReactRouter);
+app.use("/{*splat}", ReactRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

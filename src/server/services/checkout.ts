@@ -96,25 +96,15 @@ export async function submitMenuCheckout(
   const customerName =
     (body.contact?.name && body.contact.name.trim()) || 'Guest';
 
-  const customerIds = await Customers.create({
+  const customerId = await Customers.create({
     name: customerName,
     mobile_phone: phone,
     email,
   });
-  const firstId = Array.isArray(customerIds) ? customerIds[0] : customerIds;
-  const customerIdNum =
-    typeof firstId === 'number'
-      ? firstId
-      : typeof firstId === 'object' && firstId !== null && 'id' in firstId
-        ? Number((firstId as { id: number }).id)
-        : Number(firstId);
-  if (!customerIdNum || Number.isNaN(customerIdNum)) {
-    throw new CheckoutError(500, 'Failed to create customer');
-  }
 
   const orderUuid = await Orders.create({
     merchantId,
-    customerId: customerIdNum,
+    customerId,
     orderType,
   });
 
@@ -138,7 +128,7 @@ export async function submitMenuCheckout(
 
   if (whatsappOptIn && phone) {
     await WhatsAppOptIns.create({
-      customerId: customerIdNum,
+      customerId,
       merchantId,
       orderId: order.id,
       phoneE164: phone,
@@ -161,7 +151,7 @@ export async function submitMenuCheckout(
 
   return {
     orderUuid,
-    receiptId: typeof receiptId === 'object' ? Number((receiptId as { id: number }).id) : Number(receiptId),
+    receiptId,
     displayTotalCents: totals.totalCents,
   };
 }
