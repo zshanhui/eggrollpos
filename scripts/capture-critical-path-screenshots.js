@@ -53,7 +53,7 @@ const routes = [
   },
   {
     file: '06-receipt.png',
-    url: '/receipts/1',
+    url: '/receipts/a0000009-0009-0009-0009-000000000009',
     wait: 'body',
     timeout: 15000,
   },

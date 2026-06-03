@@ -8,19 +8,19 @@ function formatCentsToDollars(value: number | string) {
   return num ? num / 100 : 0;
 }
 
-function Receipt({ id }: { id: string }) {
+function Receipt({ orderUuid }: { orderUuid: string }) {
   const { t } = useTranslation();
   const [receipt, setReceipt] = useState<any>(null);
   const [lineItems, setLineItems] = useState<any>(null);
 
   useEffect(() => {
-    fetch(`/r/${id}`)
+    fetch(`/r/${orderUuid}`)
       .then((res) => res.json())
       .then((data) => {
         setReceipt(data.receipt);
         setLineItems(data.lineItems);
       });
-  }, [id]);
+  }, [orderUuid]);
 
   if (receipt === null || lineItems === null) {
     return <h1>{t('receipts.loading')}</h1>;
@@ -102,13 +102,13 @@ function Receipt({ id }: { id: string }) {
   );
 }
 
-export default function ReceiptsPage(props: { match: { params: { id: string } } }) {
+export default function ReceiptsPage(props: { match: { params: { uuid: string } } }) {
   return (
     <section>
       <Container fluid style={{ backgroundColor: '#FB8B8B' }}>
         <Row className="py-5">
           <Col md={{ span: 6, offset: 3 }}>
-            <Receipt id={props.match.params.id} />
+            <Receipt orderUuid={props.match.params.uuid} />
           </Col>
         </Row>
       </Container>

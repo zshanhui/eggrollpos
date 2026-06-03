@@ -54,9 +54,9 @@ app.use("/api/merchants", merchantsRouter);
 app.use("/api/orders", ordersRouter);
 app.use("/api/menus", menusPublicRouter);
 
-app.get("/r/:receiptId", async (req, res) => {
-  const receiptId = req.params.receiptId;
-  const receipts = await Actions.getReceipt({ receiptId });
+app.get("/r/:orderUuid", async (req, res) => {
+  const orderUuid = req.params.orderUuid;
+  const receipts = await Actions.getReceipt({ orderUuid });
   const orderId = receipts.order_id;
   const lineItems = await Actions.getLineItems({ orderId });
   res.json({ receipt: receipts, lineItems: lineItems });

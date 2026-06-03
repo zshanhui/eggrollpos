@@ -68,7 +68,7 @@ export default function Checkout(props: any) {
         paymentMethod,
       });
       clearCart(slug);
-      history.push(`/receipts/${result.receiptId}`);
+      history.push(`/receipts/${result.orderUuid}`);
     } catch (err: any) {
       setError(err?.message || t('checkout.submitFailed'));
     } finally {

@@ -21,6 +21,7 @@ export interface MenuCheckoutRequest {
 }
 
 export interface MenuCheckoutResponse {
+  /** Public receipt URL: `/receipts/{orderUuid}` */
   orderUuid: string;
   receiptId: number;
   displayTotalCents: number;

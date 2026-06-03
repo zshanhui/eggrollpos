@@ -27,6 +27,15 @@ class Receipts {
       .first();
   }
 
+  static async getWithOrderUuid(orderUuid) {
+    return await Table()
+      .select('receipts.*', 'merchants.business_name', 'orders.uuid as order_uuid')
+      .join('orders', { 'receipts.order_id': 'orders.id' })
+      .join('merchants', { 'orders.merchant_id': 'merchants.id' })
+      .where('orders.uuid', orderUuid)
+      .first();
+  }
+
   static async getWithOrderId(orderId) {
     return await Table()
       .select()
