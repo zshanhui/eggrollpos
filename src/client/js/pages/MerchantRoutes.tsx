@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Status, STATUS_LABELS, getNextStatus, canCancel } from '../../../shared/orders';
 import type { OrderStatus, OrderType } from '../../../shared/orders';
 import type { MerchantRow } from '../../../shared/merchants';
+import { resolveMerchantTheme } from '../../../shared/merchants';
 import LangSwitcher from '../components/LangSwitcher';
 import '../../css/pages/MerchantRoutes.css';
 
@@ -64,7 +65,7 @@ export default function MerchantRoutes(props: any) {
     );
   }
 
-  const theme = merchant.theme === 'light' ? 'light' : 'dark';
+  const theme = resolveMerchantTheme(merchant.theme);
   return (
     <div className={`Merchant Merchant--theme-${theme}`}>
       {selectedOrderId === null ? (

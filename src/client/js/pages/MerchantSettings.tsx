@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import LangSwitcher from '../components/LangSwitcher';
 import type { MerchantRow } from '../../../shared/merchants';
+import { resolveMerchantTheme } from '../../../shared/merchants';
 import '../../css/pages/MerchantSettings.css';
 
 function fetchApi(url: string) {
@@ -85,7 +86,7 @@ function SettingsForm({
   const [taxId, setTaxId] = useState(merchant.tax_id || '');
   const [whatsappNumber, setWhatsappNumber] = useState(merchant.whatsapp_number || '');
   const [addressStreet, setAddressStreet] = useState(merchant.address_street || '');
-  const [theme, setTheme] = useState<'light' | 'dark'>(merchant.theme === 'light' ? 'light' : 'dark');
+  const [theme, setTheme] = useState<'light' | 'dark'>(() => resolveMerchantTheme(merchant.theme));
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
 
@@ -94,7 +95,7 @@ function SettingsForm({
     setTaxId(merchant.tax_id || '');
     setWhatsappNumber(merchant.whatsapp_number || '');
     setAddressStreet(merchant.address_street || '');
-    setTheme(merchant.theme === 'light' ? 'light' : 'dark');
+    setTheme(resolveMerchantTheme(merchant.theme));
   }, [merchant]);
 
   useEffect(() => {
@@ -139,7 +140,7 @@ function SettingsForm({
     }
   };
 
-  const themeValue = merchant.theme === 'light' ? 'light' : 'dark';
+  const themeValue = resolveMerchantTheme(merchant.theme);
 
   return (
     <div className={`MerchantSettings MerchantSettings--theme-${themeValue}`}>
