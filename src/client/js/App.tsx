@@ -32,7 +32,7 @@ function App() {
       <Switch>
         <Route path="/" exact component={HomeLanding} />
         <Route path="/about" exact component={Pages.AboutPage} />
-        <Route path="/receipts/:id" exact component={Pages.Receipts} />
+        <Route path="/receipts/:uuid" exact component={Pages.Receipts} />
 
         {/* Merchant POS dashboard — UUID identifies the merchant */}
         <Route path="/merchant-dashboard/:uuid" exact component={Pages.MerchantRoutes} />

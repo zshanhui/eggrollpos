@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import LangSwitcher from '../components/LangSwitcher';
 import type { MerchantRow, MerchantTheme } from '../../../shared/merchants';
+import { resolveMerchantTheme } from '../../../shared/merchants';
 import '../../css/pages/MerchantMenuItems.css';
 
 function fetchApi(url: string) {
@@ -158,7 +159,7 @@ function MenuItemsList({
 
   const [deleteError, setDeleteError] = useState<string | null>(null);
 
-  const theme = merchant.theme === 'light' ? 'light' : 'dark';
+  const theme = resolveMerchantTheme(merchant.theme);
 
   const handleDelete = async (id: number) => {
     if (!confirm(t('merchant.deleteMenuItemConfirm'))) return;
@@ -538,7 +539,7 @@ function MenuItemForm({
     }
   };
 
-  const theme = merchant.theme === 'light' ? 'light' : 'dark';
+  const theme = resolveMerchantTheme(merchant.theme);
 
   if (loading) {
     return (

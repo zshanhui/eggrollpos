@@ -121,10 +121,10 @@ export async function createReceipt({ orderId, paymentMethod }: { orderId: numbe
   return receiptId;
 }
 
-export async function getReceipt({ receiptId }: { receiptId: number }) {
-  const receipt = await Receipts.getWithId(receiptId);
+export async function getReceipt({ orderUuid }: { orderUuid: string }) {
+  const receipt = await Receipts.getWithOrderUuid(orderUuid);
   if (!receipt || !receipt.id) {
-    throw Error(`No receipt with receipt id #${receiptId} found`);
+    throw Error(`No receipt for order ${orderUuid}`);
   }
   return receipt;
 }

@@ -5,6 +5,13 @@ export const MerchantThemes = {
   DARK: 'dark' as const,
 } as const;
 
+/** Merchant dashboard theme; defaults to light when unset or unknown. */
+export function resolveMerchantTheme(
+  theme: MerchantTheme | string | null | undefined
+): MerchantTheme {
+  return theme === MerchantThemes.DARK ? MerchantThemes.DARK : MerchantThemes.LIGHT;
+}
+
 /**
  * Shape returned by GET /api/merchants/:param.
  * Matches the DB row in snake_case — the API passes it through directly.

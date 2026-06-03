@@ -122,7 +122,7 @@ Open [http://localhost:3001](http://localhost:3001) in your browser.
 | `/merchant/:uuid` | Merchant POS dashboard (UUID identifies the merchant) |
 | `/order-online/:merchantId` | Public ordering menu for a specific merchant |
 | `/orders/:orderUuid/menus` | Customer menu ordering view for an existing order |
-| `/receipts/:id` | Receipt view |
+| `/receipts/:uuid` | Receipt view (order UUID) |
 
 Seed merchant UUIDs for local development:
 

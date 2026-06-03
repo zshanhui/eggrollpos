@@ -42,7 +42,8 @@ export default defineConfig({
         target: "http://localhost:3000",
         changeOrigin: true,
       },
-      "/r": {
+      // Use /r/ prefix so /receipts/* is not proxied to Express (prefix /r would match /receipts).
+      "/r/": {
         target: "http://localhost:3000",
         changeOrigin: true,
       },

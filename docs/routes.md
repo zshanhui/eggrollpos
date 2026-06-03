@@ -5,7 +5,7 @@
 ```
 Browser
   ├── /api/*          → Express API routes (JSON)
-  ├── /r/:receiptId   → Express shortlink (JSON)
+  ├── /r/:orderUuid   → Express shortlink (JSON, order UUID)
   └── /*              → React SPA (EJS shell → React Router)
 ```
 
@@ -144,7 +144,7 @@ Returns `201 { orderUuid, orderId }`, `400` for validation errors, `422` for bus
 
 | Method | Path | Purpose |
 |--------|------|---------|
-| `GET` | `/r/:receiptId` | Get receipt with line items (JSON) |
+| `GET` | `/r/:orderUuid` | Get receipt with line items (JSON, keyed by order UUID) |
 
 ---
 
@@ -156,7 +156,7 @@ Defined in `src/client/js/App.tsx`. All routes are code-split via `Lazy` wrapper
 |------|-----------|---------|
 | `/` | `HomeLanding` | Landing page |
 | `/about` | `About` | About page |
-| `/receipts/:id` | `Receipts` | Order receipt |
+| `/receipts/:uuid` | `Receipts` | Order receipt (order UUID) |
 | `/merchant-dashboard/:uuid` | `MerchantRoutes` | POS dashboard — order grid + detail |
 | `/merchant-dashboard/:uuid/menuitems` | `MerchantMenuItems` | Menu items list |
 | `/merchant-dashboard/:uuid/menuitems/add` | `MerchantMenuItems` | Add menu item |
