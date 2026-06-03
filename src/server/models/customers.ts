@@ -1,5 +1,6 @@
 import db from './db';
 import type { CustomerRow, CustomerCreateParams } from '../../shared/customers';
+import { extractInsertId } from '../db/insert-id';
 
 const Table = () => db('customers');
 
@@ -15,14 +16,13 @@ class Customers {
     psid = null,
     mobile_phone = null,
     email = null,
-  }: CustomerCreateParams): Promise<number[]> {
+  }: CustomerCreateParams): Promise<number> {
     const row: Record<string, unknown> = { name };
     if (psid != null) row.psid = psid;
     if (mobile_phone != null) row.mobile_phone = mobile_phone;
     if (email != null) row.email = email;
-    return Table()
-      .insert(row)
-      .returning('id');
+    const result = await Table().insert(row).returning('id');
+    return extractInsertId(result);
   }
 
   static async updateContact(

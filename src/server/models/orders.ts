@@ -2,6 +2,8 @@ import db from './db';
 import * as uuid from 'uuid';
 import camelcaseKeys from 'camelcase-keys';
 import { Status, OrderStatus, OrderType } from '../../shared/orders';
+import { isSqlite } from '../db/dialect';
+import { extractReturningRow } from '../db/insert-id';
 
 const Table = () => db('orders');
 const MenuItemsTable = () => db('menu_items');
@@ -77,12 +79,11 @@ class Order {
   }
 
   static async list(merchantId: number, filter: OrderFilter) {
-    const isSqlite = (db as any).client.config.client === 'sqlite3';
-    const pickupEtaExpr = isSqlite
+    const pickupEtaExpr = isSqlite()
       ? `datetime(orders.confirmed_at, '+' || orders.pickup_in || ' minutes') as pickup_eta`
       : `orders.confirmed_at + (orders.pickup_in * interval '1 minute') as pickup_eta`;
-    const dateExpr = isSqlite ? 'date(orders.created_at)' : '(orders.created_at)::date';
-    const dateExprO2 = isSqlite ? 'date(o2.created_at)' : '(o2.created_at)::date';
+    const dateExpr = isSqlite() ? 'date(orders.created_at)' : '(orders.created_at)::date';
+    const dateExprO2 = isSqlite() ? 'date(o2.created_at)' : '(o2.created_at)::date';
     const displayNumberExpr = `(SELECT COUNT(*) FROM orders o2 WHERE o2.merchant_id = orders.merchant_id AND ${dateExprO2} = ${dateExpr} AND o2.id <= orders.id) as display_number`;
 
     let query = db
@@ -119,14 +120,14 @@ class Order {
       .where('merchant_id', merchantId);
 
     if (filter.startDate) {
-      if (isSqlite) {
+      if (isSqlite()) {
         query = query.andWhereRaw('date(created_at) >= date(?)', [filter.startDate]);
       } else {
         query = query.andWhereRaw('(created_at)::date >= ?::date', [filter.startDate]);
       }
     }
     if (filter.endDate) {
-      if (isSqlite) {
+      if (isSqlite()) {
         query = query.andWhereRaw('date(created_at) <= date(?)', [filter.endDate]);
       } else {
         query = query.andWhereRaw('(created_at)::date <= ?::date', [filter.endDate]);
@@ -171,7 +172,7 @@ class Order {
       .update({...params})
       .where('id', id)
       .returning('*');
-    return res[0];
+    return extractReturningRow<OrderRow>(res);
   }
 
   static async getWithID(id: number) {
@@ -182,9 +183,8 @@ class Order {
   }
 
   static async getDetailWithID(id: number) {
-    const isSqlite = (db as any).client.config.client === 'sqlite3';
-    const dateExpr = isSqlite ? 'date(orders.created_at)' : '(orders.created_at)::date';
-    const dateExprO2 = isSqlite ? 'date(o2.created_at)' : '(o2.created_at)::date';
+    const dateExpr = isSqlite() ? 'date(orders.created_at)' : '(orders.created_at)::date';
+    const dateExprO2 = isSqlite() ? 'date(o2.created_at)' : '(o2.created_at)::date';
 
     const order = await Table()
       .select(

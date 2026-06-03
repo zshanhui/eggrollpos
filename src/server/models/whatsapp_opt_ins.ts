@@ -1,11 +1,12 @@
 import db from './db';
 import type { WhatsAppOptInCreateParams, WhatsAppOptInRow } from '../../shared/whatsapp';
+import { extractInsertId } from '../db/insert-id';
 
 const Table = () => db('whatsapp_opt_ins');
 
 class WhatsAppOptIns {
   static async create(params: WhatsAppOptInCreateParams): Promise<WhatsAppOptInRow> {
-    const [id] = await Table().insert({
+    const result = await Table().insert({
       customer_id: params.customerId,
       merchant_id: params.merchantId,
       order_id: params.orderId ?? null,
@@ -14,8 +15,8 @@ class WhatsAppOptIns {
       opt_in_source: params.optInSource ?? 'web_checkout',
       marketing_allowed: params.marketingAllowed ?? false,
     });
-    const pk = typeof id === 'object' && id !== null && 'id' in id ? (id as { id: number }).id : id;
-    const row = await Table().where({ id: pk as number }).first();
+    const id = extractInsertId(result);
+    const row = await Table().where({ id }).first();
     return row as WhatsAppOptInRow;
   }
 

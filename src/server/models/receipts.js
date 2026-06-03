@@ -1,4 +1,5 @@
 const db = require('./db');
+const { extractInsertId } = require('../db/insert-id');
 
 const Table = () => db('receipts');
 
@@ -14,7 +15,7 @@ class Receipts {
         tax_cents : params.taxCents,
         total_cents : params.totalCents
       }).returning('id');
-    return res[0];
+    return extractInsertId(res);
   }
 
   static async getWithId(id){

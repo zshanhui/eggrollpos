@@ -1,4 +1,5 @@
 const db = require('./db');
+const { extractReturningRow } = require('../db/insert-id');
 
 const T = () => db('modifiers');
 const JunctionT = () => db('menu_item_modifiers');
@@ -13,7 +14,7 @@ class Modifiers {
   }
 
   static async create({ merchantId, name, priceAdjustmentCents = 0, sortOrder = 0 }) {
-    const [row] = await T()
+    const result = await T()
       .insert({
         merchant_id: merchantId,
         name,
@@ -22,7 +23,7 @@ class Modifiers {
         updated_at: db.fn.now(),
       })
       .returning('*');
-    return row;
+    return extractReturningRow(result);
   }
 
   static async update(id, { name, priceAdjustmentCents, sortOrder }) {
@@ -32,11 +33,11 @@ class Modifiers {
     if (sortOrder !== undefined) updates.sort_order = sortOrder;
     updates.updated_at = db.fn.now();
 
-    const [row] = await T()
+    const result = await T()
       .update(updates)
       .where('id', id)
       .returning('*');
-    return row;
+    return extractReturningRow(result);
   }
 
   static async getById(id) {

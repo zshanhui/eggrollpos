@@ -1,8 +1,10 @@
 import { expect } from 'chai';
 import path from 'path';
 import request from 'supertest';
-import db from '../../src/server/models/db';
+import { createRequire } from 'module';
 
+const require = createRequire(import.meta.url);
+const db = require('../../src/server/models/db');
 const app = require('../../src/server/index');
 
 const migrationsDir = path.resolve(__dirname, '../../db/migrations');
@@ -20,6 +22,8 @@ let modNoCream: number;
 async function resetAll() {
   await db('line_item_modifiers').del();
   await db('line_items').del();
+  await db('whatsapp_opt_ins').del();
+  await db('receipts').del();
   await db('orders').del();
   await db('customers').del();
   await db('menu_item_modifiers').del();

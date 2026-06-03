@@ -1,4 +1,5 @@
 const db = require('./db');
+const { extractReturningRow } = require('../db/insert-id');
 
 const T = () => db('menu_items');
 
@@ -25,7 +26,7 @@ class MenuItem {
     const priceCents = params.priceCents ?? params.price_cents;
     const isActive = params.isActive ?? params.is_active ?? true;
     const sortOrder = params.sortOrder ?? params.sort_order ?? 0;
-    const [row] = await T()
+    const result = await T()
       .insert({
         merchant_id: merchantId,
         name,
@@ -35,7 +36,7 @@ class MenuItem {
         sort_order: sortOrder,
       })
       .returning('*');
-    return row;
+    return extractReturningRow(result);
   }
 
   static async update(id, params) {
@@ -45,11 +46,11 @@ class MenuItem {
       if (params[k] !== undefined) updates[k] = params[k];
     }
     if (Object.keys(updates).length === 0) return null;
-    const [row] = await T()
+    const result = await T()
       .update(updates)
       .where('id', id)
       .returning('*');
-    return row;
+    return extractReturningRow(result);
   }
 
   static async delete(id) {

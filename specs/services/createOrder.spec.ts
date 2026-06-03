@@ -11,6 +11,8 @@ const MERCHANT_HASH = 'mc_testcafe01';
 async function resetAll() {
   await db('line_item_modifiers').del();
   await db('line_items').del();
+  await db('whatsapp_opt_ins').del();
+  await db('receipts').del();
   await db('orders').del();
   await db('customers').del();
   await db('menu_item_modifiers').del();

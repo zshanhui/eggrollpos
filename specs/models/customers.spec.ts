@@ -6,6 +6,10 @@ import Customers from '../../src/server/models/customers';
 const migrationsDir = path.resolve(__dirname, '../../db/migrations');
 
 async function resetCustomers() {
+  await db('whatsapp_opt_ins').del();
+  await db('receipts').del();
+  await db('line_items').del();
+  await db('orders').del();
   await db('customers').del();
   await db.raw("DELETE FROM sqlite_sequence WHERE name = 'customers'");
 }
@@ -23,19 +27,18 @@ describe('Customers', () => {
     beforeEach(resetCustomers);
 
     it('creates a customer and returns the new id', async () => {
-      const ids = await Customers.create({ name: 'Alice' });
+      const id = await Customers.create({ name: 'Alice' });
 
-      expect(ids).to.be.an('array');
-      expect(ids[0]).to.be.a('number');
+      expect(id).to.be.a('number');
 
-      const customer = await Customers.getWithId(ids[0]);
+      const customer = await Customers.getWithId(id);
       expect(customer).to.exist;
       expect(customer!.name).to.equal('Alice');
     });
 
     it('sets created_at automatically', async () => {
-      const ids = await Customers.create({ name: 'Bob' });
-      const customer = await Customers.getWithId(ids[0]);
+      const id = await Customers.create({ name: 'Bob' });
+      const customer = await Customers.getWithId(id);
 
       expect(customer!.created_at).to.exist;
     });
@@ -48,8 +51,7 @@ describe('Customers', () => {
 
     before(async () => {
       await resetCustomers();
-      const ids = await Customers.create({ name: 'Carol' });
-      customerId = ids[0];
+      customerId = await Customers.create({ name: 'Carol' });
     });
 
     it('returns a customer by id', async () => {
@@ -77,8 +79,8 @@ describe('Customers', () => {
 
   describe('type narrowing', () => {
     it('narrows the type after null check', async () => {
-      const ids = await Customers.create({ name: 'TypeTest' });
-      const customer = await Customers.getWithId(ids[0]);
+      const id = await Customers.create({ name: 'TypeTest' });
+      const customer = await Customers.getWithId(id);
 
       // verify the shape matches CustomerRow
       expect(customer).to.have.property('id');
