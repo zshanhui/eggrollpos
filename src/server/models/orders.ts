@@ -1,5 +1,5 @@
 import db from './db';
-import * as uuid from 'uuid';
+import { v4 as uuidv4 } from 'uuid';
 import camelcaseKeys from 'camelcase-keys';
 import { Status, OrderStatus, OrderType } from '../../shared/orders';
 import { isSqlite } from '../db/dialect';
@@ -149,7 +149,7 @@ class Order {
   }
 
   static async create({ merchantId, customerId, orderType = 'pickup' }: CreateParams): Promise<string> {
-    const orderUuid = uuid.v4();
+    const orderUuid = uuidv4();
     await Table().insert({
       merchant_id: merchantId,
       customer_id: customerId,
