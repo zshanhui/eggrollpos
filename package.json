@@ -4,7 +4,7 @@
   "private": true,
   "main": "src/server/index.js",
   "scripts": {
-    "start": "node ./bin/www",
+    "start": "NODE_ENV=production tsx ./bin/www",
     "dev": "concurrently \"vite\" \"NODE_ENV=development DEBUG=sqc_app* nodemon --exec tsx --ext js,ts,json ./bin/www\"",
     "build": "vite build",
     "build:image": "vite build && cp -r src/client/assets/images/* dist/assets/",
@@ -50,6 +50,7 @@
     "react-i18next": "^16.5.4",
     "react-router-dom": "^5.3.4",
     "sqlite3": "^5.1.7",
+    "tsx": "^4.21.0",
     "uuid": "^13.0.1"
   },
   "devDependencies": {
@@ -74,7 +75,6 @@
     "postcss": "^8.5.14",
     "supertest": "^7.2.2",
     "tailwindcss": "^4.3.0",
-    "tsx": "^4.21.0",
     "typescript": "^5.9.3",
     "vite": "^7.3.2"
   },

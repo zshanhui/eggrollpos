@@ -14,6 +14,7 @@ const whatsappConfig = require("./services/whatsapp/config");
 const { whatsappWebhookRouter } = require("./routes/whatsapp_webhook");
 
 const Actions = require("./services/actions");
+const db = require("../../db/knex");
 
 const app = express();
 
@@ -21,7 +22,7 @@ const app = express();
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "ejs");
 
-app.use(logger("dev"));
+app.use(logger(process.env.NODE_ENV === "production" ? "combined" : "dev"));
 
 // WhatsApp webhooks need the raw body for X-Hub-Signature-256 verification
 if (whatsappConfig.shouldMountWebhook()) {
@@ -31,7 +32,6 @@ if (whatsappConfig.shouldMountWebhook()) {
     whatsappWebhookRouter
   );
 }
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
@@ -39,6 +39,15 @@ app.use(cookieParser());
 app.use("/dist", express.static(path.join(__dirname, "../../dist")));
 // Serve assets from Vite build output
 app.use("/assets", express.static(path.join(__dirname, "../../dist/assets")));
+
+app.get("/health", async function (req, res) {
+  try {
+    await db.raw("SELECT 1");
+    res.status(200).json({ status: "ok" });
+  } catch (err) {
+    res.status(503).json({ status: "error", message: "database unavailable" });
+  }
+});
 
 app.use("/api/contact", leadsRouter);
 app.use("/api/merchants", merchantsRouter);

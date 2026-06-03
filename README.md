@@ -221,10 +221,14 @@ npx knex seed:run --knexfile db/knexfile.js
 
 ```bash
 pnpm run build        # Builds client assets to dist/
-pnpm run start        # Starts Express in production mode
+pnpm run start        # Starts Express in production mode (uses tsx)
 ```
 
 In production, the Express server serves the built static assets from `/dist`.
+
+## Deployment
+
+See **[DEPLOY.md](DEPLOY.md)** for Docker, Railway, Render, Fly.io, and self-hosted Docker Compose instructions.
 
 ## License
 
