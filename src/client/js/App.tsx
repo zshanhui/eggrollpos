@@ -4,6 +4,8 @@ import {BrowserRouter, Route, Switch} from 'react-router-dom';
 import Lazy from './components/Lazy';
 import HomeLanding from './pages/HomeLanding';
 import { MERCHANT_DASHBOARD_PREFIXES } from '../../shared/merchant_dashboard';
+import MerchantProtectedRoute from './components/MerchantProtectedRoute';
+import { MerchantAuthProvider } from './context/MerchantAuthContext';
 
 // Global types are defined in src/types/global.d.ts
 
@@ -37,7 +39,8 @@ const MERCHANT_DASHBOARD_ROUTES = [
 
 function App() {
   return <div>
-    <BrowserRouter>
+    <MerchantAuthProvider>
+      <BrowserRouter>
 
       <Switch>
         <Route path="/" exact component={HomeLanding} />
@@ -50,7 +53,9 @@ function App() {
               key={`${prefix}${route.path}`}
               path={`${prefix}${route.path}`}
               exact={route.exact}
-              component={route.component}
+              render={(props) => (
+                <MerchantProtectedRoute component={route.component} routeProps={props} />
+              )}
             />
           ))
         )}
@@ -63,7 +68,8 @@ function App() {
         <Route path="/orders/:orderUuid/menus" exact component={Pages.Menus} />
       </Switch>
 
-    </BrowserRouter>
+      </BrowserRouter>
+    </MerchantAuthProvider>
   </div>
 }
 

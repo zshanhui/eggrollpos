@@ -4,6 +4,7 @@ import type { MenuActionDescriptor, PageProps } from '@shopify/polaris';
 import { useTranslation } from 'react-i18next';
 import { merchantDashboardPath } from '../../../shared/merchant_dashboard';
 import MerchantPolarisProvider from './MerchantPolarisProvider';
+import { useMerchantAuth } from '../context/MerchantAuthContext';
 
 interface MerchantAdminLayoutProps {
   merchantHashId: string;
@@ -27,11 +28,13 @@ export default function MerchantAdminLayout({
   showNav = true,
 }: MerchantAdminLayoutProps) {
   const { t } = useTranslation();
+  const { signOut } = useMerchantAuth();
   const navActions = showNav
     ? [
         { content: t('merchant.menus'), url: merchantDashboardPath(merchantHashId, 'online-menus') },
         { content: t('merchant.menu'), url: merchantDashboardPath(merchantHashId, 'menuitems') },
         { content: t('merchant.settings'), url: merchantDashboardPath(merchantHashId, 'settings') },
+        { content: 'Sign out', onAction: signOut },
       ]
     : [];
 

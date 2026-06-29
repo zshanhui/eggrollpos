@@ -7,20 +7,9 @@ import { merchantDashboardPath } from '../../../shared/merchant_dashboard';
 import type { OrderStreamPayload } from '../../../shared/order_events';
 import { useMerchantHashRoute } from '../hooks/useMerchantHashRoute';
 import { useMerchantOrderStream, useElapsedTick, type ConnectionStatus } from '../hooks/useMerchantOrderStream';
+import { useMerchantAuth } from '../context/MerchantAuthContext';
+import { fetchApi, postApi } from '../lib/merchantApi';
 import '../../css/pages/MerchantRoutes.css';
-
-function fetchApi(url: string) {
-  return fetch(url, { credentials: 'same-origin' as const }).then(r => r.json());
-}
-
-function postApi(url: string, body: any) {
-  return fetch(url, {
-    method: 'POST',
-    credentials: 'same-origin' as const,
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-  }).then(r => r.json());
-}
 
 // ─── Main Container ───
 
@@ -118,6 +107,7 @@ function OrdersListPage({ merchantId, merchantName, merchantHashId, onSelectOrde
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('active');
   const [highlightedIds, setHighlightedIds] = useState<Set<number>>(() => new Set());
   const highlightTimers = useRef<Map<number, ReturnType<typeof setTimeout>>>(new Map());
+  const { signOut } = useMerchantAuth();
   const isMobile = useIsMobile();
   const elapsedTick = useElapsedTick();
 
@@ -191,6 +181,7 @@ function OrdersListPage({ merchantId, merchantName, merchantHashId, onSelectOrde
           <a href={merchantDashboardPath(merchantHashId, 'online-menus')}>{t('merchant.menus')}</a>
           <a href={merchantDashboardPath(merchantHashId, 'menuitems')}>{t('merchant.menu')}</a>
           <a href={merchantDashboardPath(merchantHashId, 'settings')}>{t('merchant.settings')}</a>
+          <button type="button" className="OrdersGrid__nav-button" onClick={signOut}>Sign out</button>
           <ConnectionIndicator status={connectionStatus} t={t} />
           <span className="OrdersGrid__count">{filteredOrders.length}</span>
         </div>

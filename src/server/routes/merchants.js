@@ -12,6 +12,11 @@ const { categoriesRouter } = require('./menu_categories');
 const { subscribeMerchantOrders } = require('../services/order_events');
 const { normalizeMenuItemImageUrl } = require('../lib/s3');
 const {
+    createMerchantStreamToken,
+    requireMerchantAccess,
+    requireMerchantStreamAccess,
+} = require('../middleware/merchantAuth');
+const {
     createMenuItemImagePresign,
     completeMenuItemImageUpload,
     deleteMenuItemImage,
@@ -36,6 +41,14 @@ router.get('/:param', async (req, res) => {
         res.sendStatus(404);
     }
 });
+
+router.get('/:merchantId/orders/stream', requireMerchantStreamAccess, (req, res) => {
+    const merchantId = parseInt(req.params.merchantId, 10);
+    if (isNaN(merchantId)) return res.sendStatus(400);
+    subscribeMerchantOrders(merchantId, res);
+});
+
+router.use('/:merchantId', requireMerchantAccess);
 
 // ─── Merchant Settings (business info, theme) ───
 
@@ -83,11 +96,14 @@ async function updateMerchantSettingsHandler(req, res) {
 router.patch('/:merchantId', updateMerchantSettingsHandler);
 router.put('/:merchantId', updateMerchantSettingsHandler);
 
-
-router.get('/:merchantId/orders/stream', (req, res) => {
+router.post('/:merchantId/orders/stream-token', (req, res) => {
     const merchantId = parseInt(req.params.merchantId, 10);
-    if (isNaN(merchantId)) return res.sendStatus(400);
-    subscribeMerchantOrders(merchantId, res);
+    if (isNaN(merchantId)) return res.status(400).json({ error: 'Invalid merchant ID' });
+    const token = createMerchantStreamToken({
+        merchantId,
+        supabaseUserId: req.supabaseUser.id,
+    });
+    res.json({ token });
 });
 
 router.get('/:merchantId/orders', async (req, res) => {
