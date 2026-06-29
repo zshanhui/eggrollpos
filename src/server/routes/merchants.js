@@ -9,6 +9,7 @@ const Modifiers = require('../models/modifiers');
 const {getNextStatus, canCancel, canRefund, Status} = require('../../shared/orders');
 const { adminRouter: menusRouter } = require('./menus');
 const { categoriesRouter } = require('./menu_categories');
+const { subscribeMerchantOrders } = require('../services/order_events');
 
 /**
  * @typedef {import('../../shared/merchants').MerchantRow} MerchantRow
@@ -71,6 +72,12 @@ async function updateMerchantSettingsHandler(req, res) {
 router.patch('/:merchantId', updateMerchantSettingsHandler);
 router.put('/:merchantId', updateMerchantSettingsHandler);
 
+
+router.get('/:merchantId/orders/stream', (req, res) => {
+    const merchantId = parseInt(req.params.merchantId, 10);
+    if (isNaN(merchantId)) return res.sendStatus(400);
+    subscribeMerchantOrders(merchantId, res);
+});
 
 router.get('/:merchantId/orders', async (req, res) => {
     const merchantId = req.params.merchantId;

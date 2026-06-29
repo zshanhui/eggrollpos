@@ -10,6 +10,7 @@ import {
   normalizePhoneE164,
 } from '../../shared/contact';
 import type { MenuCheckoutRequest, MenuCheckoutResponse, MockPaymentMethod } from '../../shared/checkout';
+import { publishOrderEvent } from './order_events';
 
 const VALID_PAYMENT: MockPaymentMethod[] = ['mock_pay_at_pickup', 'mock_card'];
 
@@ -148,6 +149,12 @@ export async function submitMenuCheckout(
   });
 
   const totals = await Orders.calculateSubtotal({ id: order.id, taxRate: 0.07 });
+
+  publishOrderEvent({
+    type: 'order_created',
+    orderId: order.id,
+    merchantId,
+  });
 
   return {
     orderUuid,

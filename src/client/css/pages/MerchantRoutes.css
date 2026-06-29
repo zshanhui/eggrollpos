@@ -317,6 +317,108 @@
 .OrderCard--canceled { border-color: #FF1744; }
 .OrderCard--refunded { border-color: #FF9100; }
 
+.OrderCard--highlight {
+  animation: order-highlight-pulse 2s ease-out;
+}
+
+@keyframes order-highlight-pulse {
+  0% {
+    box-shadow: 0 0 0 3px #FFD600, 0 0 20px rgba(255, 214, 0, 0.4);
+    background: rgba(255, 214, 0, 0.12);
+  }
+  70% {
+    box-shadow: 0 0 0 2px rgba(255, 214, 0, 0.5);
+    background: rgba(255, 214, 0, 0.06);
+  }
+  100% {
+    box-shadow: none;
+    background: #141414;
+  }
+}
+
+.Merchant--theme-light .OrderCard--highlight {
+  animation-name: order-highlight-pulse-light;
+}
+
+@keyframes order-highlight-pulse-light {
+  0% {
+    box-shadow: 0 0 0 3px #FFD600, 0 0 16px rgba(255, 214, 0, 0.35);
+    background: rgba(255, 214, 0, 0.18);
+  }
+  70% {
+    box-shadow: 0 0 0 2px rgba(255, 214, 0, 0.4);
+    background: rgba(255, 214, 0, 0.08);
+  }
+  100% {
+    box-shadow: none;
+    background: #fff;
+  }
+}
+
+/* ===== Live connection indicator ===== */
+
+.ConnectionIndicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #888;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.ConnectionIndicator__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #888;
+}
+
+.ConnectionIndicator--live {
+  color: #00e676;
+}
+
+.ConnectionIndicator--live .ConnectionIndicator__dot {
+  background: #00e676;
+  box-shadow: 0 0 6px rgba(0, 230, 118, 0.6);
+}
+
+.ConnectionIndicator--connecting .ConnectionIndicator__dot,
+.ConnectionIndicator--reconnecting .ConnectionIndicator__dot {
+  background: #ffab00;
+  animation: connection-blink 1.2s ease-in-out infinite;
+}
+
+.ConnectionIndicator--reconnecting {
+  color: #ffab00;
+}
+
+@keyframes connection-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+.Merchant--theme-light .ConnectionIndicator {
+  background: rgba(0, 0, 0, 0.05);
+  color: #666;
+}
+
+.Merchant--theme-light .ConnectionIndicator--live {
+  color: #00a152;
+}
+
+.Merchant--theme-light .ConnectionIndicator--live .ConnectionIndicator__dot {
+  background: #00a152;
+}
+
+@media (max-width: 599px) {
+  .ConnectionIndicator__label {
+    display: none;
+  }
+}
+
 /* ===== Order Type Tag ===== */
 
 .OrderTypeTag {
