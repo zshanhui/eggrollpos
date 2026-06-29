@@ -29,6 +29,7 @@ export default defineConfig({
   build: {
     outDir: "dist",
     assetsDir: "assets",
+    manifest: true,
     rollupOptions: {
       input: {
         index: resolve(__dirname, "index.html"),
