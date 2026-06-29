@@ -2,7 +2,6 @@ import React from 'react';
 import { Page } from '@shopify/polaris';
 import type { MenuActionDescriptor, PageProps } from '@shopify/polaris';
 import { merchantDashboardPath } from '../../../shared/merchant_dashboard';
-import LangSwitcher from './LangSwitcher';
 import MerchantPolarisProvider from './MerchantPolarisProvider';
 
 interface MerchantAdminLayoutProps {
@@ -38,7 +37,6 @@ export default function MerchantAdminLayout({
     <MerchantPolarisProvider>
       <Page
         title={title}
-        titleMetadata={<LangSwitcher />}
         backAction={{ content: backLabel, onAction: onBack }}
         primaryAction={primaryAction}
         secondaryActions={[...navActions, ...(secondaryActions || [])]}

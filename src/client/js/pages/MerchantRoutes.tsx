@@ -5,7 +5,6 @@ import type { OrderStatus, OrderType } from '../../../shared/orders';
 import { resolveMerchantTheme } from '../../../shared/merchants';
 import { merchantDashboardPath } from '../../../shared/merchant_dashboard';
 import type { OrderStreamPayload } from '../../../shared/order_events';
-import LangSwitcher from '../components/LangSwitcher';
 import { useMerchantHashRoute } from '../hooks/useMerchantHashRoute';
 import { useMerchantOrderStream, useElapsedTick, type ConnectionStatus } from '../hooks/useMerchantOrderStream';
 import '../../css/pages/MerchantRoutes.css';
@@ -189,7 +188,7 @@ function OrdersListPage({ merchantId, merchantName, merchantHashId, onSelectOrde
   return (
     <div className="OrdersGrid OrdersGrid--with-header">
       <div className="OrdersGrid__header">
-        <h1 className="OrdersGrid__title">{merchantName}<LangSwitcher /></h1>
+        <h1 className="OrdersGrid__title">{merchantName}</h1>
         <div className="OrdersGrid__nav">
           <a href={merchantDashboardPath(merchantHashId, 'online-menus')}>{t('merchant.menus')}</a>
           <a href={merchantDashboardPath(merchantHashId, 'menuitems')}>{t('merchant.menu')}</a>
@@ -413,7 +412,6 @@ function OrderDetailPage({ merchantId, orderId, onBack, t }: { merchantId: numbe
           {t('merchant.backToOrders')}
         </button>
         <ConnectionIndicator status={connectionStatus} t={t} />
-        <LangSwitcher />
       </div>
 
       <div className="OrderDetail__header">

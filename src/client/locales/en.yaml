@@ -96,6 +96,8 @@ merchant:
   businessAddress: "Business Address"
   businessAddressPlaceholder: "Full address"
   appearance: "Appearance"
+  theme: "Theme"
+  language: "Language"
   themeLight: "Light"
   themeDark: "Dark"
   settingsSaveFailed: "Failed to save settings"

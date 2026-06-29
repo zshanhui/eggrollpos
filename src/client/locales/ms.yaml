@@ -95,6 +95,8 @@ merchant:
   businessAddress: "Alamat Perniagaan"
   businessAddressPlaceholder: "Alamat penuh"
   appearance: "Penampilan"
+  theme: "Tema"
+  language: "Bahasa"
   themeLight: "Cerah"
   themeDark: "Gelap"
   settingsSaveFailed: "Gagal menyimpan tetapan"

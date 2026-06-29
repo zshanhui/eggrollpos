@@ -96,6 +96,8 @@ merchant:
   businessAddress: "企业地址"
   businessAddressPlaceholder: "完整地址"
   appearance: "外观"
+  theme: "主题"
+  language: "语言"
   themeLight: "浅色"
   themeDark: "深色"
   settingsSaveFailed: "保存设置失败"
