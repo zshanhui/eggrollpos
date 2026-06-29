@@ -54,6 +54,7 @@ Persisted Postgres data lives in the `pgdata` Docker volume.
 | `DATABASE_SSL` | no | auto | Set to `true` to force SSL; `false` to disable. Auto-enabled for Neon/Supabase URLs and `sslmode=require`. |
 | `PUBLIC_BASE_URL` | recommended | — | Public app URL for dashboard links and WhatsApp templates |
 | `SKIP_MIGRATIONS` | no | — | Set to `1` to skip auto-migrate on start (use with a separate release/migrate step) |
+| `SKIP_SEED` | no | — | Set to `1` to skip auto-seed on empty DB |
 
 **Production `DATABASE_URL` format:**
 
@@ -61,7 +62,7 @@ Persisted Postgres data lives in the `pgdata` Docker volume.
 postgres://USER:PASSWORD@HOST:5432/eggrollpos
 ```
 
-Do **not** run seed commands in production (`pnpm run db:seed`). Seeds are for local development only.
+On **first deploy** (empty `merchants` table), the container entrypoint runs development seeds automatically — same demo merchants and menus as local `./dev.sh`. After that, seeds are skipped so existing data is never wiped. Set `SKIP_SEED=1` to disable. Do **not** run `pnpm run db:seed` manually on a populated production database (the cleanup seed deletes all rows first).
 
 ### Neon or Supabase
 
@@ -104,13 +105,15 @@ SKIP_MIGRATIONS=1
 
 Otherwise migrations run on every container start via `scripts/docker-entrypoint.sh` (also fine for Railway).
 
+On first start with an empty database, seeds run automatically (see `scripts/seed-if-empty.js`). Demo merchants include INSTEP Cafe (`mc_n1c0ffee`) and Mazu (`mc_m4zun00d`), plus published menu slug `instep-cafe-new-york-10001-lunch-menu`.
+
 ### 4. Deploy
 
 Railway assigns a public URL. Custom domains: **Settings → Networking → Custom Domain**.
 
-### 5. Create a merchant
+### 5. Create additional merchants (optional)
 
-Use Railway’s **Shell** (or a one-off job):
+Demo seed data is loaded on first deploy. For a real merchant, use Railway’s **Shell** (or a one-off job):
 
 ```bash
 pnpm run create-merchant "Business Name" --address "123 Main St"

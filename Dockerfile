@@ -29,6 +29,7 @@ COPY src/server ./src/server
 COPY src/shared ./src/shared
 COPY scripts/docker-entrypoint.sh ./scripts/docker-entrypoint.sh
 COPY scripts/create-merchant.js ./scripts/create-merchant.js
+COPY scripts/seed-if-empty.js ./scripts/seed-if-empty.js
 RUN chmod +x ./scripts/docker-entrypoint.sh
 
 EXPOSE 3000

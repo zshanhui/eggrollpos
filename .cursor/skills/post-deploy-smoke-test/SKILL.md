@@ -80,7 +80,7 @@ With `STAGING_RECEIPT_UUID`:
 2. Run `pnpm run smoke:staging` with staging env vars set if available.
 3. To skip the wait (e.g. re-checking an already-live deploy): `SMOKE_WAIT_SECONDS=0 pnpm run smoke:staging`
 4. If failures mention **HTML MIME type for JS** or **missing #app-root**, inspect `src/server/views/index.ejs` and Vite manifest wiring (`src/server/lib/viteAssets.js`).
-5. If merchant routes fail with 404, verify `STAGING_MERCHANT_KEY` matches a merchant created via `pnpm run create-merchant` on staging — seed UUIDs like `mc_m4zun00d` are **local dev only**.
+5. If merchant routes fail with 404, confirm auto-seed ran (empty DB on first deploy). Demo keys: `mc_n1c0ffee`, menu slug `instep-cafe-new-york-10001-lunch-menu`. If seeds were skipped (`SKIP_SEED=1`) or DB was cleared, use `pnpm run create-merchant` on staging.
 6. Report pass/fail summary to the user; do not mark deploy complete if smoke test fails.
 
 ## Railway env suggestion

@@ -16,8 +16,8 @@
  */
 
 const BASE_URL = (process.env.BASE_URL || 'https://eggrollpos-staging.up.railway.app').replace(/\/$/, '');
-const MERCHANT_KEY = process.env.STAGING_MERCHANT_KEY || process.env.SMOKE_MERCHANT_KEY || '';
-const MENU_SLUG = process.env.STAGING_MENU_SLUG || process.env.SMOKE_MENU_SLUG || '';
+const MERCHANT_KEY = process.env.STAGING_MERCHANT_KEY || process.env.SMOKE_MERCHANT_KEY || 'mc_n1c0ffee';
+const MENU_SLUG = process.env.STAGING_MENU_SLUG || process.env.SMOKE_MENU_SLUG || 'instep-cafe-new-york-10001-lunch-menu';
 const RECEIPT_UUID = process.env.STAGING_RECEIPT_UUID || process.env.SMOKE_RECEIPT_UUID || '';
 const WAIT_SECONDS = Math.max(0, parseInt(process.env.SMOKE_WAIT_SECONDS || '0', 10) || 0);
 

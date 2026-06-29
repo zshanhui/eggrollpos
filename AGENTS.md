@@ -102,7 +102,12 @@ The script checks `/health`, SPA pages (`/`, `/about`), Vite JS bundle MIME type
 - Cursor skill: `.cursor/skills/post-deploy-smoke-test/SKILL.md`
 - Cursor rule: `.cursor/rules/post-deploy-smoke-test.mdc`
 
-Staging DB merchants come from `pnpm run create-merchant` — local seed UUIDs/slugs may not exist on Railway.
+Staging uses the same auto-seed on first deploy as Railway. After seeding, demo routes work:
+
+- Merchant: `mc_n1c0ffee` or `a0000001-0001-0001-0001-000000000001` (INSTEP Cafe)
+- Menu slug: `instep-cafe-new-york-10001-lunch-menu`
+
+Set `STAGING_MERCHANT_KEY` and `STAGING_MENU_SLUG` in `.env.staging.example` for full smoke test coverage.
 
 ### Optional integrations
 
