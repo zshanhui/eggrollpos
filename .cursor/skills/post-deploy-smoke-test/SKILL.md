@@ -54,10 +54,11 @@ With `STAGING_MERCHANT_KEY` (hash_id **or** UUID):
 | Check |
 |-------|
 | `GET /api/merchants/:key` |
-| `/merchant-dashboard/:key` |
-| `/merchant-dashboard/:key/menuitems` |
-| `/merchant-dashboard/:key/settings` |
-| `/merchant-dashboard/:key/online-menus` |
+| `/md/:key` |
+| `/md/:key/menuitems` |
+| `/md/:key/settings` |
+| `/md/:key/online-menus` |
+| `/merchant-dashboard/:key` (alias) |
 
 With `STAGING_MENU_SLUG`:
 

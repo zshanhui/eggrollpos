@@ -75,10 +75,13 @@ about:
   welcome: "Selamat datang ke halaman tentang!"
 
 merchant:
-  noUuid: "UUID peniaga tidak diberikan"
+  noHashId: "Kod peniaga tidak diberikan"
+  invalidHashId: "Kod peniaga tidak sah — gunakan pautan mc_… dari create-merchant"
+  noUuid: "Kod peniaga tidak diberikan"
   notFound: "Peniaga tidak dijumpai"
   loadFailed: "Gagal memuatkan peniaga"
-  checkUuid: "Sila semak UUID peniaga dalam URL"
+  checkHashId: "Semak kod peniaga (mc_…) dalam URL"
+  checkUuid: "Semak kod peniaga (mc_…) dalam URL"
   menu: "Menu"
   settings: "Tetapan"
   businessInfo: "Maklumat Perniagaan"

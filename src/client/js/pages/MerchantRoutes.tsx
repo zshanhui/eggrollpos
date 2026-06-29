@@ -2,10 +2,11 @@ import React, { useEffect, useState, useCallback, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next';
 import { Status, STATUS_LABELS, getNextStatus, canCancel } from '../../../shared/orders';
 import type { OrderStatus, OrderType } from '../../../shared/orders';
-import type { MerchantRow } from '../../../shared/merchants';
 import { resolveMerchantTheme } from '../../../shared/merchants';
+import { merchantDashboardPath } from '../../../shared/merchant_dashboard';
 import type { OrderStreamPayload } from '../../../shared/order_events';
 import LangSwitcher from '../components/LangSwitcher';
+import { useMerchantHashRoute } from '../hooks/useMerchantHashRoute';
 import { useMerchantOrderStream, useElapsedTick, type ConnectionStatus } from '../hooks/useMerchantOrderStream';
 import '../../css/pages/MerchantRoutes.css';
 
@@ -25,35 +26,17 @@ function postApi(url: string, body: any) {
 // ─── Main Container ───
 
 export default function MerchantRoutes(props: any) {
-  const merchantUuid = props.match?.params?.uuid;
-  const [merchant, setMerchant] = useState<MerchantRow | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const hashId = props.match?.params?.hashId;
   const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
-
   const { t } = useTranslation();
-
-  useEffect(() => {
-    if (!merchantUuid) {
-      setError(t('merchant.noUuid'));
-      return;
-    }
-    fetchApi(`/api/merchants/${merchantUuid}`)
-      .then(data => {
-        if (data && data.id) {
-          setMerchant(data);
-        } else {
-          setError(t('merchant.notFound'));
-        }
-      })
-      .catch(() => setError(t('merchant.loadFailed')));
-  }, [merchantUuid, t]);
+  const { merchant, error, merchantHashId } = useMerchantHashRoute(hashId, t);
 
   if (error) {
     return (
       <div className="Merchant Merchant__centered">
         <div className="Merchant__error">
           <div className="Merchant__error-title">{error}</div>
-          <div className="Merchant__error-hint">{t('merchant.checkUuid')}</div>
+          <div className="Merchant__error-hint">{t('merchant.checkHashId')}</div>
         </div>
       </div>
     );
@@ -74,7 +57,7 @@ export default function MerchantRoutes(props: any) {
         <OrdersListPage
           merchantId={merchant.id}
           merchantName={merchant.business_name}
-          merchantUuid={merchantUuid}
+          merchantHashId={merchantHashId}
           onSelectOrder={setSelectedOrderId}
           t={t}
         />
@@ -131,7 +114,7 @@ function todayISO() {
   return new Date().toISOString().slice(0, 10);
 }
 
-function OrdersListPage({ merchantId, merchantName, merchantUuid, onSelectOrder, t }: { merchantId: number; merchantName: string; merchantUuid: string; onSelectOrder: (id: number) => void; t: (key: string) => string }) {
+function OrdersListPage({ merchantId, merchantName, merchantHashId, onSelectOrder, t }: { merchantId: number; merchantName: string; merchantHashId: string; onSelectOrder: (id: number) => void; t: (key: string) => string }) {
   const [orders, setOrders] = useState<any>(null);
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('active');
   const [dateFilter, setDateFilter] = useState<string>(() => todayISO());
@@ -208,9 +191,9 @@ function OrdersListPage({ merchantId, merchantName, merchantUuid, onSelectOrder,
       <div className="OrdersGrid__header">
         <h1 className="OrdersGrid__title">{merchantName}<LangSwitcher /></h1>
         <div className="OrdersGrid__nav">
-          <a href={`/merchant-dashboard/${merchantUuid}/online-menus`}>{t('merchant.menus')}</a>
-          <a href={`/merchant-dashboard/${merchantUuid}/menuitems`}>{t('merchant.menu')}</a>
-          <a href={`/merchant-dashboard/${merchantUuid}/settings`}>{t('merchant.settings')}</a>
+          <a href={merchantDashboardPath(merchantHashId, 'online-menus')}>{t('merchant.menus')}</a>
+          <a href={merchantDashboardPath(merchantHashId, 'menuitems')}>{t('merchant.menu')}</a>
+          <a href={merchantDashboardPath(merchantHashId, 'settings')}>{t('merchant.settings')}</a>
           <ConnectionIndicator status={connectionStatus} t={t} />
           <span className="OrdersGrid__count">{filteredOrders.length}</span>
         </div>

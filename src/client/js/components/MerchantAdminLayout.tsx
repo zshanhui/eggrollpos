@@ -1,11 +1,12 @@
 import React from 'react';
 import { Page } from '@shopify/polaris';
 import type { MenuActionDescriptor, PageProps } from '@shopify/polaris';
+import { merchantDashboardPath } from '../../../shared/merchant_dashboard';
 import LangSwitcher from './LangSwitcher';
 import MerchantPolarisProvider from './MerchantPolarisProvider';
 
 interface MerchantAdminLayoutProps {
-  merchantUuid: string;
+  merchantHashId: string;
   title: string;
   onBack: () => void;
   backLabel: string;
@@ -16,7 +17,7 @@ interface MerchantAdminLayoutProps {
 }
 
 export default function MerchantAdminLayout({
-  merchantUuid,
+  merchantHashId,
   title,
   onBack,
   backLabel,
@@ -27,9 +28,9 @@ export default function MerchantAdminLayout({
 }: MerchantAdminLayoutProps) {
   const navActions = showNav
     ? [
-        { content: 'Menus', url: `/merchant-dashboard/${merchantUuid}/online-menus` },
-        { content: 'Menu Items', url: `/merchant-dashboard/${merchantUuid}/menuitems` },
-        { content: 'Settings', url: `/merchant-dashboard/${merchantUuid}/settings` },
+        { content: 'Menus', url: merchantDashboardPath(merchantHashId, 'online-menus') },
+        { content: 'Menu Items', url: merchantDashboardPath(merchantHashId, 'menuitems') },
+        { content: 'Settings', url: merchantDashboardPath(merchantHashId, 'settings') },
       ]
     : [];
 

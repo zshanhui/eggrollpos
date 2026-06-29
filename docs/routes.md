@@ -157,11 +157,13 @@ Defined in `src/client/js/App.tsx`. All routes are code-split via `Lazy` wrapper
 | `/` | `HomeLanding` | Landing page |
 | `/about` | `About` | About page |
 | `/receipts/:uuid` | `Receipts` | Order receipt (order UUID) |
-| `/merchant-dashboard/:uuid` | `MerchantRoutes` | POS dashboard — order grid + detail |
-| `/merchant-dashboard/:uuid/menuitems` | `MerchantMenuItems` | Menu items list |
-| `/merchant-dashboard/:uuid/menuitems/add` | `MerchantMenuItems` | Add menu item |
-| `/merchant-dashboard/:uuid/menuitems/:menuItemId/edit` | `MerchantMenuItems` | Edit menu item |
-| `/merchant-dashboard/:uuid/settings` | `MerchantSettings` | Business info + theme |
+| `/md/:hashId` | `MerchantRoutes` | POS dashboard — order grid + detail |
+| `/merchant-dashboard/:hashId` | (alias) | Same as `/md/:hashId` |
+| `/md/:hashId/menuitems` | `MerchantMenuItems` | Menu items list |
+| `/md/:hashId/menuitems/add` | `MerchantMenuItems` | Add menu item |
+| `/md/:hashId/menuitems/:menuItemId/edit` | `MerchantMenuItems` | Edit menu item |
+| `/md/:hashId/settings` | `MerchantSettings` | Business info + theme |
+| `/md/:hashId/online-menus` | `MerchantMenus` | Online menus list |
 | `/online-ordering/:slug` | `OnlineMenu` | Customer-facing menu (by menu slug) |
 | `/online-ordering/:slug/checkout` | `Checkout` | Online checkout (contact, payment, WhatsApp opt-in) |
 | `/orders/:orderUuid/menus` | `Menus` | Customer menu webview (legacy) |
@@ -171,10 +173,12 @@ Defined in `src/client/js/App.tsx`. All routes are code-split via `Lazy` wrapper
 From `db/seeds/02_merchants.js`:
 
 ```
-INSTEP Cafe        → /merchant-dashboard/a0000001-0001-0001-0001-000000000001
-Eastern Express    → /merchant-dashboard/a0000002-0002-0002-0002-000000000002
-Mazu Stewed Noodles → /merchant-dashboard/a0000003-0003-0003-0003-000000000003
+INSTEP Cafe         → /md/mc_n1c0ffee
+Eastern Express     → /md/mc_3xpr3ss0
+Mazu Stewed Noodles → /md/mc_m4zun00d
 ```
+
+UUID URLs are not supported. Use `hash_id` from seeds or `pnpm run create-merchant`.
 
 ### Merchant dashboard internal navigation
 

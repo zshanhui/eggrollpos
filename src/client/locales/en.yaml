@@ -75,10 +75,13 @@ about:
   welcome: "Welcome to the about page!"
 
 merchant:
-  noUuid: "No merchant UUID provided"
+  noHashId: "No merchant code provided"
+  invalidHashId: "Invalid merchant code — use your mc_… link from create-merchant"
   notFound: "Merchant not found"
   loadFailed: "Failed to load merchant"
-  checkUuid: "Check the merchant UUID in the URL"
+  checkHashId: "Check the merchant code (mc_…) in the URL"
+  noUuid: "No merchant code provided"
+  checkUuid: "Check the merchant code (mc_…) in the URL"
   menu: "Menu"
   menus: "Menus"
   settings: "Settings"

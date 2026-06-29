@@ -14,29 +14,18 @@ import {
 } from '@shopify/polaris';
 import type { MerchantRow } from '../../../shared/merchants';
 import { resolveMerchantTheme } from '../../../shared/merchants';
+import { merchantDashboardPath } from '../../../shared/merchant_dashboard';
 import MerchantAdminLayout from '../components/MerchantAdminLayout';
 import MerchantPolarisProvider from '../components/MerchantPolarisProvider';
-import { fetchApi, patchApi } from '../lib/merchantApi';
+import { useMerchantHashRoute } from '../hooks/useMerchantHashRoute';
+import { patchApi } from '../lib/merchantApi';
 
 export default function MerchantSettings(props: any) {
   const { t } = useTranslation();
-  const merchantUuid = props.match?.params?.uuid;
-
-  const [merchant, setMerchant] = useState<MerchantRow | null>(null);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!merchantUuid) {
-      setError(t('merchant.noUuid'));
-      return;
-    }
-    fetchApi(`/api/merchants/${merchantUuid}`)
-      .then((data) => {
-        if (data && data.id) setMerchant(data);
-        else setError(t('merchant.notFound'));
-      })
-      .catch(() => setError(t('merchant.loadFailed')));
-  }, [merchantUuid, t]);
+  const hashId = props.match?.params?.hashId;
+  const { merchant, error, merchantHashId } = useMerchantHashRoute(hashId, t);
+  const [savedMerchant, setSavedMerchant] = useState<MerchantRow | null>(null);
+  const activeMerchant = savedMerchant || merchant;
 
   if (error) {
     return (
@@ -48,7 +37,7 @@ export default function MerchantSettings(props: any) {
     );
   }
 
-  if (!merchant) {
+  if (!activeMerchant) {
     return (
       <MerchantPolarisProvider>
         <Page title={t('merchant.settings')}>
@@ -60,10 +49,10 @@ export default function MerchantSettings(props: any) {
 
   return (
     <SettingsForm
-      merchant={merchant}
-      merchantUuid={merchantUuid}
-      onBack={() => props.history.push(`/merchant-dashboard/${merchantUuid}`)}
-      onSave={(updated) => setMerchant(updated)}
+      merchant={activeMerchant}
+      merchantHashId={merchantHashId}
+      onBack={() => props.history.push(merchantDashboardPath(merchantHashId))}
+      onSave={setSavedMerchant}
       t={t}
     />
   );
@@ -71,13 +60,13 @@ export default function MerchantSettings(props: any) {
 
 function SettingsForm({
   merchant,
-  merchantUuid,
+  merchantHashId,
   onBack,
   onSave,
   t,
 }: {
   merchant: MerchantRow;
-  merchantUuid: string;
+  merchantHashId: string;
   onBack: () => void;
   onSave: (merchant: MerchantRow) => void;
   t: (key: string) => string;
@@ -141,7 +130,7 @@ function SettingsForm({
 
   return (
     <MerchantAdminLayout
-      merchantUuid={merchantUuid}
+      merchantHashId={merchantHashId}
       title={t('merchant.settings')}
       backLabel={t('merchant.backToOrders')}
       onBack={onBack}

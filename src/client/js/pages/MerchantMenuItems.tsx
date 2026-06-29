@@ -19,32 +19,20 @@ import {
   TextField,
 } from '@shopify/polaris';
 import type { MerchantRow } from '../../../shared/merchants';
+import { merchantDashboardPath } from '../../../shared/merchant_dashboard';
 import MerchantAdminLayout from '../components/MerchantAdminLayout';
 import MerchantPolarisProvider from '../components/MerchantPolarisProvider';
+import { useMerchantHashRoute } from '../hooks/useMerchantHashRoute';
 import { deleteApi, fetchApi, postApi, putApi } from '../lib/merchantApi';
 
 export default function MerchantMenuItems(props: any) {
   const { t } = useTranslation();
-  const merchantUuid = props.match?.params?.uuid;
+  const hashId = props.match?.params?.hashId;
   const menuItemId = props.match?.params?.menuItemId;
   const isAdd = props.location?.pathname?.endsWith('/add');
   const isEdit = menuItemId != null && !isAdd;
 
-  const [merchant, setMerchant] = useState<MerchantRow | null>(null);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!merchantUuid) {
-      setError(t('merchant.noUuid'));
-      return;
-    }
-    fetchApi(`/api/merchants/${merchantUuid}`)
-      .then((data) => {
-        if (data && data.id) setMerchant(data);
-        else setError(t('merchant.notFound'));
-      })
-      .catch(() => setError(t('merchant.loadFailed')));
-  }, [merchantUuid, t]);
+  const { merchant, error, merchantHashId } = useMerchantHashRoute(hashId, t);
 
   if (error) {
     return (
@@ -56,7 +44,7 @@ export default function MerchantMenuItems(props: any) {
     );
   }
 
-  if (!merchant) {
+  if (!merchant || !merchantHashId) {
     return (
       <MerchantPolarisProvider>
         <Page title={t('merchant.menuItems')}>
@@ -70,9 +58,9 @@ export default function MerchantMenuItems(props: any) {
     return (
       <MenuItemForm
         merchant={merchant}
-        merchantUuid={merchantUuid}
-        onBack={() => props.history.push(`/merchant-dashboard/${merchantUuid}/menuitems`)}
-        onSuccess={() => props.history.push(`/merchant-dashboard/${merchantUuid}/menuitems`)}
+        merchantHashId={merchantHashId}
+        onBack={() => props.history.push(merchantDashboardPath(merchantHashId, 'menuitems'))}
+        onSuccess={() => props.history.push(merchantDashboardPath(merchantHashId, 'menuitems'))}
         t={t}
       />
     );
@@ -82,10 +70,10 @@ export default function MerchantMenuItems(props: any) {
     return (
       <MenuItemForm
         merchant={merchant}
-        merchantUuid={merchantUuid}
+        merchantHashId={merchantHashId}
         menuItemId={parseInt(menuItemId, 10)}
-        onBack={() => props.history.push(`/merchant-dashboard/${merchantUuid}/menuitems`)}
-        onSuccess={() => props.history.push(`/merchant-dashboard/${merchantUuid}/menuitems`)}
+        onBack={() => props.history.push(merchantDashboardPath(merchantHashId, 'menuitems'))}
+        onSuccess={() => props.history.push(merchantDashboardPath(merchantHashId, 'menuitems'))}
         t={t}
       />
     );
@@ -94,10 +82,10 @@ export default function MerchantMenuItems(props: any) {
   return (
     <MenuItemsList
       merchant={merchant}
-      merchantUuid={merchantUuid}
+      merchantHashId={merchantHashId}
       history={props.history}
-      onAddClick={() => props.history.push(`/merchant-dashboard/${merchantUuid}/menuitems/add`)}
-      onBack={() => props.history.push(`/merchant-dashboard/${merchantUuid}`)}
+      onAddClick={() => props.history.push(merchantDashboardPath(merchantHashId, 'menuitems/add'))}
+      onBack={() => props.history.push(merchantDashboardPath(merchantHashId))}
       t={t}
     />
   );
@@ -105,14 +93,14 @@ export default function MerchantMenuItems(props: any) {
 
 function MenuItemsList({
   merchant,
-  merchantUuid,
+  merchantHashId,
   history,
   onAddClick,
   onBack,
   t,
 }: {
   merchant: MerchantRow;
-  merchantUuid: string;
+  merchantHashId: string;
   history: any;
   onAddClick: () => void;
   onBack: () => void;
@@ -169,7 +157,7 @@ function MenuItemsList({
       </IndexTable.Cell>
       <IndexTable.Cell>{item.is_active !== false ? t('common.yes') : t('common.no')}</IndexTable.Cell>
       <IndexTable.Cell>
-        <Button plain onClick={() => history.push(`/merchant-dashboard/${merchantUuid}/menuitems/${item.id}/edit`)}>
+        <Button plain onClick={() => history.push(merchantDashboardPath(merchantHashId, `menuitems/${item.id}/edit`))}>
           {t('common.edit')}
         </Button>
         {' · '}
@@ -182,7 +170,7 @@ function MenuItemsList({
 
   return (
     <MerchantAdminLayout
-      merchantUuid={merchantUuid}
+      merchantHashId={merchantHashId}
       title={`${merchant.business_name} — ${t('merchant.menuItems')}`}
       backLabel={t('merchant.backToOrders')}
       onBack={onBack}
@@ -408,14 +396,14 @@ function ModifiersModal({
 
 function MenuItemForm({
   merchant,
-  merchantUuid,
+  merchantHashId,
   menuItemId,
   onBack,
   onSuccess,
   t,
 }: {
   merchant: MerchantRow;
-  merchantUuid: string;
+  merchantHashId: string;
   menuItemId?: number;
   onBack: () => void;
   onSuccess: () => void;
@@ -503,7 +491,7 @@ function MenuItemForm({
 
   return (
     <MerchantAdminLayout
-      merchantUuid={merchantUuid}
+      merchantHashId={merchantHashId}
       title={isEdit ? t('merchant.editMenuItem') : t('merchant.addMenuItemTitle')}
       backLabel={t('merchant.backToMenuItems')}
       onBack={onBack}

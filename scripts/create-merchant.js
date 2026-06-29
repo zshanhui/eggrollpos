@@ -65,7 +65,7 @@ function parseArgs() {
 
 function dashboardUrl(hashId) {
   const base = (process.env.PUBLIC_BASE_URL || 'http://localhost:3001').replace(/\/$/, '');
-  return `${base}/merchant-dashboard/${hashId}`;
+  return `${base}/md/${hashId}`;
 }
 
 async function main() {

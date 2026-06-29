@@ -17,13 +17,16 @@ import {
 } from '@shopify/polaris';
 import MerchantAdminLayout from '../components/MerchantAdminLayout';
 import MerchantPolarisProvider from '../components/MerchantPolarisProvider';
+import { useMerchantHashRoute } from '../hooks/useMerchantHashRoute';
+import { merchantDashboardPath } from '../../../shared/merchant_dashboard';
 import { deleteApi, fetchApi } from '../lib/merchantApi';
 
 const DAYS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
 
 export default function MerchantMenus(props: any) {
   const { t } = useTranslation();
-  const merchantUuid = props.match?.params?.uuid;
+  const hashId = props.match?.params?.hashId;
+  const { error, merchantHashId } = useMerchantHashRoute(hashId, t);
   const [view, setView] = useState<'list' | 'add' | 'edit'>('list');
   const [editMenuId, setEditMenuId] = useState<number | null>(null);
 
@@ -45,11 +48,11 @@ export default function MerchantMenus(props: any) {
 
   const navigate = (path: string) => props.history.push(path);
 
-  if (!merchantUuid) {
+  if (error || !merchantHashId) {
     return (
       <MerchantPolarisProvider>
         <Page title={t('menus.yourMenus')}>
-          <Banner status="critical">{t('merchant.noUuid')}</Banner>
+          <Banner status="critical">{error || t('merchant.noHashId')}</Banner>
         </Page>
       </MerchantPolarisProvider>
     );
@@ -58,9 +61,9 @@ export default function MerchantMenus(props: any) {
   if (view === 'add') {
     return (
       <MenuForm
-        merchantUuid={merchantUuid}
-        onBack={() => navigate(`/merchant-dashboard/${merchantUuid}/online-menus`)}
-        onSaved={() => navigate(`/merchant-dashboard/${merchantUuid}/online-menus`)}
+        merchantHashId={merchantHashId}
+        onBack={() => navigate(merchantDashboardPath(merchantHashId, 'online-menus'))}
+        onSaved={() => navigate(merchantDashboardPath(merchantHashId, 'online-menus'))}
         t={t}
       />
     );
@@ -69,24 +72,24 @@ export default function MerchantMenus(props: any) {
   if (view === 'edit' && editMenuId) {
     return (
       <MenuForm
-        merchantUuid={merchantUuid}
+        merchantHashId={merchantHashId}
         menuId={editMenuId}
-        onBack={() => navigate(`/merchant-dashboard/${merchantUuid}/online-menus`)}
-        onSaved={() => navigate(`/merchant-dashboard/${merchantUuid}/online-menus`)}
+        onBack={() => navigate(merchantDashboardPath(merchantHashId, 'online-menus'))}
+        onSaved={() => navigate(merchantDashboardPath(merchantHashId, 'online-menus'))}
         t={t}
       />
     );
   }
 
-  return <MenuList merchantUuid={merchantUuid} navigate={navigate} t={t} />;
+  return <MenuList merchantHashId={merchantHashId} navigate={navigate} t={t} />;
 }
 
 function MenuList({
-  merchantUuid,
+  merchantHashId,
   navigate,
   t,
 }: {
-  merchantUuid: string;
+  merchantHashId: string;
   navigate: (path: string) => void;
   t: (key: string) => string;
 }) {
@@ -95,14 +98,14 @@ function MenuList({
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchApi(`/api/merchants/${merchantUuid}`)
+    fetchApi(`/api/merchants/${merchantHashId}`)
       .then((merchData) => {
         setMerchant(merchData);
         return fetchApi(`/api/merchants/${merchData.id}/menus`);
       })
       .then((menuData) => setMenus(menuData.menus || []))
       .finally(() => setLoading(false));
-  }, [merchantUuid]);
+  }, [merchantHashId]);
 
   const togglePublished = async (menuId: number, current: boolean) => {
     if (!merchant?.id) return;
@@ -150,7 +153,7 @@ function MenuList({
         />
       </IndexTable.Cell>
       <IndexTable.Cell>
-        <Button plain onClick={() => navigate(`/merchant-dashboard/${merchantUuid}/online-menus/${menu.id}/edit`)}>
+        <Button plain onClick={() => navigate(merchantDashboardPath(merchantHashId, `online-menus/${menu.id}/edit`))}>
           {t('common.edit')}
         </Button>
         {' · '}
@@ -163,13 +166,13 @@ function MenuList({
 
   return (
     <MerchantAdminLayout
-      merchantUuid={merchantUuid}
+      merchantHashId={merchantHashId}
       title={t('menus.yourMenus')}
       backLabel={t('merchant.backToOrders')}
-      onBack={() => navigate(`/merchant-dashboard/${merchantUuid}`)}
+      onBack={() => navigate(merchantDashboardPath(merchantHashId))}
       primaryAction={{
         content: t('menus.newMenu'),
-        onAction: () => navigate(`/merchant-dashboard/${merchantUuid}/online-menus/add`),
+        onAction: () => navigate(merchantDashboardPath(merchantHashId, 'online-menus/add')),
       }}
     >
       <Layout>
@@ -180,7 +183,7 @@ function MenuList({
                 heading={t('menus.noMenus')}
                 action={{
                   content: t('menus.newMenu'),
-                  onAction: () => navigate(`/merchant-dashboard/${merchantUuid}/online-menus/add`),
+                  onAction: () => navigate(merchantDashboardPath(merchantHashId, 'online-menus/add')),
                 }}
                 image="https://cdn.shopify.com/s/files/1/0262/4071/2726/files/emptystate-files.png"
               />
@@ -209,13 +212,13 @@ function MenuList({
 }
 
 function MenuForm({
-  merchantUuid,
+  merchantHashId,
   menuId,
   onBack,
   onSaved,
   t,
 }: {
-  merchantUuid: string;
+  merchantHashId: string;
   menuId?: number | null;
   onBack: () => void;
   onSaved: () => void;
@@ -233,7 +236,7 @@ function MenuForm({
   const [selectedItemIds, setSelectedItemIds] = useState<string[]>([]);
 
   useEffect(() => {
-    fetchApi(`/api/merchants/${merchantUuid}`)
+    fetchApi(`/api/merchants/${merchantHashId}`)
       .then(async (merch) => {
         setMerchant(merch);
         const itemsData = await fetchApi(`/api/merchants/${merch.id}/menu-items`);
@@ -251,7 +254,7 @@ function MenuForm({
         }
       })
       .finally(() => setLoading(false));
-  }, [merchantUuid, menuId]);
+  }, [merchantHashId, menuId]);
 
   const getHours = (day: string): { open: string; close: string } | null => {
     return (businessHours as any)?.[day] || null;
@@ -310,7 +313,7 @@ function MenuForm({
 
   return (
     <MerchantAdminLayout
-      merchantUuid={merchantUuid}
+      merchantHashId={merchantHashId}
       title={menuId ? t('menus.editMenu') : t('menus.newMenu')}
       backLabel={t('merchant.backToOrders')}
       onBack={onBack}

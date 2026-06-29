@@ -129,10 +129,11 @@ async function main() {
 
   if (MERCHANT_KEY) {
     await checkJsonApi(`GET /api/merchants/${MERCHANT_KEY}`, `/api/merchants/${MERCHANT_KEY}`, (d) => d && d.id);
-    await checkSpaPage('GET /merchant-dashboard', `/merchant-dashboard/${MERCHANT_KEY}`);
-    await checkSpaPage('GET /merchant-dashboard/menuitems', `/merchant-dashboard/${MERCHANT_KEY}/menuitems`);
-    await checkSpaPage('GET /merchant-dashboard/settings', `/merchant-dashboard/${MERCHANT_KEY}/settings`);
-    await checkSpaPage('GET /merchant-dashboard/online-menus', `/merchant-dashboard/${MERCHANT_KEY}/online-menus`);
+    await checkSpaPage('GET /md', `/md/${MERCHANT_KEY}`);
+    await checkSpaPage('GET /md/menuitems', `/md/${MERCHANT_KEY}/menuitems`);
+    await checkSpaPage('GET /md/settings', `/md/${MERCHANT_KEY}/settings`);
+    await checkSpaPage('GET /md/online-menus', `/md/${MERCHANT_KEY}/online-menus`);
+    await checkSpaPage('GET /merchant-dashboard alias', `/merchant-dashboard/${MERCHANT_KEY}`);
   } else {
     console.log('○ Skipping merchant routes (set STAGING_MERCHANT_KEY)');
   }

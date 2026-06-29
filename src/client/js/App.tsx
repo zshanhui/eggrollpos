@@ -3,6 +3,7 @@ import {BrowserRouter, Route, Switch} from 'react-router-dom';
 
 import Lazy from './components/Lazy';
 import HomeLanding from './pages/HomeLanding';
+import { MERCHANT_DASHBOARD_PREFIXES } from '../../shared/merchant_dashboard';
 
 // Global types are defined in src/types/global.d.ts
 
@@ -23,7 +24,16 @@ const Pages = {
   Checkout: (props: PageProps) => <Lazy {...props} module={import('./pages/Checkout')} />,
 }
 
-const SERVER_DATA = window.__VARS__ ? window.__VARS__ : null;
+const MERCHANT_DASHBOARD_ROUTES = [
+  { path: '/:hashId', exact: true, component: Pages.MerchantRoutes },
+  { path: '/:hashId/menuitems/add', exact: true, component: Pages.MerchantMenuItems },
+  { path: '/:hashId/menuitems/:menuItemId/edit', exact: true, component: Pages.MerchantMenuItems },
+  { path: '/:hashId/menuitems', exact: true, component: Pages.MerchantMenuItems },
+  { path: '/:hashId/settings', exact: true, component: Pages.MerchantSettings },
+  { path: '/:hashId/online-menus/add', exact: true, component: Pages.MerchantMenus },
+  { path: '/:hashId/online-menus/:menuId/edit', exact: true, component: Pages.MerchantMenus },
+  { path: '/:hashId/online-menus', exact: true, component: Pages.MerchantMenus },
+] as const;
 
 function App() {
   return <div>
@@ -34,17 +44,16 @@ function App() {
         <Route path="/about" exact component={Pages.AboutPage} />
         <Route path="/receipts/:uuid" exact component={Pages.Receipts} />
 
-        {/* Merchant POS dashboard — UUID identifies the merchant */}
-        <Route path="/merchant-dashboard/:uuid" exact component={Pages.MerchantRoutes} />
-
-        {/* Merchant menu items management */}
-        <Route path="/merchant-dashboard/:uuid/menuitems/add" exact component={Pages.MerchantMenuItems} />
-        <Route path="/merchant-dashboard/:uuid/menuitems/:menuItemId/edit" exact component={Pages.MerchantMenuItems} />
-        <Route path="/merchant-dashboard/:uuid/menuitems" exact component={Pages.MerchantMenuItems} />
-        <Route path="/merchant-dashboard/:uuid/settings" exact component={Pages.MerchantSettings} />
-        <Route path="/merchant-dashboard/:uuid/online-menus/add" exact component={Pages.MerchantMenus} />
-        <Route path="/merchant-dashboard/:uuid/online-menus/:menuId/edit" exact component={Pages.MerchantMenus} />
-        <Route path="/merchant-dashboard/:uuid/online-menus" exact component={Pages.MerchantMenus} />
+        {MERCHANT_DASHBOARD_PREFIXES.flatMap((prefix) =>
+          MERCHANT_DASHBOARD_ROUTES.map((route) => (
+            <Route
+              key={`${prefix}${route.path}`}
+              path={`${prefix}${route.path}`}
+              exact={route.exact}
+              component={route.component}
+            />
+          ))
+        )}
 
         {/* Customer online ordering — public, slug-based */}
         <Route path="/online-ordering/:slug/checkout" exact component={Pages.Checkout} />

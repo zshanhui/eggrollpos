@@ -16,9 +16,13 @@ const { subscribeMerchantOrders } = require('../services/order_events');
  * @typedef {import('../../shared/merchants').MerchantTheme} MerchantTheme
  */
 
-// Lookup by hash_id first, then fall back to UUID for backward compatibility
+// Lookup by hash_id only (UUID URLs are not supported)
 router.get('/:param', async (req, res) => {
-    const merchant = await Merchants.getByHashId(req.params.param) || await Merchants.getByUuid(req.params.param);
+    const param = req.params.param;
+    if (!param.startsWith('mc_')) {
+        return res.sendStatus(404);
+    }
+    const merchant = await Merchants.getByHashId(param);
     if (merchant) {
         res.json(merchant);
     } else {

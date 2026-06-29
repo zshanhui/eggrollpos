@@ -75,10 +75,13 @@ about:
   welcome: "欢迎来到关于页面！"
 
 merchant:
-  noUuid: "未提供商户 UUID"
+  noHashId: "未提供商户代码"
+  invalidHashId: "无效的商户代码 — 请使用 create-merchant 输出的 mc_… 链接"
+  noUuid: "未提供商户代码"
   notFound: "未找到商户"
   loadFailed: "加载商户失败"
-  checkUuid: "请检查 URL 中的商户 UUID"
+  checkHashId: "请检查 URL 中的商户代码 (mc_…)"
+  checkUuid: "请检查 URL 中的商户代码 (mc_…)"
   menu: "菜单"
   menus: "在线菜单"
   settings: "设置"

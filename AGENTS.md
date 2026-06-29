@@ -37,7 +37,7 @@ Both use the same migrations/seeds: `npx knex migrate:latest --knexfile db/knexf
 
 ### Routing
 
-- The merchant dashboard route is `/merchant-dashboard/:uuid` (e.g. `/merchant-dashboard/a0000001-0001-0001-0001-000000000001`).
+- The merchant dashboard route is `/md/:hashId` (e.g. `/md/mc_n1c0ffee`). `/merchant-dashboard/:hashId` is an alias. UUIDs are not accepted in URLs.
 - The online ordering route is `/online-ordering/:slug` (e.g. `/online-ordering/instep-cafe-new-york-10001-lunch-menu`).
 - The `pnpm run type-check` has pre-existing TypeScript errors in the client code; the project compiles and runs fine via Vite regardless.
 
