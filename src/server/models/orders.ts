@@ -4,6 +4,7 @@ import camelcaseKeys from 'camelcase-keys';
 import { Status, OrderStatus, OrderType } from '../../shared/orders';
 import { isSqlite } from '../db/dialect';
 import { extractReturningRow } from '../db/insert-id';
+import { publishOrderEvent } from '../services/order_events';
 
 const Table = () => db('orders');
 const MenuItemsTable = () => db('menu_items');
@@ -172,7 +173,15 @@ class Order {
       .update({...params})
       .where('id', id)
       .returning('*');
-    return extractReturningRow<OrderRow>(res);
+    const row = extractReturningRow<OrderRow>(res);
+    if (row && params.status) {
+      publishOrderEvent({
+        type: 'order_updated',
+        orderId: row.id,
+        merchantId: row.merchant_id,
+      });
+    }
+    return row;
   }
 
   static async getWithID(id: number) {
