@@ -116,7 +116,6 @@ function todayISO() {
 function OrdersListPage({ merchantId, merchantName, merchantHashId, onSelectOrder, t }: { merchantId: number; merchantName: string; merchantHashId: string; onSelectOrder: (id: number) => void; t: (key: string) => string }) {
   const [orders, setOrders] = useState<any>(null);
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('active');
-  const [dateFilter, setDateFilter] = useState<string>(() => todayISO());
   const [highlightedIds, setHighlightedIds] = useState<Set<number>>(() => new Set());
   const highlightTimers = useRef<Map<number, ReturnType<typeof setTimeout>>>(new Map());
   const isMobile = useIsMobile();
@@ -124,9 +123,9 @@ function OrdersListPage({ merchantId, merchantName, merchantHashId, onSelectOrde
 
   const loadOrders = useCallback(() => {
     const params = new URLSearchParams();
-    params.set('date', dateFilter);
+    params.set('date', todayISO());
     return fetchApi(`/api/merchants/${merchantId}/orders?${params}`).then(setOrders);
-  }, [merchantId, dateFilter]);
+  }, [merchantId]);
 
   useEffect(() => { loadOrders(); }, [loadOrders]);
 
@@ -160,7 +159,7 @@ function OrdersListPage({ merchantId, merchantName, merchantHashId, onSelectOrde
 
   const orderList = orders ? Object.values(orders) as any[] : [];
 
-  const { awaitingPreparing, ready, canceledRefunded, orderCountToday } = useMemo(() => {
+  const { awaitingPreparing, ready, canceledRefunded } = useMemo(() => {
     const sortFifo = (a: any, b: any) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
     const awaiting = orderList
       .filter((o: any) => AWAITING_PREPARING_STATUSES.includes(o.status))
@@ -173,7 +172,6 @@ function OrdersListPage({ merchantId, merchantName, merchantHashId, onSelectOrde
       awaitingPreparing: awaiting,
       ready: readyList,
       canceledRefunded: canceled,
-      orderCountToday: orderList.length,
     };
   }, [orderList]);
 
@@ -198,18 +196,6 @@ function OrdersListPage({ merchantId, merchantName, merchantHashId, onSelectOrde
         </div>
       </div>
       <div className="OrdersGrid__filters">
-        <div className="OrdersGrid__date-row">
-          <input
-            type="date"
-            className="OrdersGrid__date-input"
-            value={dateFilter}
-            onChange={(e) => setDateFilter(e.target.value)}
-            aria-label="Filter orders by date"
-          />
-          <span className="OrdersGrid__order-count">
-            {orderCountToday} order{orderCountToday !== 1 ? 's' : ''} today
-          </span>
-        </div>
         {isMobile ? (
           <select
             className="OrdersGrid__filter-dropdown"
