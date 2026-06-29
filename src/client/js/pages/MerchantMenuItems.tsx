@@ -1,49 +1,27 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import LangSwitcher from '../components/LangSwitcher';
-import type { MerchantRow, MerchantTheme } from '../../../shared/merchants';
-import { resolveMerchantTheme } from '../../../shared/merchants';
-import '../../css/pages/MerchantMenuItems.css';
-
-function fetchApi(url: string) {
-  return fetch(url, { credentials: 'same-origin' as const }).then((r) => r.json());
-}
-
-function postApi(url: string, body: any) {
-  return fetch(url, {
-    method: 'POST',
-    credentials: 'same-origin' as const,
-    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-    body: JSON.stringify(body),
-  }).then(async (r) => {
-    const data = await r.json().catch(() => ({}));
-    if (!r.ok) throw new Error((data as any)?.error || 'Request failed');
-    return data;
-  });
-}
-
-function putApi(url: string, body: any) {
-  return fetch(url, {
-    method: 'PUT',
-    credentials: 'same-origin' as const,
-    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-    body: JSON.stringify(body),
-  }).then(async (r) => {
-    const data = await r.json().catch(() => ({}));
-    if (!r.ok) throw new Error((data as any)?.error || 'Request failed');
-    return data;
-  });
-}
-
-function deleteApi(url: string) {
-  return fetch(url, {
-    method: 'DELETE',
-    credentials: 'same-origin' as const,
-    headers: { Accept: 'application/json' },
-  });
-}
-
-// ─── Main Container ───
+import {
+  Banner,
+  Button,
+  Card,
+  Checkbox,
+  ChoiceList,
+  EmptyState,
+  Form,
+  FormLayout,
+  IndexTable,
+  Layout,
+  Modal,
+  Page,
+  ResourceList,
+  Spinner,
+  Text,
+  TextField,
+} from '@shopify/polaris';
+import type { MerchantRow } from '../../../shared/merchants';
+import MerchantAdminLayout from '../components/MerchantAdminLayout';
+import MerchantPolarisProvider from '../components/MerchantPolarisProvider';
+import { deleteApi, fetchApi, postApi, putApi } from '../lib/merchantApi';
 
 export default function MerchantMenuItems(props: any) {
   const { t } = useTranslation();
@@ -70,17 +48,21 @@ export default function MerchantMenuItems(props: any) {
 
   if (error) {
     return (
-      <div className="MerchantMenuItems MerchantMenuItems--error">
-        <div className="MerchantMenuItems__error">{error}</div>
-      </div>
+      <MerchantPolarisProvider>
+        <Page title={t('merchant.menuItems')}>
+          <Banner status="critical">{error}</Banner>
+        </Page>
+      </MerchantPolarisProvider>
     );
   }
 
   if (!merchant) {
     return (
-      <div className="MerchantMenuItems">
-        <div className="MerchantMenuItems__loading">{t('common.loading')}</div>
-      </div>
+      <MerchantPolarisProvider>
+        <Page title={t('merchant.menuItems')}>
+          <Spinner accessibilityLabel={t('common.loading')} size="large" />
+        </Page>
+      </MerchantPolarisProvider>
     );
   }
 
@@ -88,6 +70,7 @@ export default function MerchantMenuItems(props: any) {
     return (
       <MenuItemForm
         merchant={merchant}
+        merchantUuid={merchantUuid}
         onBack={() => props.history.push(`/merchant-dashboard/${merchantUuid}/menuitems`)}
         onSuccess={() => props.history.push(`/merchant-dashboard/${merchantUuid}/menuitems`)}
         t={t}
@@ -99,6 +82,7 @@ export default function MerchantMenuItems(props: any) {
     return (
       <MenuItemForm
         merchant={merchant}
+        merchantUuid={merchantUuid}
         menuItemId={parseInt(menuItemId, 10)}
         onBack={() => props.history.push(`/merchant-dashboard/${merchantUuid}/menuitems`)}
         onSuccess={() => props.history.push(`/merchant-dashboard/${merchantUuid}/menuitems`)}
@@ -119,8 +103,6 @@ export default function MerchantMenuItems(props: any) {
   );
 }
 
-// ─── Menu Items List ───
-
 function MenuItemsList({
   merchant,
   merchantUuid,
@@ -139,6 +121,7 @@ function MenuItemsList({
   const [menuItems, setMenuItems] = useState<any[]>([]);
   const [modifiers, setModifiers] = useState<any[]>([]);
   const [showModifiersModal, setShowModifiersModal] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   const loadMenuItems = useCallback(() => {
     fetchApi(`/api/merchants/${merchant.id}/menu-items`).then((data) =>
@@ -157,16 +140,11 @@ function MenuItemsList({
     loadModifiers();
   }, [loadMenuItems, loadModifiers]);
 
-  const [deleteError, setDeleteError] = useState<string | null>(null);
-
-  const theme = resolveMerchantTheme(merchant.theme);
-
   const handleDelete = async (id: number) => {
     if (!confirm(t('merchant.deleteMenuItemConfirm'))) return;
     setDeleteError(null);
     const res = await deleteApi(`/api/merchants/${merchant.id}/menu-items/${id}`);
     if (res.ok) {
-      setDeleteError(null);
       loadMenuItems();
     } else {
       const data = await res.json().catch(() => ({}));
@@ -174,95 +152,82 @@ function MenuItemsList({
     }
   };
 
+  const rowMarkup = menuItems.map((item: any, index: number) => (
+    <IndexTable.Row id={String(item.id)} key={item.id} position={index}>
+      <IndexTable.Cell>
+        <Text variant="bodyMd" fontWeight="semibold" as="span">
+          {item.name}
+        </Text>
+      </IndexTable.Cell>
+      <IndexTable.Cell>
+        {(item.description || '').slice(0, 50)}
+        {(item.description || '').length > 50 ? '…' : ''}
+      </IndexTable.Cell>
+      <IndexTable.Cell>${((item.price_cents || 0) / 100).toFixed(2)}</IndexTable.Cell>
+      <IndexTable.Cell>
+        {item.modifiers?.length ? item.modifiers.map((m: any) => m.name).join(', ') : '—'}
+      </IndexTable.Cell>
+      <IndexTable.Cell>{item.is_active !== false ? t('common.yes') : t('common.no')}</IndexTable.Cell>
+      <IndexTable.Cell>
+        <Button plain onClick={() => history.push(`/merchant-dashboard/${merchantUuid}/menuitems/${item.id}/edit`)}>
+          {t('common.edit')}
+        </Button>
+        {' · '}
+        <Button plain destructive onClick={() => handleDelete(item.id)}>
+          {t('common.delete')}
+        </Button>
+      </IndexTable.Cell>
+    </IndexTable.Row>
+  ));
+
   return (
-    <div className={`MerchantMenuItems MerchantMenuItems--theme-${theme}`}>
-      <header className="MerchantMenuItems__header">
-        <button type="button" className="MerchantMenuItems__back" onClick={onBack}>
-          {t('merchant.backToOrders')}
-        </button>
-        <h1 className="MerchantMenuItems__title">{merchant.business_name} — {t('merchant.menuItems')} <LangSwitcher /></h1>
-        <div className="MerchantMenuItems__actions">
-          <a href={`/merchant-dashboard/${merchantUuid}/settings`} className="MerchantMenuItems__link MerchantMenuItems__link--nav">
-            {t('merchant.settings')}
-          </a>
-          <button
-            type="button"
-            className="MerchantMenuItems__btn MerchantMenuItems__btn--secondary"
-            onClick={() => setShowModifiersModal(true)}
-          >
-            {t('merchant.manageModifiers')}
-          </button>
-          <button
-            type="button"
-            className="MerchantMenuItems__btn MerchantMenuItems__btn--primary"
-            onClick={onAddClick}
-          >
-            {t('merchant.addMenuItem')}
-          </button>
-        </div>
-      </header>
-
-      {deleteError && (
-        <div className="MerchantMenuItems__error" style={{ marginBottom: 16 }}>
-          {deleteError}
-        </div>
-      )}
-
-      <div className="MerchantMenuItems__list">
-        {menuItems.length === 0 ? (
-          <div className="MerchantMenuItems__empty">
-            {t('merchant.noMenuItems')} <button onClick={onAddClick}>{t('merchant.addFirstItem')}</button>
-          </div>
-        ) : (
-          <table className="MerchantMenuItems__table">
-            <thead>
-              <tr>
-                <th>{t('common.name')}</th>
-                <th>{t('common.description')}</th>
-                <th>{t('common.price')}</th>
-                <th>{t('merchant.modifiers')}</th>
-                <th>{t('merchant.active')}</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              {menuItems.map((item: any) => (
-                <tr key={item.id}>
-                  <td className="MerchantMenuItems__cell-name">{item.name}</td>
-                  <td className="MerchantMenuItems__cell-desc">
-                    {(item.description || '').slice(0, 50)}
-                    {(item.description || '').length > 50 ? '…' : ''}
-                  </td>
-                  <td>${((item.price_cents || 0) / 100).toFixed(2)}</td>
-                  <td>
-                    {item.modifiers?.length
-                      ? item.modifiers.map((m: any) => m.name).join(', ')
-                      : '—'}
-                  </td>
-                  <td>{item.is_active !== false ? t('common.yes') : t('common.no')}</td>
-                  <td>
-                    <button
-                      type="button"
-                      className="MerchantMenuItems__link"
-                      onClick={() => history.push(`/merchant-dashboard/${merchantUuid}/menuitems/${item.id}/edit`)}
-                    >
-                      {t('common.edit')}
-                    </button>
-                    {' · '}
-                    <button
-                      type="button"
-                      className="MerchantMenuItems__link MerchantMenuItems__link--danger"
-                      onClick={() => handleDelete(item.id)}
-                    >
-                      {t('common.delete')}
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+    <MerchantAdminLayout
+      merchantUuid={merchantUuid}
+      title={`${merchant.business_name} — ${t('merchant.menuItems')}`}
+      backLabel={t('merchant.backToOrders')}
+      onBack={onBack}
+      primaryAction={{ content: t('merchant.addMenuItem'), onAction: onAddClick }}
+      secondaryActions={[{ content: t('merchant.manageModifiers'), onAction: () => setShowModifiersModal(true) }]}
+    >
+      <Layout>
+        {deleteError && (
+          <Layout.Section>
+            <Banner status="critical" onDismiss={() => setDeleteError(null)}>
+              {deleteError}
+            </Banner>
+          </Layout.Section>
         )}
-      </div>
+
+        <Layout.Section>
+          {menuItems.length === 0 ? (
+            <Card sectioned>
+              <EmptyState
+                heading={t('merchant.noMenuItems')}
+                action={{ content: t('merchant.addFirstItem'), onAction: onAddClick }}
+                image="https://cdn.shopify.com/s/files/1/0262/4071/2726/files/emptystate-files.png"
+              />
+            </Card>
+          ) : (
+            <Card>
+              <IndexTable
+                resourceName={{ singular: 'menu item', plural: 'menu items' }}
+                itemCount={menuItems.length}
+                headings={[
+                  { title: t('common.name') },
+                  { title: t('common.description') },
+                  { title: t('common.price') },
+                  { title: t('merchant.modifiers') },
+                  { title: t('merchant.active') },
+                  { title: '' },
+                ]}
+                selectable={false}
+              >
+                {rowMarkup}
+              </IndexTable>
+            </Card>
+          )}
+        </Layout.Section>
+      </Layout>
 
       {showModifiersModal && (
         <ModifiersModal
@@ -276,11 +241,9 @@ function MenuItemsList({
           t={t}
         />
       )}
-    </div>
+    </MerchantAdminLayout>
   );
 }
-
-// ─── Modifiers Modal ───
 
 function ModifiersModal({
   merchant,
@@ -296,21 +259,21 @@ function ModifiersModal({
   t: (key: string) => string;
 }) {
   const [name, setName] = useState('');
-  const [priceAdjustmentCents, setPriceAdjustmentCents] = useState(0);
+  const [priceAdjustmentCents, setPriceAdjustmentCents] = useState('0');
   const [saving, setSaving] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editName, setEditName] = useState('');
-  const [editPrice, setEditPrice] = useState(0);
+  const [editPrice, setEditPrice] = useState('0');
 
   const handleCreate = async () => {
     if (!name.trim()) return;
     setSaving(true);
     await postApi(`/api/merchants/${merchant.id}/modifiers`, {
       name: name.trim(),
-      priceAdjustmentCents,
+      priceAdjustmentCents: parseInt(priceAdjustmentCents, 10) || 0,
     });
     setName('');
-    setPriceAdjustmentCents(0);
+    setPriceAdjustmentCents('0');
     setSaving(false);
     onSaved();
   };
@@ -319,7 +282,7 @@ function ModifiersModal({
     setSaving(true);
     await putApi(`/api/merchants/${merchant.id}/modifiers/${id}`, {
       name: editName.trim(),
-      priceAdjustmentCents: editPrice,
+      priceAdjustmentCents: parseInt(editPrice, 10) || 0,
     });
     setEditingId(null);
     setSaving(false);
@@ -335,129 +298,124 @@ function ModifiersModal({
   const startEdit = (m: any) => {
     setEditingId(m.id);
     setEditName(m.name);
-    setEditPrice(m.price_adjustment_cents || 0);
+    setEditPrice(String(m.price_adjustment_cents || 0));
   };
 
   return (
-    <div className="ModifiersModal__overlay" onClick={onClose}>
-      <div className="ModifiersModal" onClick={(e) => e.stopPropagation()}>
-        <h2>{t('merchant.modifiersTitle')}</h2>
-        <p className="ModifiersModal__hint">
+    <Modal
+      open
+      onClose={onClose}
+      title={t('merchant.modifiersTitle')}
+      primaryAction={{ content: t('common.close'), onAction: onClose }}
+    >
+      <Modal.Section>
+        <Text as="p" variant="bodyMd" color="subdued">
           {t('merchant.modifiersHintModal')}
-        </p>
+        </Text>
+      </Modal.Section>
 
-        <div className="ModifiersModal__add">
-          <input
-            type="text"
-            placeholder={t('merchant.modifierNamePlaceholder')}
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className="ModifiersModal__input"
-          />
-          <input
-            type="number"
-            placeholder={t('merchant.priceAddPlaceholder')}
-            value={priceAdjustmentCents || ''}
-            onChange={(e) => setPriceAdjustmentCents(parseInt(e.target.value, 10) || 0)}
-            className="ModifiersModal__input ModifiersModal__input--narrow"
-          />
-          <button
-            type="button"
-            className="MerchantMenuItems__btn MerchantMenuItems__btn--primary"
-            onClick={handleCreate}
-            disabled={saving || !name.trim()}
-          >
+      <Modal.Section>
+        <FormLayout>
+          <FormLayout.Group>
+            <TextField
+              label={t('common.name')}
+              value={name}
+              onChange={setName}
+              autoComplete="off"
+              placeholder={t('merchant.modifierNamePlaceholder')}
+            />
+            <TextField
+              label={t('merchant.priceAddPlaceholder')}
+              value={priceAdjustmentCents}
+              onChange={setPriceAdjustmentCents}
+              type="number"
+              autoComplete="off"
+            />
+          </FormLayout.Group>
+          <Button primary onClick={handleCreate} disabled={saving || !name.trim()} loading={saving}>
             {t('merchant.addModifier')}
-          </button>
-        </div>
+          </Button>
+        </FormLayout>
+      </Modal.Section>
 
-        <ul className="ModifiersModal__list">
-          {modifiers.map((m) => (
-            <li key={m.id} className="ModifiersModal__item">
-              {editingId === m.id ? (
-                <>
-                  <input
-                    type="text"
-                    value={editName}
-                    onChange={(e) => setEditName(e.target.value)}
-                    className="ModifiersModal__input"
-                  />
-                  <input
-                    type="number"
-                    value={editPrice}
-                    onChange={(e) => setEditPrice(parseInt(e.target.value, 10) || 0)}
-                    className="ModifiersModal__input ModifiersModal__input--narrow"
-                  />
-                  <button
-                    type="button"
-                    className="MerchantMenuItems__btn MerchantMenuItems__btn--primary"
-                    onClick={() => handleUpdate(m.id)}
-                    disabled={saving}
-                  >
-                    {t('common.save')}
-                  </button>
-                  <button
-                    type="button"
-                    className="MerchantMenuItems__btn MerchantMenuItems__btn--secondary"
-                    onClick={() => setEditingId(null)}
-                  >
-                    {t('common.cancel')}
-                  </button>
-                </>
-              ) : (
-                <>
-                  <span className="ModifiersModal__item-name">{m.name}</span>
-                  <span className="ModifiersModal__item-price">
-                    {m.price_adjustment_cents
-                      ? `+$${(m.price_adjustment_cents / 100).toFixed(2)}`
-                      : t('merchant.noCharge')}
-                  </span>
-                  <button
-                    type="button"
-                    className="MerchantMenuItems__link"
-                    onClick={() => startEdit(m)}
-                  >
-                    {t('common.edit')}
-                  </button>
-                  <button
-                    type="button"
-                    className="MerchantMenuItems__link MerchantMenuItems__link--danger"
-                    onClick={() => handleDelete(m.id)}
-                  >
-                    {t('common.delete')}
-                  </button>
-                </>
-              )}
-            </li>
-          ))}
-        </ul>
-
-        {modifiers.length === 0 && (
-          <p className="ModifiersModal__empty">{t('merchant.noModifiersYet')}</p>
+      <Modal.Section>
+        {modifiers.length === 0 ? (
+          <Text as="p" color="subdued">
+            {t('merchant.noModifiersYet')}
+          </Text>
+        ) : (
+          <ResourceList
+            resourceName={{ singular: 'modifier', plural: 'modifiers' }}
+            items={modifiers}
+            renderItem={(m) => {
+              const isEditing = editingId === m.id;
+              return (
+                <ResourceList.Item
+                  id={String(m.id)}
+                  accessibilityLabel={m.name}
+                  onClick={() => {}}
+                >
+                  {isEditing ? (
+                    <FormLayout>
+                      <FormLayout.Group>
+                        <TextField label={t('common.name')} value={editName} onChange={setEditName} autoComplete="off" />
+                        <TextField
+                          label={t('merchant.priceAddPlaceholder')}
+                          value={editPrice}
+                          onChange={setEditPrice}
+                          type="number"
+                          autoComplete="off"
+                        />
+                      </FormLayout.Group>
+                      <FormLayout.Group>
+                        <Button primary onClick={() => handleUpdate(m.id)} disabled={saving} loading={saving}>
+                          {t('common.save')}
+                        </Button>
+                        <Button onClick={() => setEditingId(null)}>{t('common.cancel')}</Button>
+                      </FormLayout.Group>
+                    </FormLayout>
+                  ) : (
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+                      <div>
+                        <Text as="span" variant="bodyMd" fontWeight="semibold">
+                          {m.name}
+                        </Text>
+                        <Text as="p" variant="bodySm" color="subdued">
+                          {m.price_adjustment_cents
+                            ? `+$${(m.price_adjustment_cents / 100).toFixed(2)}`
+                            : t('merchant.noCharge')}
+                        </Text>
+                      </div>
+                      <div>
+                        <Button plain onClick={() => startEdit(m)}>
+                          {t('common.edit')}
+                        </Button>
+                        <Button plain destructive onClick={() => handleDelete(m.id)}>
+                          {t('common.delete')}
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                </ResourceList.Item>
+              );
+            }}
+          />
         )}
-
-        <button
-          type="button"
-          className="MerchantMenuItems__btn MerchantMenuItems__btn--secondary"
-          onClick={onClose}
-        >
-          {t('common.close')}
-        </button>
-      </div>
-    </div>
+      </Modal.Section>
+    </Modal>
   );
 }
 
-// ─── Menu Item Form (Add / Edit) ───
-
 function MenuItemForm({
   merchant,
+  merchantUuid,
   menuItemId,
   onBack,
   onSuccess,
   t,
 }: {
   merchant: MerchantRow;
+  merchantUuid: string;
   menuItemId?: number;
   onBack: () => void;
   onSuccess: () => void;
@@ -468,7 +426,7 @@ function MenuItemForm({
   const [description, setDescription] = useState('');
   const [priceCents, setPriceCents] = useState('');
   const [isActive, setIsActive] = useState(true);
-  const [selectedModifierIds, setSelectedModifierIds] = useState<number[]>([]);
+  const [selectedModifierIds, setSelectedModifierIds] = useState<string[]>([]);
   const [modifiers, setModifiers] = useState<any[]>([]);
   const [loading, setLoading] = useState(isEdit);
   const [saving, setSaving] = useState(false);
@@ -490,7 +448,7 @@ function MenuItemForm({
             setDescription(item.description || '');
             setPriceCents(String(item.price_cents || ''));
             setIsActive(item.is_active !== false);
-            setSelectedModifierIds((item.modifiers || []).map((m: any) => m.id));
+            setSelectedModifierIds((item.modifiers || []).map((m: any) => String(m.id)));
           }
         })
         .catch(() => setError(t('merchant.loadMenuItemFailed')))
@@ -498,14 +456,7 @@ function MenuItemForm({
     }
   }, [isEdit, menuItemId, merchant.id, t]);
 
-  const toggleModifier = (id: number) => {
-    setSelectedModifierIds((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
-    );
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
     const price = parseInt(priceCents, 10);
     if (!name.trim() || isNaN(price) || price < 0) {
       setError(t('merchant.namePriceRequired'));
@@ -513,146 +464,112 @@ function MenuItemForm({
     }
     setSaving(true);
     setError(null);
+    const modifierIds = selectedModifierIds.map((id) => parseInt(id, 10));
     try {
+      const payload = {
+        name: name.trim(),
+        description: description.trim(),
+        priceCents: price,
+        isActive,
+        modifierIds,
+      };
       if (isEdit && menuItemId) {
-        await putApi(`/api/merchants/${merchant.id}/menu-items/${menuItemId}`, {
-          name: name.trim(),
-          description: description.trim(),
-          priceCents: price,
-          isActive,
-          modifierIds: selectedModifierIds,
-        });
+        await putApi(`/api/merchants/${merchant.id}/menu-items/${menuItemId}`, payload);
       } else {
-        await postApi(`/api/merchants/${merchant.id}/menu-items`, {
-          name: name.trim(),
-          description: description.trim(),
-          priceCents: price,
-          isActive,
-          modifierIds: selectedModifierIds,
-        });
+        await postApi(`/api/merchants/${merchant.id}/menu-items`, payload);
       }
       onSuccess();
-    } catch (err) {
+    } catch {
       setError(t('merchant.saveFailed'));
     } finally {
       setSaving(false);
     }
   };
 
-  const theme = resolveMerchantTheme(merchant.theme);
-
   if (loading) {
     return (
-      <div className={`MerchantMenuItems MerchantMenuItems--theme-${theme}`}>
-        <div className="MerchantMenuItems__loading">{t('common.loading')}</div>
-      </div>
+      <MerchantPolarisProvider>
+        <Page title={isEdit ? t('merchant.editMenuItem') : t('merchant.addMenuItemTitle')}>
+          <Spinner accessibilityLabel={t('common.loading')} size="large" />
+        </Page>
+      </MerchantPolarisProvider>
     );
   }
 
+  const modifierChoices = modifiers.map((m) => ({
+    label: `${m.name}${m.price_adjustment_cents ? ` (+$${(m.price_adjustment_cents / 100).toFixed(2)})` : ''}`,
+    value: String(m.id),
+  }));
+
   return (
-    <div className={`MerchantMenuItems MerchantMenuItems--theme-${theme}`}>
-      <header className="MerchantMenuItems__header">
-        <button type="button" className="MerchantMenuItems__back" onClick={onBack}>
-          {t('merchant.backToMenuItems')}
-        </button>
-        <h1 className="MerchantMenuItems__title">
-          {isEdit ? t('merchant.editMenuItem') : t('merchant.addMenuItemTitle')}
-        </h1>
-      </header>
+    <MerchantAdminLayout
+      merchantUuid={merchantUuid}
+      title={isEdit ? t('merchant.editMenuItem') : t('merchant.addMenuItemTitle')}
+      backLabel={t('merchant.backToMenuItems')}
+      onBack={onBack}
+      showNav={false}
+    >
+      <Layout>
+        {error && (
+          <Layout.Section>
+            <Banner status="critical" onDismiss={() => setError(null)}>
+              {error}
+            </Banner>
+          </Layout.Section>
+        )}
 
-      <form className="MerchantMenuItems__form" onSubmit={handleSubmit}>
-        {error && <div className="MerchantMenuItems__error">{error}</div>}
-
-        <div className="MerchantMenuItems__field">
-          <label htmlFor="name">{t('merchant.nameRequired')}</label>
-          <input
-            id="name"
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-            className="MerchantMenuItems__input"
-          />
-        </div>
-
-        <div className="MerchantMenuItems__field">
-          <label htmlFor="description">{t('common.description')}</label>
-          <textarea
-            id="description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            className="MerchantMenuItems__input MerchantMenuItems__textarea"
-            rows={3}
-          />
-        </div>
-
-        <div className="MerchantMenuItems__field">
-          <label htmlFor="price">{t('merchant.priceCents')}</label>
-          <input
-            id="price"
-            type="number"
-            min="0"
-            value={priceCents}
-            onChange={(e) => setPriceCents(e.target.value)}
-            required
-            className="MerchantMenuItems__input"
-          />
-          <span className="MerchantMenuItems__hint">{t('merchant.priceHint')}</span>
-        </div>
-
-        <div className="MerchantMenuItems__field">
-          <label>
-            <input
-              type="checkbox"
-              checked={isActive}
-              onChange={(e) => setIsActive(e.target.checked)}
-            />
-            {' '}{t('merchant.activeLabel')}
-          </label>
-        </div>
-
-        <div className="MerchantMenuItems__field">
-          <label>{t('merchant.modifiers')}</label>
-          <p className="MerchantMenuItems__hint">
-            {t('merchant.modifiersHint')}
-          </p>
-          {modifiers.length === 0 ? (
-            <p className="MerchantMenuItems__hint">
-              {t('merchant.noModifiersHint')}
-            </p>
-          ) : (
-            <div className="MerchantMenuItems__modifiers">
-              {modifiers.map((m) => (
-                <label key={m.id} className="MerchantMenuItems__modifier-label">
-                  <input
-                    type="checkbox"
-                    checked={selectedModifierIds.includes(m.id)}
-                    onChange={() => toggleModifier(m.id)}
+        <Layout.Section>
+          <Card sectioned>
+            <Form onSubmit={handleSubmit}>
+              <FormLayout>
+                <TextField
+                  label={t('merchant.nameRequired')}
+                  value={name}
+                  onChange={setName}
+                  autoComplete="off"
+                  requiredIndicator
+                />
+                <TextField
+                  label={t('common.description')}
+                  value={description}
+                  onChange={setDescription}
+                  multiline={3}
+                  autoComplete="off"
+                />
+                <TextField
+                  label={t('merchant.priceCents')}
+                  value={priceCents}
+                  onChange={setPriceCents}
+                  type="number"
+                  autoComplete="off"
+                  helpText={t('merchant.priceHint')}
+                  requiredIndicator
+                />
+                <Checkbox label={t('merchant.activeLabel')} checked={isActive} onChange={setIsActive} />
+                {modifiers.length === 0 ? (
+                  <Text as="p" color="subdued">
+                    {t('merchant.noModifiersHint')}
+                  </Text>
+                ) : (
+                  <ChoiceList
+                    title={t('merchant.modifiers')}
+                    allowMultiple
+                    choices={modifierChoices}
+                    selected={selectedModifierIds}
+                    onChange={setSelectedModifierIds}
                   />
-                  {' '}
-                  {m.name}
-                  {m.price_adjustment_cents
-                    ? ` (+$${(m.price_adjustment_cents / 100).toFixed(2)})`
-                    : ''}
-                </label>
-              ))}
-            </div>
-          )}
-        </div>
-
-        <div className="MerchantMenuItems__form-actions">
-          <button type="button" className="MerchantMenuItems__btn MerchantMenuItems__btn--secondary" onClick={onBack}>
-            {t('common.cancel')}
-          </button>
-          <button
-            type="submit"
-            className="MerchantMenuItems__btn MerchantMenuItems__btn--primary"
-            disabled={saving}
-          >
-            {saving ? t('merchant.saving') : isEdit ? t('common.update') : t('common.create')}
-          </button>
-        </div>
-      </form>
-    </div>
+                )}
+                <FormLayout.Group>
+                  <Button onClick={onBack}>{t('common.cancel')}</Button>
+                  <Button primary submit loading={saving}>
+                    {saving ? t('merchant.saving') : isEdit ? t('common.update') : t('common.create')}
+                  </Button>
+                </FormLayout.Group>
+              </FormLayout>
+            </Form>
+          </Card>
+        </Layout.Section>
+      </Layout>
+    </MerchantAdminLayout>
   );
 }

@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@shopify/polaris':
+        specifier: ^10.50.1
+        version: 10.50.1(react-dom@16.14.0(react@16.14.0))(react@16.14.0)
       camelcase-keys:
         specifier: ^6.2.2
         version: 6.2.2
@@ -764,6 +767,18 @@ packages:
     resolution: {integrity: sha512-tkuFxhvKO/HlGd0VsINF6vHSYH8AF8W0TcNxKDK6JZmrehngFj78pToc8iemtnvwilDjs2G/qSzYFhe9U8q+fw==}
     cpu: [x64]
     os: [win32]
+
+  '@shopify/polaris-icons@6.16.0':
+    resolution: {integrity: sha512-vEF/6yVSvgPTBgWDbpmcPsZvTyKu+2BeuTYo7Ys6vDTY8ZSQSpK+/uhdT3CJ0WSTr4yibnXeWP6eqssqBmJWtg==}
+
+  '@shopify/polaris-tokens@6.14.0':
+    resolution: {integrity: sha512-eMa9X0QzOB3o/4O1ATcPKpc4NPqm57lpaqiRkRu8XRkKzwH+kL9J6vI8YNnDbePfndMNAA9MRp0HR1XqaPxCMg==}
+
+  '@shopify/polaris@10.50.1':
+    resolution: {integrity: sha512-7wd79OG0UGbBzWQyGJ4OgaEkN9TTLHmnNKFxw3WJmSGxNiVHOkChjiN6VaH0Gvlp0mWRvKsTTK4T4zML2esHJA==}
+    peerDependencies:
+      react: ^16.14.0 || ^17.0.0 || ^18.0.0
+      react-dom: ^16.14.0 || ^17.0.0 || ^18.0.0
 
   '@tailwindcss/node@4.3.0':
     resolution: {integrity: sha512-aFb4gUhFOgdh9AXo4IzBEOzBkkAxm9VigwDJnMIYv3lcfXCJVesNfbEaBl4BNgVRyid92AmdviqwBUBRKSeY3g==}
@@ -2295,6 +2310,9 @@ packages:
     peerDependencies:
       react: ^16.14.0
 
+  react-fast-compare@3.2.2:
+    resolution: {integrity: sha512-nsO+KSNgo1SbJqJEYRE9ERzo7YtYbou/OqjSQKxV7jcKox7+usiUVZOAC+XnDOABXggQTno0Y1CpVnuWEc1boQ==}
+
   react-i18next@16.6.6:
     resolution: {integrity: sha512-ZgL2HUoW34UKUkOV7uSQFE1CDnRPD+tCR3ywSuWH7u2iapnz86U8Bi3Vrs620qNDzCf1F47NxglCEkchCTDOHw==}
     peerDependencies:
@@ -3219,6 +3237,22 @@ snapshots:
 
   '@rollup/rollup-win32-x64-msvc@4.61.0':
     optional: true
+
+  '@shopify/polaris-icons@6.16.0': {}
+
+  '@shopify/polaris-tokens@6.14.0': {}
+
+  '@shopify/polaris@10.50.1(react-dom@16.14.0(react@16.14.0))(react@16.14.0)':
+    dependencies:
+      '@shopify/polaris-icons': 6.16.0
+      '@shopify/polaris-tokens': 6.14.0
+      '@types/react': 19.2.16
+      '@types/react-dom': 19.2.3(@types/react@19.2.16)
+      '@types/react-transition-group': 4.4.12(@types/react@19.2.16)
+      react: 16.14.0
+      react-dom: 16.14.0(react@16.14.0)
+      react-fast-compare: 3.2.2
+      react-transition-group: 4.4.5(react-dom@16.14.0(react@16.14.0))(react@16.14.0)
 
   '@tailwindcss/node@4.3.0':
     dependencies:
@@ -4840,6 +4874,8 @@ snapshots:
       prop-types: 15.8.1
       react: 16.14.0
       scheduler: 0.19.1
+
+  react-fast-compare@3.2.2: {}
 
   react-i18next@16.6.6(i18next@25.10.10(typescript@5.9.3))(react-dom@16.14.0(react@16.14.0))(react@16.14.0)(typescript@5.9.3):
     dependencies:

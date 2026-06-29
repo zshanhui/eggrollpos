@@ -1,20 +1,25 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import {
+  Banner,
+  Button,
+  Card,
+  Checkbox,
+  ChoiceList,
+  EmptyState,
+  Form,
+  FormLayout,
+  IndexTable,
+  Layout,
+  Page,
+  Spinner,
+  TextField,
+} from '@shopify/polaris';
+import MerchantAdminLayout from '../components/MerchantAdminLayout';
+import MerchantPolarisProvider from '../components/MerchantPolarisProvider';
+import { deleteApi, fetchApi } from '../lib/merchantApi';
 
 const DAYS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
-
-const PRIORITY_TIMEZONES = [
-  'Asia/Kuala_Lumpur',
-  'Asia/Singapore',
-  'America/New_York',
-  'America/Chicago',
-  'America/Denver',
-  'America/Los_Angeles',
-];
-
-function fetchJson(url: string, opts?: RequestInit) {
-  return fetch(url, { credentials: 'same-origin', ...opts }).then((r) => r.json());
-}
 
 export default function MerchantMenus(props: any) {
   const { t } = useTranslation();
@@ -27,7 +32,7 @@ export default function MerchantMenus(props: any) {
     if (path.endsWith('/add')) {
       setView('add');
     } else {
-      const m = path.match(/\/menus\/(\d+)\/edit/);
+      const m = path.match(/\/online-menus\/(\d+)\/edit/);
       if (m) {
         setView('edit');
         setEditMenuId(parseInt(m[1], 10));
@@ -41,32 +46,59 @@ export default function MerchantMenus(props: any) {
   const navigate = (path: string) => props.history.push(path);
 
   if (!merchantUuid) {
-    return <div className="max-w-2xl mx-auto p-8 text-gray-400">{t('merchant.noUuid')}</div>;
+    return (
+      <MerchantPolarisProvider>
+        <Page title={t('menus.yourMenus')}>
+          <Banner status="critical">{t('merchant.noUuid')}</Banner>
+        </Page>
+      </MerchantPolarisProvider>
+    );
   }
 
   if (view === 'add') {
-    return <MenuForm merchantUuid={merchantUuid} onBack={() => navigate(`/merchant-dashboard/${merchantUuid}/online-menus`)} onSaved={() => navigate(`/merchant-dashboard/${merchantUuid}/online-menus`)} t={t} />;
+    return (
+      <MenuForm
+        merchantUuid={merchantUuid}
+        onBack={() => navigate(`/merchant-dashboard/${merchantUuid}/online-menus`)}
+        onSaved={() => navigate(`/merchant-dashboard/${merchantUuid}/online-menus`)}
+        t={t}
+      />
+    );
   }
 
   if (view === 'edit' && editMenuId) {
-    return <MenuForm merchantUuid={merchantUuid} menuId={editMenuId} onBack={() => navigate(`/merchant-dashboard/${merchantUuid}/online-menus`)} onSaved={() => navigate(`/merchant-dashboard/${merchantUuid}/online-menus`)} t={t} />;
+    return (
+      <MenuForm
+        merchantUuid={merchantUuid}
+        menuId={editMenuId}
+        onBack={() => navigate(`/merchant-dashboard/${merchantUuid}/online-menus`)}
+        onSaved={() => navigate(`/merchant-dashboard/${merchantUuid}/online-menus`)}
+        t={t}
+      />
+    );
   }
 
   return <MenuList merchantUuid={merchantUuid} navigate={navigate} t={t} />;
 }
 
-// ─── Menu List ───
-
-function MenuList({ merchantUuid, navigate, t }: { merchantUuid: string; navigate: (path: string) => void; t: (key: string) => string }) {
+function MenuList({
+  merchantUuid,
+  navigate,
+  t,
+}: {
+  merchantUuid: string;
+  navigate: (path: string) => void;
+  t: (key: string) => string;
+}) {
   const [merchant, setMerchant] = useState<any>(null);
   const [menus, setMenus] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchJson(`/api/merchants/${merchantUuid}`)
+    fetchApi(`/api/merchants/${merchantUuid}`)
       .then((merchData) => {
         setMerchant(merchData);
-        return fetchJson(`/api/merchants/${merchData.id}/menus`);
+        return fetchApi(`/api/merchants/${merchData.id}/menus`);
       })
       .then((menuData) => setMenus(menuData.menus || []))
       .finally(() => setLoading(false));
@@ -88,80 +120,93 @@ function MenuList({ merchantUuid, navigate, t }: { merchantUuid: string; navigat
   const deleteMenu = async (menuId: number) => {
     if (!merchant?.id) return;
     if (!confirm(t('menus.confirmDelete'))) return;
-    await fetch(`/api/merchants/${merchant.id}/menus/${menuId}`, {
-      method: 'DELETE',
-      credentials: 'same-origin',
-    });
+    await deleteApi(`/api/merchants/${merchant.id}/menus/${menuId}`);
     setMenus((prev) => prev.filter((m) => m.id !== menuId));
   };
 
   if (loading) {
-    return <div className="max-w-2xl mx-auto p-8 text-gray-400">{t('common.loading')}</div>;
+    return (
+      <MerchantPolarisProvider>
+        <Page title={t('menus.yourMenus')}>
+          <Spinner accessibilityLabel={t('common.loading')} size="large" />
+        </Page>
+      </MerchantPolarisProvider>
+    );
   }
 
+  const rowMarkup = menus.map((menu, index) => (
+    <IndexTable.Row id={String(menu.id)} key={menu.id} position={index}>
+      <IndexTable.Cell>{menu.name}</IndexTable.Cell>
+      <IndexTable.Cell>
+        {menu.item_count} {t('menus.items')}
+        {menu.slug ? ` · ${menu.slug}` : ''}
+      </IndexTable.Cell>
+      <IndexTable.Cell>
+        <Checkbox
+          label={t('menus.published')}
+          labelHidden
+          checked={!!menu.is_published}
+          onChange={() => togglePublished(menu.id, !!menu.is_published)}
+        />
+      </IndexTable.Cell>
+      <IndexTable.Cell>
+        <Button plain onClick={() => navigate(`/merchant-dashboard/${merchantUuid}/online-menus/${menu.id}/edit`)}>
+          {t('common.edit')}
+        </Button>
+        {' · '}
+        <Button plain destructive onClick={() => deleteMenu(menu.id)}>
+          {t('common.delete')}
+        </Button>
+      </IndexTable.Cell>
+    </IndexTable.Row>
+  ));
+
   return (
-    <div className="max-w-2xl mx-auto p-4">
-      <div className="flex items-center justify-between mb-4">
-        <button onClick={() => navigate(`/merchant-dashboard/${merchantUuid}`)} className="text-blue-600 text-sm">
-          ← {t('merchant.backToOrders')}
-        </button>
-        <h1 className="text-lg font-bold text-gray-800">{t('menus.yourMenus')}</h1>
-        <button
-          onClick={() => navigate(`/merchant-dashboard/${merchantUuid}/online-menus/add`)}
-          className="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded-lg font-medium"
-        >
-          + {t('menus.newMenu')}
-        </button>
-      </div>
-
-      {menus.length === 0 ? (
-        <p className="text-center text-gray-400 py-12">{t('menus.noMenus')}</p>
-      ) : (
-        <div className="space-y-3">
-          {menus.map((menu) => (
-            <div key={menu.id} className="bg-white border border-gray-200 rounded-xl p-4">
-              <div className="flex items-center justify-between mb-1">
-                <h2 className="font-semibold text-gray-800">{menu.name}</h2>
-                <label className="relative inline-flex items-center cursor-pointer flex-shrink-0 ml-3">
-                  <input
-                    type="checkbox"
-                    checked={!!menu.is_published}
-                    onChange={() => togglePublished(menu.id, !!menu.is_published)}
-                    className="sr-only peer"
-                  />
-                  <div className="w-9 h-5 bg-gray-200 peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:bg-blue-600 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all" />
-                </label>
-              </div>
-              <p className="text-sm text-gray-500 mb-2">
-                {menu.item_count} {t('menus.items')}
-                {menu.slug && <span className="block text-xs text-gray-400 truncate">{menu.slug}</span>}
-              </p>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => navigate(`/merchant-dashboard/${merchantUuid}/online-menus/${menu.id}/edit`)}
-                  className="text-blue-600 hover:underline text-sm"
-                >
-                  {t('common.edit')}
-                </button>
-                <button onClick={() => deleteMenu(menu.id)} className="text-red-500 hover:underline text-sm">
-                  {t('common.delete')}
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      <div className="mt-6 border-t border-gray-100 pt-4">
-        <a href={`/merchant-dashboard/${merchantUuid}/menuitems`} className="text-sm text-gray-500 hover:underline">
-          {t('merchant.menuItems')} →
-        </a>
-      </div>
-    </div>
+    <MerchantAdminLayout
+      merchantUuid={merchantUuid}
+      title={t('menus.yourMenus')}
+      backLabel={t('merchant.backToOrders')}
+      onBack={() => navigate(`/merchant-dashboard/${merchantUuid}`)}
+      primaryAction={{
+        content: t('menus.newMenu'),
+        onAction: () => navigate(`/merchant-dashboard/${merchantUuid}/online-menus/add`),
+      }}
+    >
+      <Layout>
+        <Layout.Section>
+          {menus.length === 0 ? (
+            <Card sectioned>
+              <EmptyState
+                heading={t('menus.noMenus')}
+                action={{
+                  content: t('menus.newMenu'),
+                  onAction: () => navigate(`/merchant-dashboard/${merchantUuid}/online-menus/add`),
+                }}
+                image="https://cdn.shopify.com/s/files/1/0262/4071/2726/files/emptystate-files.png"
+              />
+            </Card>
+          ) : (
+            <Card>
+              <IndexTable
+                resourceName={{ singular: 'menu', plural: 'menus' }}
+                itemCount={menus.length}
+                headings={[
+                  { title: t('menus.menuName') },
+                  { title: t('menus.menuDescription') },
+                  { title: t('menus.published') },
+                  { title: '' },
+                ]}
+                selectable={false}
+              >
+                {rowMarkup}
+              </IndexTable>
+            </Card>
+          )}
+        </Layout.Section>
+      </Layout>
+    </MerchantAdminLayout>
   );
 }
-
-// ─── Menu Form (Create / Edit) ───
 
 function MenuForm({
   merchantUuid,
@@ -181,42 +226,33 @@ function MenuForm({
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
-  // Form state
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [isPublished, setIsPublished] = useState(false);
   const [businessHours, setBusinessHours] = useState<Record<string, { open: string; close: string } | null>>({});
-
-  // If editing, load menu data
-  const [existingMenu, setExistingMenu] = useState<any>(null);
-  const [existingItemIds, setExistingItemIds] = useState<Set<number>>(new Set());
+  const [selectedItemIds, setSelectedItemIds] = useState<string[]>([]);
 
   useEffect(() => {
-    fetchJson(`/api/merchants/${merchantUuid}`)
+    fetchApi(`/api/merchants/${merchantUuid}`)
       .then(async (merch) => {
         setMerchant(merch);
-        const [itemsData] = await Promise.all([
-          fetchJson(`/api/merchants/${merch.id}/menu-items`),
-          menuId ? fetchJson(`/api/merchants/${merch.id}/menus/${menuId}`) : Promise.resolve(null),
-        ]);
+        const itemsData = await fetchApi(`/api/merchants/${merch.id}/menu-items`);
         setMenuItems(itemsData.menuItems || []);
 
-        if (menuId && itemsData) {
-          // Load existing menu for editing
-          const menuData = await fetchJson(`/api/merchants/${merch.id}/menus/${menuId}`);
+        if (menuId) {
+          const menuData = await fetchApi(`/api/merchants/${merch.id}/menus/${menuId}`);
           const menu = menuData.menu;
-          setExistingMenu(menu);
           setName(menu.name || '');
           setDescription(menu.description || '');
           setIsPublished(!!menu.is_published);
           setBusinessHours(menu.business_hours || {});
-          setExistingItemIds(new Set((menu.menuItems || []).map((i: any) => i.id)));
+          const ids = (menu.menuItems || []).map((i: any) => i.id);
+          setSelectedItemIds(ids.map(String));
         }
       })
       .finally(() => setLoading(false));
   }, [merchantUuid, menuId]);
 
-  // Business hours helpers
   const getHours = (day: string): { open: string; close: string } | null => {
     return (businessHours as any)?.[day] || null;
   };
@@ -230,23 +266,7 @@ function MenuForm({
     setHours(day, current ? null : { open: '09:00', close: '17:00' });
   };
 
-  // Menu item selection
-  const [selectedItemIds, setSelectedItemIds] = useState<Set<number>>(new Set());
-  useEffect(() => {
-    setSelectedItemIds(existingItemIds);
-  }, [existingItemIds]);
-
-  const toggleItem = (itemId: number) => {
-    setSelectedItemIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(itemId)) next.delete(itemId);
-      else next.add(itemId);
-      return next;
-    });
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
     if (!merchant?.id) return;
     setSaving(true);
 
@@ -255,7 +275,7 @@ function MenuForm({
       description: description || null,
       isPublished,
       businessHours,
-      menuItemIds: Array.from(selectedItemIds),
+      menuItemIds: selectedItemIds.map((id) => parseInt(id, 10)),
     };
 
     const url = menuId
@@ -273,134 +293,108 @@ function MenuForm({
     if (res.ok) onSaved();
   };
 
-  if (loading) return <div className="max-w-2xl mx-auto p-8 text-gray-400">{t('common.loading')}</div>;
+  if (loading) {
+    return (
+      <MerchantPolarisProvider>
+        <Page title={menuId ? t('menus.editMenu') : t('menus.newMenu')}>
+          <Spinner accessibilityLabel={t('common.loading')} size="large" />
+        </Page>
+      </MerchantPolarisProvider>
+    );
+  }
+
+  const itemChoices = menuItems.map((item: any) => ({
+    label: `${item.name} — $${(item.price_cents / 100).toFixed(2)}`,
+    value: String(item.id),
+  }));
 
   return (
-    <div className="max-w-2xl mx-auto p-4">
-      <div className="flex items-center mb-4">
-        <button onClick={onBack} className="text-blue-600 text-sm mr-auto">
-          ← {t('merchant.backToOrders')}
-        </button>
-        <h1 className="text-lg font-bold text-gray-800">
-          {menuId ? t('menus.editMenu') : t('menus.newMenu')}
-        </h1>
-      </div>
+    <MerchantAdminLayout
+      merchantUuid={merchantUuid}
+      title={menuId ? t('menus.editMenu') : t('menus.newMenu')}
+      backLabel={t('merchant.backToOrders')}
+      onBack={onBack}
+      showNav={false}
+    >
+      <Layout>
+        <Layout.Section>
+          <Card sectioned>
+            <Form onSubmit={handleSubmit}>
+              <FormLayout>
+                <TextField
+                  label={t('menus.menuName')}
+                  value={name}
+                  onChange={setName}
+                  autoComplete="off"
+                  placeholder={t('menus.menuNamePlaceholder')}
+                  requiredIndicator
+                />
+                <TextField
+                  label={t('menus.menuDescription')}
+                  value={description}
+                  onChange={setDescription}
+                  autoComplete="off"
+                />
+                <Checkbox label={t('menus.published')} checked={isPublished} onChange={setIsPublished} />
 
-      <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Name */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">{t('menus.menuName')} *</label>
-          <input
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            placeholder={t('menus.menuNamePlaceholder')}
-          />
-        </div>
+                <FormLayout.Group title={t('menus.businessHours')}>
+                  <p style={{ margin: 0, color: '#6d7175', fontSize: 13 }}>{t('menus.businessHoursHint')}</p>
+                  {DAYS.map((day) => {
+                    const hours = getHours(day);
+                    return (
+                      <div key={day} style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+                        <Checkbox label={day} checked={!!hours} onChange={() => toggleDay(day)} />
+                        {hours ? (
+                          <>
+                            <TextField
+                              label={`${day} open`}
+                              labelHidden
+                              value={hours.open}
+                              onChange={(value) => setHours(day, { ...hours, open: value })}
+                              type="time"
+                              autoComplete="off"
+                            />
+                            <span>–</span>
+                            <TextField
+                              label={`${day} close`}
+                              labelHidden
+                              value={hours.close}
+                              onChange={(value) => setHours(day, { ...hours, close: value })}
+                              type="time"
+                              autoComplete="off"
+                            />
+                          </>
+                        ) : (
+                          <span style={{ color: '#6d7175', fontSize: 13 }}>{t('menus.closed')}</span>
+                        )}
+                      </div>
+                    );
+                  })}
+                </FormLayout.Group>
 
-        {/* Description */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">{t('menus.menuDescription')}</label>
-          <input
-            type="text"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          />
-        </div>
-
-        {/* Published toggle */}
-        <div className="flex items-center justify-between">
-          <span className="text-sm font-medium text-gray-700">{t('menus.published')}</span>
-          <label className="relative inline-flex items-center cursor-pointer">
-            <input
-              type="checkbox"
-              checked={isPublished}
-              onChange={(e) => setIsPublished(e.target.checked)}
-              className="sr-only peer"
-            />
-            <div className="w-9 h-5 bg-gray-200 peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:bg-blue-600 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all" />
-          </label>
-        </div>
-
-        {/* Business hours */}
-        <div>
-          <h3 className="text-sm font-medium text-gray-700 mb-2">{t('menus.businessHours')}</h3>
-          <p className="text-xs text-gray-400 mb-3">{t('menus.businessHoursHint')}</p>
-          <div className="space-y-2">
-            {DAYS.map((day) => {
-              const hours = getHours(day);
-              return (
-                <div key={day} className="flex items-center gap-3">
-                  <label className="flex items-center gap-2 w-full">
-                    <input
-                      type="checkbox"
-                      checked={!!hours}
-                      onChange={() => toggleDay(day)}
-                      className="rounded"
-                    />
-                    <span className="text-sm text-gray-700 w-10 capitalize">{day}</span>
-                  </label>
-                  {hours ? (
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="time"
-                        value={hours.open}
-                        onChange={(e) => setHours(day, { ...hours, open: e.target.value })}
-                        className="border border-gray-300 rounded px-2 py-1 text-sm w-28"
-                      />
-                      <span className="text-gray-400">–</span>
-                      <input
-                        type="time"
-                        value={hours.close}
-                        onChange={(e) => setHours(day, { ...hours, close: e.target.value })}
-                        className="border border-gray-300 rounded px-2 py-1 text-sm w-28"
-                      />
-                    </div>
-                  ) : (
-                    <span className="text-sm text-gray-400">{t('menus.closed')}</span>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Menu items selection */}
-        <div>
-          <h3 className="text-sm font-medium text-gray-700 mb-2">{t('menus.selectItems')}</h3>
-          {menuItems.length === 0 ? (
-            <p className="text-sm text-gray-400">{t('menus.noItemsYet')}</p>
-          ) : (
-            <div className="space-y-1 max-h-64 overflow-y-auto border border-gray-200 rounded-lg p-2">
-              {menuItems.map((item: any) => (
-                <label key={item.id} className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={selectedItemIds.has(item.id)}
-                    onChange={() => toggleItem(item.id)}
-                    className="rounded"
+                {menuItems.length === 0 ? (
+                  <p style={{ margin: 0, color: '#6d7175' }}>{t('menus.noItemsYet')}</p>
+                ) : (
+                  <ChoiceList
+                    title={t('menus.selectItems')}
+                    allowMultiple
+                    choices={itemChoices}
+                    selected={selectedItemIds}
+                    onChange={setSelectedItemIds}
                   />
-                  <span className="text-sm text-gray-800 flex-1">{item.name}</span>
-                  <span className="text-sm text-gray-400">${(item.price_cents / 100).toFixed(2)}</span>
-                </label>
-              ))}
-            </div>
-          )}
-        </div>
+                )}
 
-        {/* Actions */}
-        <div className="flex gap-3 pt-4 border-t border-gray-100">
-          <button type="button" onClick={onBack} className="flex-1 text-sm text-gray-600 py-2 rounded-lg border border-gray-300 hover:bg-gray-50">
-            {t('common.cancel')}
-          </button>
-          <button type="submit" disabled={saving} className="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-sm py-2 rounded-lg font-medium disabled:opacity-50">
-            {saving ? t('common.saving') : t('common.save')}
-          </button>
-        </div>
-      </form>
-    </div>
+                <FormLayout.Group>
+                  <Button onClick={onBack}>{t('common.cancel')}</Button>
+                  <Button primary submit loading={saving}>
+                    {saving ? t('merchant.saving') : t('common.save')}
+                  </Button>
+                </FormLayout.Group>
+              </FormLayout>
+            </Form>
+          </Card>
+        </Layout.Section>
+      </Layout>
+    </MerchantAdminLayout>
   );
 }
