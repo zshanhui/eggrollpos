@@ -17,7 +17,7 @@ FROM base AS runner
 ENV NODE_ENV=production
 ENV PORT=3000
 
-RUN apk add --no-cache curl
+RUN apk add --no-cache curl vips
 
 COPY package.json pnpm-lock.yaml ./
 RUN pnpm install --frozen-lockfile --prod

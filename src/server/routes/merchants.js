@@ -10,6 +10,12 @@ const {getNextStatus, canCancel, canRefund, Status} = require('../../shared/orde
 const { adminRouter: menusRouter } = require('./menus');
 const { categoriesRouter } = require('./menu_categories');
 const { subscribeMerchantOrders } = require('../services/order_events');
+const {
+    createMenuItemImagePresign,
+    completeMenuItemImageUpload,
+    deleteMenuItemImage,
+    deleteMenuItemImageByUrl,
+} = require('../services/menu_item_images');
 
 /**
  * @typedef {import('../../shared/merchants').MerchantRow} MerchantRow
@@ -266,12 +272,95 @@ async function updateMenuItemHandler(req, res) {
 router.put('/:merchantId/menu-items/:menuItemId', updateMenuItemHandler);
 router.patch('/:merchantId/menu-items/:menuItemId', updateMenuItemHandler);
 
+async function loadMerchantForMenuItem(merchantId, menuItemId) {
+    const merchant = await Merchants.get(merchantId);
+    if (!merchant) return null;
+    const item = await MenuItems.getById(menuItemId);
+    if (!item || item.merchant_id !== merchantId) return null;
+    return { merchant, item };
+}
+
+function sendImageRouteError(res, err) {
+    const status = err.status || 500;
+    res.status(status).json({ error: err.message || 'Image upload failed' });
+}
+
+router.post('/:merchantId/menu-items/:menuItemId/image/presign', async (req, res) => {
+    const merchantId = parseInt(req.params.merchantId, 10);
+    const menuItemId = parseInt(req.params.menuItemId, 10);
+    if (isNaN(merchantId) || isNaN(menuItemId)) {
+        return res.status(400).json({ error: 'Invalid merchant or menu item ID' });
+    }
+    const loaded = await loadMerchantForMenuItem(merchantId, menuItemId);
+    if (!loaded) return res.status(404).json({ error: 'Menu item not found' });
+    if (!loaded.merchant.hash_id) {
+        return res.status(400).json({ error: 'Merchant hash_id is required for image uploads' });
+    }
+    const { contentType, contentLength } = req.body || {};
+    try {
+        const result = await createMenuItemImagePresign({
+            hashId: loaded.merchant.hash_id,
+            menuItemId,
+            contentType,
+            contentLength,
+        });
+        res.json(result);
+    } catch (err) {
+        sendImageRouteError(res, err);
+    }
+});
+
+router.post('/:merchantId/menu-items/:menuItemId/image/complete', async (req, res) => {
+    const merchantId = parseInt(req.params.merchantId, 10);
+    const menuItemId = parseInt(req.params.menuItemId, 10);
+    if (isNaN(merchantId) || isNaN(menuItemId)) {
+        return res.status(400).json({ error: 'Invalid merchant or menu item ID' });
+    }
+    const loaded = await loadMerchantForMenuItem(merchantId, menuItemId);
+    if (!loaded) return res.status(404).json({ error: 'Menu item not found' });
+    const { key } = req.body || {};
+    if (!key || typeof key !== 'string') {
+        return res.status(400).json({ error: 'key is required' });
+    }
+    try {
+        const result = await completeMenuItemImageUpload({
+            hashId: loaded.merchant.hash_id,
+            menuItemId,
+            key,
+        });
+        res.json(result);
+    } catch (err) {
+        sendImageRouteError(res, err);
+    }
+});
+
+router.delete('/:merchantId/menu-items/:menuItemId/image', async (req, res) => {
+    const merchantId = parseInt(req.params.merchantId, 10);
+    const menuItemId = parseInt(req.params.menuItemId, 10);
+    if (isNaN(merchantId) || isNaN(menuItemId)) {
+        return res.status(400).json({ error: 'Invalid merchant or menu item ID' });
+    }
+    const loaded = await loadMerchantForMenuItem(merchantId, menuItemId);
+    if (!loaded) return res.status(404).json({ error: 'Menu item not found' });
+    try {
+        await deleteMenuItemImage(menuItemId);
+        res.json({ ok: true });
+    } catch (err) {
+        sendImageRouteError(res, err);
+    }
+});
+
 router.delete('/:merchantId/menu-items/:menuItemId', async (req, res) => {
     const merchantId = parseInt(req.params.merchantId, 10);
     const menuItemId = parseInt(req.params.menuItemId, 10);
     if (isNaN(merchantId) || isNaN(menuItemId)) return res.status(400).json({ error: 'Invalid merchant or menu item ID' });
     const item = await MenuItems.getById(menuItemId);
     if (!item || item.merchant_id !== merchantId) return res.status(404).json({ error: 'Menu item not found' });
+    try {
+        await deleteMenuItemImageByUrl(item.image_url);
+    } catch {
+        // Continue deleting the row even if object storage cleanup fails.
+    }
     await MenuItems.delete(menuItemId);
     res.status(204).send();
 });

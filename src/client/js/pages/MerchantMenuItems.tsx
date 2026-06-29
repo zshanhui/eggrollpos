@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Banner,
@@ -24,6 +24,11 @@ import MerchantAdminLayout from '../components/MerchantAdminLayout';
 import MerchantPolarisProvider from '../components/MerchantPolarisProvider';
 import { useMerchantHashRoute } from '../hooks/useMerchantHashRoute';
 import { deleteApi, fetchApi, postApi, putApi } from '../lib/merchantApi';
+import {
+  removeMenuItemImage,
+  uploadMenuItemImage,
+  validateMenuItemImageFile,
+} from '../lib/menuItemImageUpload';
 
 export default function MerchantMenuItems(props: any) {
   const { t } = useTranslation();
@@ -143,6 +148,21 @@ function MenuItemsList({
   const rowMarkup = menuItems.map((item: any, index: number) => (
     <IndexTable.Row id={String(item.id)} key={item.id} position={index}>
       <IndexTable.Cell>
+        <div style={{ width: 40, height: 40, borderRadius: 8, overflow: 'hidden', background: '#f1f2f3' }}>
+          {item.image_url ? (
+            <img
+              src={item.image_url}
+              alt=""
+              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+            />
+          ) : (
+            <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#8c9196', fontSize: 12 }}>
+              —
+            </div>
+          )}
+        </div>
+      </IndexTable.Cell>
+      <IndexTable.Cell>
         <Text variant="bodyMd" fontWeight="semibold" as="span">
           {item.name}
         </Text>
@@ -201,6 +221,7 @@ function MenuItemsList({
                 resourceName={{ singular: 'menu item', plural: 'menu items' }}
                 itemCount={menuItems.length}
                 headings={[
+                  { title: t('merchant.menuItemImage') },
                   { title: t('common.name') },
                   { title: t('common.description') },
                   { title: t('common.price') },
@@ -419,6 +440,17 @@ function MenuItemForm({
   const [loading, setLoading] = useState(isEdit);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [existingImageUrl, setExistingImageUrl] = useState<string | null>(null);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [removeExistingImage, setRemoveExistingImage] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    return () => {
+      if (imagePreview) URL.revokeObjectURL(imagePreview);
+    };
+  }, [imagePreview]);
 
   useEffect(() => {
     fetchApi(`/api/merchants/${merchant.id}/modifiers`).then((data) =>
@@ -437,12 +469,36 @@ function MenuItemForm({
             setPriceCents(String(item.price_cents || ''));
             setIsActive(item.is_active !== false);
             setSelectedModifierIds((item.modifiers || []).map((m: any) => String(m.id)));
+            setExistingImageUrl(item.image_url || null);
           }
         })
         .catch(() => setError(t('merchant.loadMenuItemFailed')))
         .finally(() => setLoading(false));
     }
   }, [isEdit, menuItemId, merchant.id, t]);
+
+  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    const validationError = validateMenuItemImageFile(file);
+    if (validationError) {
+      setError(validationError);
+      event.target.value = '';
+      return;
+    }
+    setError(null);
+    setRemoveExistingImage(false);
+    setImageFile(file);
+    if (imagePreview) URL.revokeObjectURL(imagePreview);
+    setImagePreview(URL.createObjectURL(file));
+  };
+
+  const handleRemoveImage = () => {
+    setImageFile(null);
+    if (imagePreview) URL.revokeObjectURL(imagePreview);
+    setImagePreview(null);
+    setRemoveExistingImage(true);
+  };
 
   const handleSubmit = async () => {
     const price = parseInt(priceCents, 10);
@@ -461,18 +517,35 @@ function MenuItemForm({
         isActive,
         modifierIds,
       };
+      let savedMenuItemId = menuItemId;
       if (isEdit && menuItemId) {
         await putApi(`/api/merchants/${merchant.id}/menu-items/${menuItemId}`, payload);
       } else {
-        await postApi(`/api/merchants/${merchant.id}/menu-items`, payload);
+        const created = await postApi(`/api/merchants/${merchant.id}/menu-items`, payload);
+        savedMenuItemId = created.menuItem?.id;
       }
+
+      if (!savedMenuItemId) {
+        throw new Error('Missing menu item id');
+      }
+
+      if (removeExistingImage && (existingImageUrl || isEdit)) {
+        await removeMenuItemImage(merchant.id, savedMenuItemId);
+      }
+
+      if (imageFile) {
+        await uploadMenuItemImage(merchant.id, savedMenuItemId, imageFile);
+      }
+
       onSuccess();
-    } catch {
-      setError(t('merchant.saveFailed'));
+    } catch (err: any) {
+      setError(err?.message || t('merchant.saveFailed'));
     } finally {
       setSaving(false);
     }
   };
+
+  const previewUrl = imagePreview || (!removeExistingImage ? existingImageUrl : null);
 
   if (loading) {
     return (
@@ -534,6 +607,42 @@ function MenuItemForm({
                   requiredIndicator
                 />
                 <Checkbox label={t('merchant.activeLabel')} checked={isActive} onChange={setIsActive} />
+
+                <div>
+                  <Text as="p" variant="bodyMd" fontWeight="semibold">
+                    {t('merchant.menuItemImage')}
+                  </Text>
+                  <Text as="p" color="subdued">
+                    {t('merchant.menuItemImageHelp')}
+                  </Text>
+                  {previewUrl && (
+                    <div style={{ marginTop: 12, marginBottom: 12 }}>
+                      <img
+                        src={previewUrl}
+                        alt=""
+                        style={{ width: 120, height: 120, objectFit: 'cover', borderRadius: 8, border: '1px solid #dfe3e8' }}
+                      />
+                    </div>
+                  )}
+                  <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 8 }}>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp"
+                      onChange={handleImageChange}
+                      style={{ display: 'none' }}
+                    />
+                    <Button onClick={() => fileInputRef.current?.click()}>
+                      {previewUrl ? t('merchant.menuItemImageReplace') : t('merchant.menuItemImageChoose')}
+                    </Button>
+                    {previewUrl && (
+                      <Button plain destructive onClick={handleRemoveImage}>
+                        {t('merchant.menuItemImageRemove')}
+                      </Button>
+                    )}
+                  </div>
+                </div>
+
                 {modifiers.length === 0 ? (
                   <Text as="p" color="subdued">
                     {t('merchant.noModifiersHint')}

@@ -40,7 +40,7 @@ class MenuItem {
   }
 
   static async update(id, params) {
-    const allowed = ['name', 'description', 'price_cents', 'is_active', 'sort_order'];
+    const allowed = ['name', 'description', 'price_cents', 'is_active', 'sort_order', 'image_url'];
     const updates = {};
     for (const k of allowed) {
       if (params[k] !== undefined) updates[k] = params[k];

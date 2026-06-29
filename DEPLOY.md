@@ -88,6 +88,20 @@ On **first deploy** (empty `merchants` table), the container entrypoint runs dev
 1. **Add service → Database → PostgreSQL**.
 2. Railway sets `DATABASE_URL` on linked services. Attach Postgres to the app service (Variables → reference `${{Postgres.DATABASE_URL}}` if needed).
 
+### 2b. Add Object Storage (menu item images)
+
+1. **Add service → Object Storage** (or attach a bucket to the app).
+2. Copy the S3-compatible variables into the app service:
+   - `S3_ENDPOINT`
+   - `S3_BUCKET`
+   - `S3_ACCESS_KEY_ID`
+   - `S3_SECRET_ACCESS_KEY`
+   - `S3_REGION` (often `auto`)
+3. Make the bucket **public read** for development (images are served directly to customers).
+4. Optional: set `S3_PUBLIC_URL` if the public base URL differs from `ENDPOINT/BUCKET`.
+
+Upload flow: merchant add/edit form → presigned PUT to bucket → server completes upload (resize if &gt; 200 KB) → `image_url` saved on the menu item.
+
 ### 3. Configure the app service
 
 | Setting | Value |
