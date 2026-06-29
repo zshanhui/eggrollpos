@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 
 FROM node:22-alpine AS base
-RUN corepack enable && corepack prepare pnpm@10.17.0 --activate
+RUN corepack enable && corepack prepare pnpm@10.34.1 --activate
 WORKDIR /app
 
 FROM base AS deps
@@ -28,6 +28,7 @@ COPY db ./db
 COPY src/server ./src/server
 COPY src/shared ./src/shared
 COPY scripts/docker-entrypoint.sh ./scripts/docker-entrypoint.sh
+COPY scripts/create-merchant.js ./scripts/create-merchant.js
 RUN chmod +x ./scripts/docker-entrypoint.sh
 
 EXPOSE 3000
