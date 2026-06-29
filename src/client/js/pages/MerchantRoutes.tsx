@@ -1,10 +1,12 @@
-import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import React, { useEffect, useState, useCallback, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Status, STATUS_LABELS, getNextStatus, canCancel } from '../../../shared/orders';
 import type { OrderStatus, OrderType } from '../../../shared/orders';
 import type { MerchantRow } from '../../../shared/merchants';
 import { resolveMerchantTheme } from '../../../shared/merchants';
+import type { OrderStreamPayload } from '../../../shared/order_events';
 import LangSwitcher from '../components/LangSwitcher';
+import { useMerchantOrderStream, useElapsedTick, type ConnectionStatus } from '../hooks/useMerchantOrderStream';
 import '../../css/pages/MerchantRoutes.css';
 
 function fetchApi(url: string) {
@@ -133,13 +135,46 @@ function OrdersListPage({ merchantId, merchantName, merchantUuid, onSelectOrder,
   const [orders, setOrders] = useState<any>(null);
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('active');
   const [dateFilter, setDateFilter] = useState<string>(() => todayISO());
+  const [highlightedIds, setHighlightedIds] = useState<Set<number>>(() => new Set());
+  const highlightTimers = useRef<Map<number, ReturnType<typeof setTimeout>>>(new Map());
   const isMobile = useIsMobile();
+  const elapsedTick = useElapsedTick();
 
-  useEffect(() => {
+  const loadOrders = useCallback(() => {
     const params = new URLSearchParams();
     params.set('date', dateFilter);
-    fetchApi(`/api/merchants/${merchantId}/orders?${params}`).then(setOrders);
+    return fetchApi(`/api/merchants/${merchantId}/orders?${params}`).then(setOrders);
   }, [merchantId, dateFilter]);
+
+  useEffect(() => { loadOrders(); }, [loadOrders]);
+
+  const highlightOrder = useCallback((orderId: number) => {
+    setHighlightedIds((prev) => new Set(prev).add(orderId));
+    const existing = highlightTimers.current.get(orderId);
+    if (existing) clearTimeout(existing);
+    const timer = setTimeout(() => {
+      setHighlightedIds((prev) => {
+        const next = new Set(prev);
+        next.delete(orderId);
+        return next;
+      });
+      highlightTimers.current.delete(orderId);
+    }, 5000);
+    highlightTimers.current.set(orderId, timer);
+  }, []);
+
+  useEffect(() => () => {
+    highlightTimers.current.forEach((timer) => clearTimeout(timer));
+  }, []);
+
+  const handleStreamEvent = useCallback((event: OrderStreamPayload) => {
+    if (event.type === 'order_created') {
+      highlightOrder(event.orderId);
+    }
+    loadOrders();
+  }, [highlightOrder, loadOrders]);
+
+  const { connectionStatus } = useMerchantOrderStream(merchantId, handleStreamEvent);
 
   const orderList = orders ? Object.values(orders) as any[] : [];
 
@@ -176,6 +211,7 @@ function OrdersListPage({ merchantId, merchantName, merchantUuid, onSelectOrder,
           <a href={`/merchant-dashboard/${merchantUuid}/online-menus`}>{t('merchant.menus')}</a>
           <a href={`/merchant-dashboard/${merchantUuid}/menuitems`}>{t('merchant.menu')}</a>
           <a href={`/merchant-dashboard/${merchantUuid}/settings`}>{t('merchant.settings')}</a>
+          <ConnectionIndicator status={connectionStatus} t={t} />
           <span className="OrdersGrid__count">{filteredOrders.length}</span>
         </div>
       </div>
@@ -227,6 +263,8 @@ function OrdersListPage({ merchantId, merchantName, merchantUuid, onSelectOrder,
                 <OrderCard
                   key={order.orderId}
                   order={order}
+                  highlighted={highlightedIds.has(order.orderId)}
+                  elapsedTick={elapsedTick}
                   onClick={() => onSelectOrder(order.orderId)}
                   t={t}
                 />
@@ -239,6 +277,8 @@ function OrdersListPage({ merchantId, merchantName, merchantUuid, onSelectOrder,
                   <OrderCard
                     key={order.orderId}
                     order={order}
+                    highlighted={highlightedIds.has(order.orderId)}
+                    elapsedTick={elapsedTick}
                     onClick={() => onSelectOrder(order.orderId)}
                     t={t}
                   />
@@ -252,6 +292,8 @@ function OrdersListPage({ merchantId, merchantName, merchantUuid, onSelectOrder,
               <OrderCard
                 key={order.orderId}
                 order={order}
+                highlighted={highlightedIds.has(order.orderId)}
+                elapsedTick={elapsedTick}
                 onClick={() => onSelectOrder(order.orderId)}
                 t={t}
               />
@@ -265,9 +307,9 @@ function OrdersListPage({ merchantId, merchantName, merchantUuid, onSelectOrder,
 
 // ─── Order Card (memoized for scroll perf on low-end devices) ───
 
-const OrderCard = React.memo(function OrderCard({ order, onClick, t }: { order: any; onClick: () => void; t: (key: string) => string }) {
+const OrderCard = React.memo(function OrderCard({ order, highlighted, elapsedTick, onClick, t }: { order: any; highlighted?: boolean; elapsedTick?: number; onClick: () => void; t: (key: string) => string }) {
   const status: OrderStatus = order.status;
-  const elapsed = getElapsed(order.createdAt, t);
+  const elapsed = getElapsed(order.createdAt, t, elapsedTick);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' || e.key === ' ') {
@@ -278,7 +320,7 @@ const OrderCard = React.memo(function OrderCard({ order, onClick, t }: { order: 
 
   return (
     <div
-      className={`OrderCard OrderCard--${status}`}
+      className={`OrderCard OrderCard--${status}${highlighted ? ' OrderCard--highlight' : ''}`}
       onClick={onClick}
       onKeyDown={handleKeyDown}
       role="button"
@@ -327,6 +369,14 @@ function OrderDetailPage({ merchantId, orderId, onBack, t }: { merchantId: numbe
   }, [merchantId, orderId]);
 
   useEffect(() => { loadOrder(); }, [loadOrder]);
+
+  const handleStreamEvent = useCallback((event: OrderStreamPayload) => {
+    if (event.orderId === orderId) {
+      loadOrder();
+    }
+  }, [orderId, loadOrder]);
+
+  const { connectionStatus } = useMerchantOrderStream(merchantId, handleStreamEvent);
 
   const handleAdvance = useCallback(async () => {
     if (!order || loading) return;
@@ -379,6 +429,7 @@ function OrderDetailPage({ merchantId, orderId, onBack, t }: { merchantId: numbe
         <button className="OrderDetail__back" onClick={onBack}>
           {t('merchant.backToOrders')}
         </button>
+        <ConnectionIndicator status={connectionStatus} t={t} />
         <LangSwitcher />
       </div>
 
@@ -528,7 +579,22 @@ function ReasonModal({ onSubmit, onClose, t }: {
 
 // ─── Helpers ───
 
-function getElapsed(createdAt: string, t: (key: string) => string): string {
+function ConnectionIndicator({ status, t }: { status: ConnectionStatus; t: (key: string) => string }) {
+  const label = status === 'live'
+    ? t('merchant.live')
+    : status === 'connecting'
+      ? t('merchant.connecting')
+      : t('merchant.reconnecting');
+
+  return (
+    <span className={`ConnectionIndicator ConnectionIndicator--${status}`} title={label}>
+      <span className="ConnectionIndicator__dot" aria-hidden="true" />
+      <span className="ConnectionIndicator__label">{label}</span>
+    </span>
+  );
+}
+
+function getElapsed(createdAt: string, t: (key: string) => string, _tick?: number): string {
   if (!createdAt) return '';
   const diff = Date.now() - new Date(createdAt).getTime();
   const mins = Math.floor(diff / 60000);

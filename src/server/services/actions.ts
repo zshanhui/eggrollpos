@@ -6,6 +6,7 @@ import MenuItems from '../models/menu_items';
 import Receipts from '../models/receipts';
 import { Status } from '../../shared/orders';
 import type { OrderType } from '../../shared/orders';
+import { publishOrderEvent } from './order_events';
 
 interface CreateOrderItem {
   menuItemId: number;
@@ -163,6 +164,12 @@ export async function createOrder({ merchantId, customerName, customerPhone, ord
       await LineItems.addModifiers(lineItemId, item.modifierIds);
     }
   }
+
+  publishOrderEvent({
+    type: 'order_created',
+    orderId: order.id,
+    merchantId: merchant.id,
+  });
 
   return { orderUuid, orderId: order.id };
 }
