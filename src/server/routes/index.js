@@ -5,7 +5,7 @@ var router = express.Router();
 router.get('/{*splat}', function(req, res, next) {
   res.render('index', {
     currentUser: null,
-    pageTitle: 'SequelCommerce Node.js Demo',
+    pageTitle: 'eggroll pos demo',
     pageDescription: 'Description...',
     serverData: {
       foo: 'bar',
