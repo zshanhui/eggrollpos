@@ -11,5 +11,8 @@ if [ "${SKIP_SEED}" != "1" ]; then
   node scripts/seed-if-empty.js
 fi
 
+echo "[entrypoint] Syncing PostgreSQL sequences..."
+node scripts/reset-pg-sequences.js
+
 echo "[entrypoint] Starting eggroll-pos on port ${PORT:-3000}..."
 exec npx tsx ./bin/www

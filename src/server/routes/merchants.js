@@ -212,26 +212,34 @@ function normalizeMenuItemBody(body) {
 }
 
 router.post('/:merchantId/menu-items', async (req, res) => {
-    const merchantId = parseInt(req.params.merchantId, 10);
-    if (isNaN(merchantId)) return res.status(400).json({ error: 'Invalid merchant ID' });
-    const { name, description, priceCents, isActive, sortOrder, modifierIds } = normalizeMenuItemBody(req.body);
-    const price = priceCents ?? req.body?.price_cents;
-    if (!name || price === undefined) {
-        return res.status(400).json({ error: 'name and priceCents (or price_cents) are required' });
+    try {
+        const merchantId = parseInt(req.params.merchantId, 10);
+        if (isNaN(merchantId)) return res.status(400).json({ error: 'Invalid merchant ID' });
+        const { name, description, priceCents, isActive, sortOrder, modifierIds } = normalizeMenuItemBody(req.body);
+        const price = priceCents ?? req.body?.price_cents;
+        if (!name || price === undefined) {
+            return res.status(400).json({ error: 'name and priceCents (or price_cents) are required' });
+        }
+        const item = await MenuItems.create({
+            merchantId,
+            name,
+            description,
+            priceCents: price,
+            isActive,
+            sortOrder,
+        });
+        if (!item || item.id == null) {
+            return res.status(500).json({ error: 'Failed to create menu item' });
+        }
+        if (modifierIds && modifierIds.length > 0) {
+            await Modifiers.setModifiersForMenuItem(item.id, modifierIds);
+        }
+        const modifiers = await Modifiers.getModifiersForMenuItem(item.id);
+        res.status(201).json({ menuItem: { ...item, modifiers } });
+    } catch (err) {
+        console.error('POST menu-items failed:', err);
+        res.status(500).json({ error: err.message || 'Failed to create menu item' });
     }
-    const item = await MenuItems.create({
-        merchantId,
-        name,
-        description,
-        priceCents: price,
-        isActive,
-        sortOrder,
-    });
-    if (modifierIds && modifierIds.length > 0) {
-        await Modifiers.setModifiersForMenuItem(item.id, modifierIds);
-    }
-    const modifiers = await Modifiers.getModifiersForMenuItem(item.id);
-    res.status(201).json({ menuItem: { ...item, modifiers } });
 });
 
 router.get('/:merchantId/menu-items/:menuItemId', async (req, res) => {
