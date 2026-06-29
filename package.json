@@ -25,6 +25,7 @@
     "db:reset": "knex migrate:rollback --all --knexfile db/knexfile.js && knex migrate:latest --knexfile db/knexfile.js && knex seed:run --knexfile db/knexfile.js",
     "smoke:staging": "SMOKE_WAIT_SECONDS=120 node scripts/smoke-test-deploy.js",
     "smoke:deploy": "SMOKE_WAIT_SECONDS=120 node scripts/smoke-test-deploy.js",
+    "order:staging": "node scripts/add-staging-order.js",
     "version:bump": "node scripts/bump-deploy-version.js"
   },
   "engines": {
