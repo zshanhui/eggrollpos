@@ -111,6 +111,16 @@ Staging uses the same auto-seed on first deploy as Railway. After seeding, demo 
 
 Set `STAGING_MERCHANT_KEY` and `STAGING_MENU_SLUG` in `.env.staging.example` for full smoke test coverage.
 
+### Pull request merge policy (Cloud Agent)
+
+**Auto-merge only PRs from the current session** — the branch you just created for the task at hand.
+
+- When the user asks to merge/deploy, merge **that PR only** (`gh pr ready <n> && gh pr merge <n> --merge --delete-branch`).
+- **Do not** batch-merge other open/stale PRs unless the user explicitly lists them by number.
+- If a PR has merge conflicts, stop and report — do not force-merge or revert other work to land it.
+- After merge, push is enough for Railway auto-deploy; run `pnpm run smoke:staging` when the user asks to redeploy.
+- If the user says to abort previous merges, revert only the commits they mean — confirm which PR numbers if unclear.
+
 ### Optional integrations
 
 The contact form currently logs submissions to stdout; a database-backed admin UI is planned.
