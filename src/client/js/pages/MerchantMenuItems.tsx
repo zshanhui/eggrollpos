@@ -29,7 +29,6 @@ import {
   uploadMenuItemImage,
   validateMenuItemImageFile,
 } from '../lib/menuItemImageUpload';
-import '../../css/pages/MerchantMenuItems.css';
 
 export default function MerchantMenuItems(props: any) {
   const { t } = useTranslation();
@@ -149,48 +148,42 @@ function MenuItemsList({
   const rowMarkup = menuItems.map((item: any, index: number) => (
     <IndexTable.Row id={String(item.id)} key={item.id} position={index}>
       <IndexTable.Cell>
-        <div className="MenuItemsList__thumb">
+        <div style={{ width: 40, height: 40, borderRadius: 8, overflow: 'hidden', background: '#f1f2f3' }}>
           {item.image_url ? (
             <img
               src={item.image_url}
               alt=""
-              className="MenuItemsList__thumbImg"
+              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
             />
           ) : (
-            <div className="MenuItemsList__thumbPlaceholder">—</div>
+            <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#8c9196', fontSize: 12 }}>
+              —
+            </div>
           )}
         </div>
       </IndexTable.Cell>
       <IndexTable.Cell>
         <Text variant="bodyMd" fontWeight="semibold" as="span">
-          <span className="MenuItemsList__name">{item.name}</span>
+          {item.name}
         </Text>
       </IndexTable.Cell>
       <IndexTable.Cell>
-        <p className="MenuItemsList__description">{item.description || '—'}</p>
+        {(item.description || '').slice(0, 50)}
+        {(item.description || '').length > 50 ? '…' : ''}
       </IndexTable.Cell>
+      <IndexTable.Cell>${((item.price_cents || 0) / 100).toFixed(2)}</IndexTable.Cell>
       <IndexTable.Cell>
-        <span className="MenuItemsList__price">${((item.price_cents || 0) / 100).toFixed(2)}</span>
-      </IndexTable.Cell>
-      <IndexTable.Cell>
-        <p className="MenuItemsList__modifiers">
-          {item.modifiers?.length ? item.modifiers.map((m: any) => m.name).join(', ') : '—'}
-        </p>
+        {item.modifiers?.length ? item.modifiers.map((m: any) => m.name).join(', ') : '—'}
       </IndexTable.Cell>
       <IndexTable.Cell>{item.is_active !== false ? t('common.yes') : t('common.no')}</IndexTable.Cell>
       <IndexTable.Cell>
-        <div className="MenuItemsList__actions">
-          <Button
-            plain
-            size="slim"
-            onClick={() => history.push(merchantDashboardPath(merchantHashId, `menuitems/${item.id}/edit`))}
-          >
-            {t('common.edit')}
-          </Button>
-          <Button plain size="slim" destructive onClick={() => handleDelete(item.id)}>
-            {t('common.delete')}
-          </Button>
-        </div>
+        <Button plain onClick={() => history.push(merchantDashboardPath(merchantHashId, `menuitems/${item.id}/edit`))}>
+          {t('common.edit')}
+        </Button>
+        {' · '}
+        <Button plain destructive onClick={() => handleDelete(item.id)}>
+          {t('common.delete')}
+        </Button>
       </IndexTable.Cell>
     </IndexTable.Row>
   ));
@@ -214,7 +207,6 @@ function MenuItemsList({
         )}
 
         <Layout.Section>
-          <div className="MenuItemsList">
           {menuItems.length === 0 ? (
             <Card sectioned>
               <EmptyState
@@ -226,7 +218,6 @@ function MenuItemsList({
           ) : (
             <Card>
               <IndexTable
-                condensed
                 resourceName={{ singular: 'menu item', plural: 'menu items' }}
                 itemCount={menuItems.length}
                 headings={[
@@ -244,7 +235,6 @@ function MenuItemsList({
               </IndexTable>
             </Card>
           )}
-          </div>
         </Layout.Section>
       </Layout>
 
