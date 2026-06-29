@@ -1,0 +1,17 @@
+---
+description: Run post-deploy smoke tests against Railway staging after every deploy
+globs:
+alwaysApply: false
+---
+
+# Post-deploy smoke test (Railway staging)
+
+After every deploy to staging or when the user mentions Railway/production issues:
+
+1. Run `pnpm run smoke:staging` against https://eggrollpos-staging.up.railway.app/
+2. If merchant/menu checks are skipped, ask for or use Railway env vars `STAGING_MERCHANT_KEY` and `STAGING_MENU_SLUG` from the staging database.
+3. Treat **JS bundle returning text/html** as a production asset-path regression (see `src/server/lib/viteAssets.js`).
+4. Do not assume seed routes (`mc_m4zun00d`, `instep-cafe-...`) exist on staging unless seeds were run.
+5. Summarize failures with the failing URL and HTTP status/content-type.
+
+Skill details: `.cursor/skills/post-deploy-smoke-test/SKILL.md`

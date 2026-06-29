@@ -70,6 +70,28 @@ Webhook endpoint (mounted when `WHATSAPP_VERIFY_TOKEN` or `WHATSAPP_ENABLED` is 
 
 Copy `.env.example` for variable names. Local testing requires an HTTPS tunnel (ngrok, Cloudflare) pointing at port 3000. See `docs/whatsapp-integration.md`.
 
+### Post-deploy smoke test (Railway staging)
+
+After every deploy to **https://eggrollpos-staging.up.railway.app/**, run:
+
+```bash
+pnpm run smoke:staging
+```
+
+Optional env for full route coverage (see `.env.staging.example`):
+
+```bash
+STAGING_MERCHANT_KEY=mc_... STAGING_MENU_SLUG=... pnpm run smoke:staging
+```
+
+The script checks `/health`, SPA pages (`/`, `/about`), Vite JS bundle MIME types, and (when env is set) merchant dashboard, online ordering, and receipt routes. Do not mark a deploy complete if smoke tests fail.
+
+- Script: `scripts/smoke-test-deploy.js`
+- Cursor skill: `.cursor/skills/post-deploy-smoke-test/SKILL.md`
+- Cursor rule: `.cursor/rules/post-deploy-smoke-test.mdc`
+
+Staging DB merchants come from `pnpm run create-merchant` — local seed UUIDs/slugs may not exist on Railway.
+
 ### Optional integrations
 
 The contact form currently logs submissions to stdout; a database-backed admin UI is planned.
