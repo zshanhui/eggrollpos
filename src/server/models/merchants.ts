@@ -41,6 +41,24 @@ class Merchants {
       .first();
   }
 
+  /** Resolve merchant by hash_id, uuid, or numeric id string. */
+  static async resolveFromParam(param: string): Promise<MerchantRow | undefined> {
+    if (!param) return undefined;
+
+    const byHash = await this.getByHashId(param);
+    if (byHash) return byHash;
+
+    const byUuid = await this.getByUuid(param);
+    if (byUuid) return byUuid;
+
+    const numericId = parseInt(param, 10);
+    if (!Number.isNaN(numericId) && String(numericId) === param) {
+      return this.get(numericId);
+    }
+
+    return undefined;
+  }
+
   /**
    * Create merchant. For admin use only — do NOT expose via API or UI.
    * Use: pnpm run create-merchant "Business Name"
