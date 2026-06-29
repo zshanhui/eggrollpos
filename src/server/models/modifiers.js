@@ -57,15 +57,29 @@ class Modifiers {
       .orderBy('modifiers.name', 'asc');
   }
 
-  static async setModifiersForMenuItem(menuItemId, modifierIds) {
-    await JunctionT().where('menu_item_id', menuItemId).del();
+  static async setModifiersForMenuItem(menuItemId, modifierIds, trx) {
+    const junction = trx ? trx('menu_item_modifiers') : JunctionT();
+    await junction.where('menu_item_id', menuItemId).del();
     if (modifierIds && modifierIds.length > 0) {
-      await JunctionT().insert(
+      await junction.insert(
         modifierIds.map((modifierId) => ({
           menu_item_id: menuItemId,
           modifier_id: modifierId,
         }))
       );
+    }
+  }
+
+  static async validateForMerchant(merchantId, modifierIds, trx) {
+    if (!modifierIds || modifierIds.length === 0) return;
+    const table = trx ? trx('modifiers') : T();
+    const rows = await table
+      .where('merchant_id', merchantId)
+      .whereIn('id', modifierIds);
+    if (rows.length !== modifierIds.length) {
+      const err = new Error('One or more modifiers are invalid for this merchant');
+      err.status = 400;
+      throw err;
     }
   }
 }
