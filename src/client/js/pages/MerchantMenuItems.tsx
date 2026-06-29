@@ -25,6 +25,7 @@ import MerchantPolarisProvider from '../components/MerchantPolarisProvider';
 import { useMerchantHashRoute } from '../hooks/useMerchantHashRoute';
 import { deleteApi, fetchApi, postApi, putApi } from '../lib/merchantApi';
 import {
+  menuItemImageErrorMessage,
   removeMenuItemImage,
   uploadMenuItemImage,
   validateMenuItemImageFile,
@@ -544,7 +545,11 @@ function MenuItemForm({
       }
 
       if (imageFile) {
-        await uploadMenuItemImage(merchant.id, savedMenuItemId, imageFile);
+        try {
+          await uploadMenuItemImage(merchant.id, savedMenuItemId, imageFile);
+        } catch (imageErr) {
+          throw new Error(menuItemImageErrorMessage(imageErr));
+        }
       }
 
       onSuccess();
