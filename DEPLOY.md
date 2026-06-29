@@ -50,7 +50,9 @@ Persisted Postgres data lives in the `pgdata` Docker volume.
 |----------|----------|---------|-------------|
 | `NODE_ENV` | yes | — | Set to `production` |
 | `PORT` | no | `3000` | HTTP port (cloud platforms inject this) |
-| `DATABASE_URL` | yes | — | Postgres connection string |
+| `DATABASE_URL` | yes | — | Postgres connection string (Neon, Supabase, Railway Postgres, etc.) |
+| `DATABASE_SSL` | no | auto | Set to `true` to force SSL; `false` to disable. Auto-enabled for Neon/Supabase URLs and `sslmode=require`. |
+| `PUBLIC_BASE_URL` | recommended | — | Public app URL for dashboard links and WhatsApp templates |
 | `SKIP_MIGRATIONS` | no | — | Set to `1` to skip auto-migrate on start (use with a separate release/migrate step) |
 
 **Production `DATABASE_URL` format:**
@@ -60,6 +62,13 @@ postgres://USER:PASSWORD@HOST:5432/eggrollpos
 ```
 
 Do **not** run seed commands in production (`pnpm run db:seed`). Seeds are for local development only.
+
+### Neon or Supabase
+
+1. Create a PostgreSQL database in [Neon](https://neon.tech) or [Supabase](https://supabase.com).
+2. Copy the **connection string** (pooler URL is fine for this app).
+3. Set `DATABASE_URL` on Railway to that value. SSL is enabled automatically for Neon/Supabase hosts.
+4. Optional: set `PUBLIC_BASE_URL` to your Railway app URL after the first deploy.
 
 ---
 

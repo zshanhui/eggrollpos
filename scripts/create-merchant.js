@@ -8,14 +8,16 @@
  *   pnpm run create-merchant "Business Name" [options]
  *
  * Options (env or flags):
- *   --address "123 Main St, City, ST"
+ *   --address "123 Main St"
  *   --postal-code 94105
+ *   --city "San Francisco"
+ *   --state CA
  *   --description "Coffee and breakfast"
  *   --type cafe|restaurant|fast_casual|etc
  *
  * Examples:
  *   pnpm run create-merchant "Joe's Coffee"
- *   pnpm run create-merchant "Mama's Kitchen" --address "100 Oak Ave" --type restaurant
+ *   pnpm run create-merchant "Mama's Kitchen" --address "100 Oak Ave" --city "Austin" --state TX --type restaurant
  */
 
 require('dotenv').config();
@@ -30,13 +32,25 @@ const config = knexfile[env] || knexfile.development;
 
 function parseArgs() {
   const args = process.argv.slice(2);
-  const result = { businessName: null, address: '', postalCode: '', description: '', type: '' };
+  const result = {
+    businessName: null,
+    addressStreet: '',
+    postalCode: '',
+    city: '',
+    state: '',
+    description: '',
+    type: '',
+  };
 
   for (let i = 0; i < args.length; i++) {
     if (args[i] === '--address' && args[i + 1]) {
-      result.address = args[++i];
+      result.addressStreet = args[++i];
     } else if ((args[i] === '--postal-code' || args[i] === '-z') && args[i + 1]) {
       result.postalCode = args[++i];
+    } else if (args[i] === '--city' && args[i + 1]) {
+      result.city = args[++i];
+    } else if (args[i] === '--state' && args[i + 1]) {
+      result.state = args[++i];
     } else if (args[i] === '--description' && args[i + 1]) {
       result.description = args[++i];
     } else if (args[i] === '--type' && args[i + 1]) {
@@ -49,13 +63,20 @@ function parseArgs() {
   return result;
 }
 
+function dashboardUrl(hashId) {
+  const base = (process.env.PUBLIC_BASE_URL || 'http://localhost:3001').replace(/\/$/, '');
+  return `${base}/merchant-dashboard/${hashId}`;
+}
+
 async function main() {
-  const { businessName, address, postalCode, description, type } = parseArgs();
+  const { businessName, addressStreet, postalCode, city, state, description, type } = parseArgs();
 
   if (!businessName || !businessName.trim()) {
     console.error('Error: business_name is required');
     console.error('');
-    console.error('Usage: pnpm run create-merchant "Business Name" [--address "addr"] [--postal-code 94105] [--description "desc"] [--type cafe]');
+    console.error(
+      'Usage: pnpm run create-merchant "Business Name" [--address "addr"] [--postal-code 94105] [--city "City"] [--state ST] [--description "desc"] [--type cafe]'
+    );
     process.exit(1);
   }
 
@@ -66,10 +87,12 @@ async function main() {
     const hash_id = 'mc_' + crypto.randomBytes(6).toString('base64url');
     await db('merchants').insert({
       business_name: businessName.trim(),
-      address: address || null,
-      postal_code: postalCode || null,
-      description: description || null,
-      type: type || null,
+      address_street: addressStreet.trim() || null,
+      address_postal_code: postalCode.trim() || null,
+      address_city: city.trim() || null,
+      address_state: state.trim() || null,
+      description: description.trim() || null,
+      type: type.trim() || null,
       uuid,
       hash_id,
     });
@@ -87,8 +110,7 @@ async function main() {
     console.log('  Code:          ', row.hash_id);
     console.log('  Business Name: ', row.business_name);
     console.log('');
-    console.log('  Dashboard URL: /merchant-dashboard/' + row.hash_id);
-    console.log('  (e.g. http://localhost:3001/merchant-dashboard/' + row.hash_id + ')');
+    console.log('  Dashboard URL: ' + dashboardUrl(row.hash_id));
   } catch (err) {
     console.error('Error:', err.message);
     process.exit(1);
