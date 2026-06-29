@@ -9,21 +9,20 @@
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
 
-  <!-- Bootstrap styles -->
-  <!--<link rel="stylesheet"-->
-  <!--  href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">-->
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
     integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 
-  <% if (process.env.NODE_ENV==='development' ) { %>
+  <% if (process.env.NODE_ENV === 'development') { %>
     <link rel="stylesheet" href="http://localhost:3001/src/client/css/pages/Menus.css" />
     <link rel="stylesheet" href="http://localhost:3001/src/client/css/pages/MerchantRoutes.css" />
     <link rel="stylesheet" href="http://localhost:3001/src/client/css/Spinner.css" />
-    <% } else { %>
-      <link rel="stylesheet" href="/dist/assets/index.css" />
-      <% } %>
+  <% } else if (viteAssets && viteAssets.css) { %>
+    <% viteAssets.css.forEach(function (href) { %>
+      <link rel="stylesheet" href="<%= href %>" />
+    <% }); %>
+  <% } %>
 
-        <title><%- pageTitle %></title>
+  <title><%- pageTitle %></title>
 </head>
 
 <body>
@@ -32,15 +31,13 @@
   </noscript>
   <div id="app-root"></div>
 
-  <!-- Server-provided variables -->
-  <script>window.__VARS__ = <% - JSON.stringify({ serverData }) %></script>
+  <script>window.__VARS__ = <%- JSON.stringify({ serverData }) %></script>
 
-  <% if (process.env.NODE_ENV==='development' ) { %>
-    <script type="module" src="http://localhost:3001/src/client/js/index.jsx"></script>
-    <% } else { %>
-      <script type="module" src="/dist/assets/index.js"></script>
-      <% } %>
-        <!-- <script src="https://checkout.stripe.com/checkout.js"></script> -->
+  <% if (process.env.NODE_ENV === 'development') { %>
+    <script type="module" src="http://localhost:3001/src/client/js/index.tsx"></script>
+  <% } else if (viteAssets && viteAssets.js) { %>
+    <script type="module" src="<%= viteAssets.js %>"></script>
+  <% } %>
 </body>
 
 </html>
