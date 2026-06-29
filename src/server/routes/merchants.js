@@ -6,7 +6,6 @@ const Orders = require('../models/orders').default;
 const Merchants = require('../models/merchants').default;
 const MenuItems = require('../models/menu_items');
 const Modifiers = require('../models/modifiers');
-const db = require('../models/db');
 const {getNextStatus, canCancel, canRefund, Status} = require('../../shared/orders');
 const { adminRouter: menusRouter } = require('./menus');
 const { categoriesRouter } = require('./menu_categories');
@@ -230,37 +229,25 @@ router.post('/:merchantId/menu-items', async (req, res) => {
         if (!name || price === undefined) {
             return res.status(400).json({ error: 'name and priceCents (or price_cents) are required' });
         }
-        const normalizedModifierIds = Array.isArray(modifierIds)
-            ? modifierIds.map((id) => parseInt(id, 10)).filter((id) => !isNaN(id))
-            : [];
-
-        const item = await db.transaction(async (trx) => {
-            await Modifiers.validateForMerchant(merchantId, normalizedModifierIds, trx);
-            const created = await MenuItems.create({
-                merchantId,
-                name,
-                description,
-                priceCents: price,
-                isActive,
-                sortOrder,
-            }, trx);
-            if (!created || created.id == null) {
-                const err = new Error('Failed to create menu item');
-                err.status = 500;
-                throw err;
-            }
-            if (normalizedModifierIds.length > 0) {
-                await Modifiers.setModifiersForMenuItem(created.id, normalizedModifierIds, trx);
-            }
-            return created;
+        const item = await MenuItems.create({
+            merchantId,
+            name,
+            description,
+            priceCents: price,
+            isActive,
+            sortOrder,
         });
-
+        if (!item || item.id == null) {
+            return res.status(500).json({ error: 'Failed to create menu item' });
+        }
+        if (modifierIds && modifierIds.length > 0) {
+            await Modifiers.setModifiersForMenuItem(item.id, modifierIds);
+        }
         const modifiers = await Modifiers.getModifiersForMenuItem(item.id);
         res.status(201).json({ menuItem: formatMenuItemResponse(item, modifiers) });
     } catch (err) {
         console.error('POST menu-items failed:', err);
-        const status = err.status || 500;
-        res.status(status).json({ error: err.message || 'Failed to create menu item' });
+        res.status(500).json({ error: err.message || 'Failed to create menu item' });
     }
 });
 

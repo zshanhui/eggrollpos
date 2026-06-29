@@ -1,6 +1,5 @@
 const db = require('./db');
 const { extractReturningRow } = require('../db/insert-id');
-const { isDuplicateKeyError, syncPgSequence } = require('../db/pg-sequence');
 
 const T = () => db('menu_items');
 
@@ -20,36 +19,24 @@ class MenuItem {
     return T().select().where('id', id).first();
   }
 
-  static async create(params, trx) {
+  static async create(params) {
     const merchantId = params.merchantId ?? params.merchant_id;
     const name = params.name;
     const description = params.description ?? '';
     const priceCents = params.priceCents ?? params.price_cents;
     const isActive = params.isActive ?? params.is_active ?? true;
     const sortOrder = params.sortOrder ?? params.sort_order ?? 0;
-    const table = trx ? trx('menu_items') : T();
-
-    const insert = () =>
-      table
-        .insert({
-          merchant_id: merchantId,
-          name,
-          description,
-          price_cents: priceCents,
-          is_active: isActive !== false,
-          sort_order: sortOrder,
-        })
-        .returning('*');
-
-    try {
-      return extractReturningRow(await insert());
-    } catch (err) {
-      if (!trx && isDuplicateKeyError(err)) {
-        await syncPgSequence('menu_items');
-        return extractReturningRow(await insert());
-      }
-      throw err;
-    }
+    const result = await T()
+      .insert({
+        merchant_id: merchantId,
+        name,
+        description,
+        price_cents: priceCents,
+        is_active: isActive !== false,
+        sort_order: sortOrder,
+      })
+      .returning('*');
+    return extractReturningRow(result);
   }
 
   static async update(id, params) {

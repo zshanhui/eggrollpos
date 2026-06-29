@@ -43,14 +43,6 @@ export async function uploadMenuItemImage(
   return complete.imageUrl as string;
 }
 
-export function menuItemImageErrorMessage(err: unknown): string {
-  const message = err instanceof Error ? err.message : 'Failed to upload image';
-  if (/object storage is not configured/i.test(message)) {
-    return 'Image storage is not configured on the server. The menu item was saved without a photo.';
-  }
-  return message;
-}
-
 export async function removeMenuItemImage(merchantId: number, menuItemId: number): Promise<void> {
   const res = await deleteApi(`/api/merchants/${merchantId}/menu-items/${menuItemId}/image`);
   if (!res.ok) {
