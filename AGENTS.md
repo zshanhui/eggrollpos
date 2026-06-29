@@ -78,6 +78,12 @@ After every deploy to **https://eggrollpos-staging.up.railway.app/**, run:
 pnpm run smoke:staging
 ```
 
+This waits **120 seconds** for Railway to finish deploying before running checks. Skip the wait when re-testing an already-live deploy:
+
+```bash
+SMOKE_WAIT_SECONDS=0 pnpm run smoke:staging
+```
+
 Optional env for full route coverage (see `.env.staging.example`):
 
 ```bash

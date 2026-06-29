@@ -10,12 +10,16 @@
  *   STAGING_MERCHANT_KEY   hash_id or UUID (e.g. mc_abc123)
  *   STAGING_MENU_SLUG      published menu slug
  *   STAGING_RECEIPT_UUID   order UUID for receipt page
+ *
+ * Deploy wait (Railway needs time to finish rolling out):
+ *   SMOKE_WAIT_SECONDS     seconds to wait before checks (default 0; smoke:staging sets 120)
  */
 
 const BASE_URL = (process.env.BASE_URL || 'https://eggrollpos-staging.up.railway.app').replace(/\/$/, '');
 const MERCHANT_KEY = process.env.STAGING_MERCHANT_KEY || process.env.SMOKE_MERCHANT_KEY || '';
 const MENU_SLUG = process.env.STAGING_MENU_SLUG || process.env.SMOKE_MENU_SLUG || '';
 const RECEIPT_UUID = process.env.STAGING_RECEIPT_UUID || process.env.SMOKE_RECEIPT_UUID || '';
+const WAIT_SECONDS = Math.max(0, parseInt(process.env.SMOKE_WAIT_SECONDS || '0', 10) || 0);
 
 const failures = [];
 const passes = [];
@@ -28,6 +32,21 @@ function pass(name, detail) {
 function fail(name, detail) {
   failures.push({ name, detail });
   console.error(`✗ ${name}${detail ? ` — ${detail}` : ''}`);
+}
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function waitForDeploy() {
+  if (WAIT_SECONDS <= 0) return;
+
+  console.log(`Waiting ${WAIT_SECONDS}s for Railway deploy to finish...`);
+  for (let remaining = WAIT_SECONDS; remaining > 0; remaining--) {
+    process.stdout.write(`\r  ${remaining}s remaining...`);
+    await sleep(1000);
+  }
+  process.stdout.write('\n\n');
 }
 
 async function fetchResponse(path, opts = {}) {
@@ -99,6 +118,8 @@ async function checkJsonApi(name, path, predicate) {
 
 async function main() {
   console.log(`Smoke test: ${BASE_URL}\n`);
+
+  await waitForDeploy();
 
   await checkHealth();
 

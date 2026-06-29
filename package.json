@@ -22,8 +22,8 @@
     "db:seed": "knex seed:run --knexfile db/knexfile.js",
     "db:seed:menus": "knex seed:run --specific=07_menus.js --knexfile db/knexfile.js",
     "db:reset": "knex migrate:rollback --all --knexfile db/knexfile.js && knex migrate:latest --knexfile db/knexfile.js && knex seed:run --knexfile db/knexfile.js",
-    "smoke:staging": "node scripts/smoke-test-deploy.js",
-    "smoke:deploy": "node scripts/smoke-test-deploy.js"
+    "smoke:staging": "SMOKE_WAIT_SECONDS=120 node scripts/smoke-test-deploy.js",
+    "smoke:deploy": "SMOKE_WAIT_SECONDS=120 node scripts/smoke-test-deploy.js"
   },
   "engines": {
     "node": ">=22.14.0"

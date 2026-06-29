@@ -66,11 +66,12 @@ With `STAGING_RECEIPT_UUID`:
 
 ## Agent workflow after deploy
 
-1. Wait for Railway deploy to finish (health check green).
+1. After pushing to `main`, wait **at least 120 seconds** for Railway to fully deploy (built into `pnpm run smoke:staging`).
 2. Run `pnpm run smoke:staging` with staging env vars set if available.
-3. If failures mention **HTML MIME type for JS** or **missing #app-root**, inspect `src/server/views/index.ejs` and Vite manifest wiring (`src/server/lib/viteAssets.js`).
-4. If merchant routes fail with 404, verify `STAGING_MERCHANT_KEY` matches a merchant created via `pnpm run create-merchant` on staging — seed UUIDs like `mc_m4zun00d` are **local dev only**.
-5. Report pass/fail summary to the user; do not mark deploy complete if smoke test fails.
+3. To skip the wait (e.g. re-checking an already-live deploy): `SMOKE_WAIT_SECONDS=0 pnpm run smoke:staging`
+4. If failures mention **HTML MIME type for JS** or **missing #app-root**, inspect `src/server/views/index.ejs` and Vite manifest wiring (`src/server/lib/viteAssets.js`).
+5. If merchant routes fail with 404, verify `STAGING_MERCHANT_KEY` matches a merchant created via `pnpm run create-merchant` on staging — seed UUIDs like `mc_m4zun00d` are **local dev only**.
+6. Report pass/fail summary to the user; do not mark deploy complete if smoke test fails.
 
 ## Railway env suggestion
 
