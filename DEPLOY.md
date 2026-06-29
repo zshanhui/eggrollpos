@@ -92,15 +92,15 @@ On **first deploy** (empty `merchants` table), the container entrypoint runs dev
 
 1. **Add service → Object Storage** (or attach a bucket to the app).
 2. Copy the S3-compatible variables into the app service:
-   - `S3_ENDPOINT`
-   - `S3_BUCKET`
+   - `S3_ENDPOINT` (e.g. `https://t3.storageapi.dev`)
+   - `S3_BUCKET` (the bucket name from the Credentials tab)
    - `S3_ACCESS_KEY_ID`
    - `S3_SECRET_ACCESS_KEY`
    - `S3_REGION` (often `auto`)
-3. Make the bucket **public read** for development (images are served directly to customers).
-4. Optional: set `S3_PUBLIC_URL` if the public base URL differs from `ENDPOINT/BUCKET`.
+3. **Do not** point browsers at the bucket URL directly — Railway buckets are **private** and return 403. The app serves images at **`/media/menu-items/...`** using server-side credentials.
+4. Use **virtual-hosted-style** URLs for the S3 API (default). Only set `S3_FORCE_PATH_STYLE=true` if your bucket Credentials tab says path-style is required.
 
-Upload flow: merchant add/edit form → presigned PUT to bucket → server completes upload (resize if &gt; 200 KB) → `image_url` saved on the menu item.
+Upload flow: merchant add/edit form → presigned PUT to bucket → server completes upload (resize if &gt; 200 KB) → `image_url` saved as `/media/menu-items/{hash_id}/{menu_item_id}/{uuid}.ext` → list and online ordering load images through the app proxy.
 
 ### 3. Configure the app service
 
