@@ -145,6 +145,15 @@ const iconCards = [
   },
 ];
 
+const footerStyle: React.CSSProperties = {
+  background: '#111',
+  color: 'rgba(255,255,255,0.45)',
+  padding: '20px 0',
+  textAlign: 'center',
+  fontSize: '0.8rem',
+  letterSpacing: '0.02em',
+};
+
 function scrollToContact() {
   const el = document.getElementById('contact');
   if (el) el.scrollIntoView({ behavior: 'smooth' });
@@ -152,6 +161,7 @@ function scrollToContact() {
 
 export default function HomeLanding() {
   const { t, i18n } = useTranslation();
+  const appVersion = window.__VARS__?.serverData?.appVersion;
 
   return (
     <div>
@@ -343,6 +353,10 @@ export default function HomeLanding() {
           <ContactForm />
         </Container>
       </div>
+
+      <footer style={footerStyle}>
+        eggroll pos {appVersion ? `v${appVersion}` : ''}
+      </footer>
     </div>
   );
 }

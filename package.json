@@ -1,6 +1,6 @@
 {
   "name": "sqc-nodejs-demo",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "private": true,
   "main": "src/server/index.js",
   "scripts": {
@@ -23,7 +23,8 @@
     "db:seed:menus": "knex seed:run --specific=07_menus.js --knexfile db/knexfile.js",
     "db:reset": "knex migrate:rollback --all --knexfile db/knexfile.js && knex migrate:latest --knexfile db/knexfile.js && knex seed:run --knexfile db/knexfile.js",
     "smoke:staging": "SMOKE_WAIT_SECONDS=120 node scripts/smoke-test-deploy.js",
-    "smoke:deploy": "SMOKE_WAIT_SECONDS=120 node scripts/smoke-test-deploy.js"
+    "smoke:deploy": "SMOKE_WAIT_SECONDS=120 node scripts/smoke-test-deploy.js",
+    "version:bump": "node scripts/bump-deploy-version.js"
   },
   "engines": {
     "node": ">=22.14.0"

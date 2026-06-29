@@ -72,7 +72,13 @@ Copy `.env.example` for variable names. Local testing requires an HTTPS tunnel (
 
 ### Post-deploy smoke test (Railway staging)
 
-After every deploy to **https://eggrollpos-staging.up.railway.app/**, run:
+Before pushing a new build to `main`, bump the deploy version:
+
+```bash
+pnpm run version:bump
+```
+
+This increments `package.json` version by **0.1.0** (e.g. `0.1.0` → `0.2.0`). The version appears in the home page footer. Commit the bump, push to `main`, then run smoke tests after deploy:
 
 ```bash
 pnpm run smoke:staging
