@@ -7,7 +7,7 @@ import {
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import crypto from 'crypto';
 import sharp from 'sharp';
-import { getS3Config, keyFromPublicUrl, publicUrlForKey } from '../lib/s3';
+import { getS3Config, keyFromStoredImageUrl, publicUrlForKey } from '../lib/s3';
 import MenuItems from '../models/menu_items';
 
 const MAX_BYTES = 2 * 1024 * 1024;
@@ -150,7 +150,7 @@ export async function completeMenuItemImageUpload(params: {
   }
 
   const publicUrl = publicUrlForKey(config, finalKey);
-  const oldKey = keyFromPublicUrl(config, item.image_url);
+  const oldKey = keyFromStoredImageUrl(item.image_url, config);
   if (oldKey && oldKey !== finalKey) {
     await deleteObjectKey(oldKey);
   }
@@ -169,7 +169,7 @@ export async function deleteMenuItemImage(menuItemId: number) {
     throw err;
   }
 
-  const oldKey = keyFromPublicUrl(config, item.image_url);
+  const oldKey = keyFromStoredImageUrl(item.image_url, config);
   if (oldKey) await deleteObjectKey(oldKey);
   await MenuItems.update(menuItemId, { image_url: null });
   return { ok: true };
@@ -178,7 +178,7 @@ export async function deleteMenuItemImage(menuItemId: number) {
 export async function deleteMenuItemImageByUrl(imageUrl: string | null | undefined) {
   const config = getS3Config();
   if (!config.enabled || !imageUrl) return;
-  const key = keyFromPublicUrl(config, imageUrl);
+  const key = keyFromStoredImageUrl(imageUrl, config);
   if (key) await deleteObjectKey(key);
 }
 

@@ -136,8 +136,7 @@ export async function getLineItems({ orderId }: { orderId: number }) {
 }
 
 export async function createOrder({ merchantId, customerName, customerPhone, orderType = 'pickup', items }: CreateOrderParams) {
-  const merchant = await Merchants.getByUuid(merchantId)
-    ?? await Merchants.getByHashId(merchantId);
+  const merchant = await Merchants.resolveFromParam(merchantId);
   if (!merchant) {
     throw new Error(`Merchant '${merchantId}' not found`);
   }

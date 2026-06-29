@@ -10,12 +10,14 @@ import {
   Layout,
   Page,
   Spinner,
+  Text,
   TextField,
 } from '@shopify/polaris';
 import type { MerchantRow } from '../../../shared/merchants';
 import { resolveMerchantTheme } from '../../../shared/merchants';
 import { merchantDashboardPath } from '../../../shared/merchant_dashboard';
 import MerchantAdminLayout from '../components/MerchantAdminLayout';
+import LanguageSelector from '../components/LanguageSelector';
 import MerchantPolarisProvider from '../components/MerchantPolarisProvider';
 import { useMerchantHashRoute } from '../hooks/useMerchantHashRoute';
 import { patchApi } from '../lib/merchantApi';
@@ -184,22 +186,31 @@ function SettingsForm({
               </Card>
 
               <Card title={t('merchant.appearance')} sectioned>
-                <ButtonGroup segmented>
-                  <Button
-                    pressed={theme === 'light'}
-                    onClick={() => handleThemeChange('light')}
-                    disabled={saving}
-                  >
-                    {t('merchant.themeLight')}
-                  </Button>
-                  <Button
-                    pressed={theme === 'dark'}
-                    onClick={() => handleThemeChange('dark')}
-                    disabled={saving}
-                  >
-                    {t('merchant.themeDark')}
-                  </Button>
-                </ButtonGroup>
+                <FormLayout>
+                  <Text as="p" variant="bodyMd">
+                    {t('merchant.theme')}
+                  </Text>
+                  <ButtonGroup segmented>
+                    <Button
+                      pressed={theme === 'light'}
+                      onClick={() => handleThemeChange('light')}
+                      disabled={saving}
+                    >
+                      {t('merchant.themeLight')}
+                    </Button>
+                    <Button
+                      pressed={theme === 'dark'}
+                      onClick={() => handleThemeChange('dark')}
+                      disabled={saving}
+                    >
+                      {t('merchant.themeDark')}
+                    </Button>
+                  </ButtonGroup>
+                  <Text as="p" variant="bodyMd">
+                    {t('merchant.language')}
+                  </Text>
+                  <LanguageSelector />
+                </FormLayout>
               </Card>
 
               <FormLayout.Group>

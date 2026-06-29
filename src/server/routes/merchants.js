@@ -11,6 +11,7 @@ const {getNextStatus, canCancel, canRefund, Status} = require('../../shared/orde
 const { adminRouter: menusRouter } = require('./menus');
 const { categoriesRouter } = require('./menu_categories');
 const { subscribeMerchantOrders } = require('../services/order_events');
+const { normalizeMenuItemImageUrl } = require('../lib/s3');
 const {
     createMenuItemImagePresign,
     completeMenuItemImageUpload,
@@ -185,6 +186,14 @@ router.get('/:merchantId/menu', async (req, res) => {
 
 // ─── Menu Items CRUD ───
 
+function formatMenuItemResponse(item, modifiers = []) {
+    return {
+        ...item,
+        image_url: normalizeMenuItemImageUrl(item.image_url),
+        modifiers,
+    };
+}
+
 router.get('/:merchantId/menu-items', async (req, res) => {
     const merchantId = parseInt(req.params.merchantId, 10);
     if (isNaN(merchantId)) return res.sendStatus(400);
@@ -192,7 +201,7 @@ router.get('/:merchantId/menu-items', async (req, res) => {
     const itemsWithModifiers = await Promise.all(
         items.map(async (item) => {
             const modifiers = await Modifiers.getModifiersForMenuItem(item.id);
-            return { ...item, modifiers };
+            return formatMenuItemResponse(item, modifiers);
         })
     );
     res.json({ menuItems: itemsWithModifiers });
@@ -247,7 +256,7 @@ router.post('/:merchantId/menu-items', async (req, res) => {
         });
 
         const modifiers = await Modifiers.getModifiersForMenuItem(item.id);
-        res.status(201).json({ menuItem: { ...item, modifiers } });
+        res.status(201).json({ menuItem: formatMenuItemResponse(item, modifiers) });
     } catch (err) {
         console.error('POST menu-items failed:', err);
         const status = err.status || 500;
@@ -262,7 +271,7 @@ router.get('/:merchantId/menu-items/:menuItemId', async (req, res) => {
     const item = await MenuItems.getById(menuItemId);
     if (!item || item.merchant_id !== merchantId) return res.status(404).json({ error: 'Menu item not found' });
     const modifiers = await Modifiers.getModifiersForMenuItem(menuItemId);
-    res.json({ menuItem: { ...item, modifiers } });
+    res.json({ menuItem: formatMenuItemResponse(item, modifiers) });
 });
 
 // PUT and PATCH both support partial updates (REST: PUT = replace, PATCH = partial; we accept both for flexibility)
@@ -287,7 +296,7 @@ async function updateMenuItemHandler(req, res) {
     }
     const updated = await MenuItems.getById(menuItemId);
     const modifiers = await Modifiers.getModifiersForMenuItem(menuItemId);
-    res.json({ menuItem: { ...updated, modifiers } });
+    res.json({ menuItem: formatMenuItemResponse(updated, modifiers) });
 }
 
 router.put('/:merchantId/menu-items/:menuItemId', updateMenuItemHandler);

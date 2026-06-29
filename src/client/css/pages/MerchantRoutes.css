@@ -150,9 +150,22 @@
 @media (min-width: 900px) {
   .OrdersGrid {
     display: grid;
-    grid-template-rows: auto 1fr;
+    grid-template-rows: auto auto 1fr;
     grid-template-columns: 1fr;
+    gap: 8px;
+    padding: 8px 12px 12px;
   }
+
+  .OrdersGrid__header {
+    padding: 4px 4px 0;
+  }
+
+  .OrdersGrid__filters {
+    align-self: start;
+    padding: 0 4px 4px;
+    justify-content: flex-start;
+  }
+
   .OrdersGrid__cards {
     grid-template-columns: repeat(4, 1fr);
     grid-template-rows: repeat(2, 1fr);
@@ -766,47 +779,16 @@
   font-size: 1rem;
 }
 
-/* ===== Filters: Date Row & Status Pills ===== */
+/* ===== Filters: Status Pills ===== */
 
 .OrdersGrid__filters {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   gap: 12px;
-  padding: 8px 4px 4px;
+  padding: 4px 4px 0;
   flex-shrink: 0;
-}
-
-.OrdersGrid__date-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.OrdersGrid__date-input {
-  background: #1a1a1a;
-  border: 2px solid #333;
-  border-radius: 10px;
-  color: #fff;
-  padding: 10px 14px;
-  font-size: 1rem;
-  font-weight: 600;
-  font-family: inherit;
-  min-height: 44px;
-  -webkit-appearance: none;
-}
-
-.OrdersGrid__date-input:focus {
-  outline: none;
-  border-color: #00E5FF;
-}
-
-.OrdersGrid__order-count {
-  color: #888;
-  font-size: 0.95rem;
-  font-weight: 600;
-  white-space: nowrap;
 }
 
 .OrdersGrid__filter-dropdown {
@@ -956,20 +938,14 @@
 
 /* ===== Light Theme Overrides ===== */
 
-.Merchant--theme-light .OrdersGrid__date-input,
 .Merchant--theme-light .OrdersGrid__filter-dropdown {
   background: #fff;
   border-color: #ddd;
   color: #1a1a1a;
 }
 
-.Merchant--theme-light .OrdersGrid__date-input:focus,
 .Merchant--theme-light .OrdersGrid__filter-dropdown:focus {
   border-color: #00B8D4;
-}
-
-.Merchant--theme-light .OrdersGrid__order-count {
-  color: #666;
 }
 
 .Merchant--theme-light .OrdersGrid__pill {
