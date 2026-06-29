@@ -180,8 +180,10 @@ function OrdersListPage({ merchantId, merchantName, merchantHashId, onSelectOrde
     return canceledRefunded;
   }, [statusFilter, awaitingPreparing, ready, canceledRefunded]);
 
-  const displayAwaiting = statusFilter === 'active' ? awaitingPreparing : [];
-  const displayReady = statusFilter === 'active' ? ready : [];
+  const displayActive = useMemo(() => {
+    if (statusFilter !== 'active') return [];
+    return [...awaitingPreparing, ...ready];
+  }, [statusFilter, awaitingPreparing, ready]);
 
   return (
     <div className="OrdersGrid OrdersGrid--with-header">
@@ -225,35 +227,16 @@ function OrdersListPage({ merchantId, merchantName, merchantHashId, onSelectOrde
             {orderList.length === 0 ? t('merchant.noOrders') : t('merchant.noMatchingOrders')}
           </div>
         ) : statusFilter === 'active' ? (
-          <>
-            <div className="OrdersGrid__section OrdersGrid__section--awaiting">
-              {displayAwaiting.slice(0, 15).map((order: any) => (
-                <OrderCard
-                  key={order.orderId}
-                  order={order}
-                  highlighted={highlightedIds.has(order.orderId)}
-                  elapsedTick={elapsedTick}
-                  onClick={() => onSelectOrder(order.orderId)}
-                  t={t}
-                />
-              ))}
-            </div>
-            <div className="OrdersGrid__section OrdersGrid__section--ready">
-              <div className="OrdersGrid__section-label">Ready</div>
-              <div className="OrdersGrid__ready-scroll">
-                {displayReady.map((order: any) => (
-                  <OrderCard
-                    key={order.orderId}
-                    order={order}
-                    highlighted={highlightedIds.has(order.orderId)}
-                    elapsedTick={elapsedTick}
-                    onClick={() => onSelectOrder(order.orderId)}
-                    t={t}
-                  />
-                ))}
-              </div>
-            </div>
-          </>
+          displayActive.map((order: any) => (
+            <OrderCard
+              key={order.orderId}
+              order={order}
+              highlighted={highlightedIds.has(order.orderId)}
+              elapsedTick={elapsedTick}
+              onClick={() => onSelectOrder(order.orderId)}
+              t={t}
+            />
+          ))
         ) : (
           <div className="OrdersGrid__section OrdersGrid__section--canceled">
             {canceledRefunded.map((order: any) => (
