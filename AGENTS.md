@@ -35,6 +35,8 @@ Two database options — set via `DB_CLIENT` env var:
 
 Both use the same migrations/seeds: `npx knex migrate:latest --knexfile db/knexfile.js`. Config: `db/knexfile.js`.
 
+**Seed file order** is alphabetical by filename. Categories must run after merchants — use `02z_menu_categories.js` (after `02_merchants.js`, before `03_menu_items.js`).
+
 ### Routing
 
 - The merchant dashboard route is `/md/:hashId` (e.g. `/md/mc_n1c0ffee`). `/merchant-dashboard/:hashId` is an alias. UUIDs are not accepted in URLs.

@@ -1,6 +1,6 @@
 
 exports.seed = function (knex) {
-  // Must run before 03_menu_items.js — menu_items.category_id FK references this table on PostgreSQL.
+  // Runs after 02_merchants.js, before 03_menu_items.js (Knex sorts seed files by filename).
   return knex('menu_categories').del()
     .then(() => knex('menu_categories').insert([
       // Shared categories
