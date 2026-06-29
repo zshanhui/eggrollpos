@@ -1,26 +1,22 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import LangSwitcher from '../components/LangSwitcher';
+import {
+  Banner,
+  Button,
+  ButtonGroup,
+  Card,
+  Form,
+  FormLayout,
+  Layout,
+  Page,
+  Spinner,
+  TextField,
+} from '@shopify/polaris';
 import type { MerchantRow } from '../../../shared/merchants';
 import { resolveMerchantTheme } from '../../../shared/merchants';
-import '../../css/pages/MerchantSettings.css';
-
-function fetchApi(url: string) {
-  return fetch(url, { credentials: 'same-origin' as const }).then((r) => r.json());
-}
-
-function patchApi(url: string, body: any) {
-  return fetch(url, {
-    method: 'PATCH',
-    credentials: 'same-origin' as const,
-    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-    body: JSON.stringify(body),
-  }).then(async (r) => {
-    const data = await r.json().catch(() => ({}));
-    if (!r.ok) throw new Error((data as any)?.error || 'Request failed');
-    return data;
-  });
-}
+import MerchantAdminLayout from '../components/MerchantAdminLayout';
+import MerchantPolarisProvider from '../components/MerchantPolarisProvider';
+import { fetchApi, patchApi } from '../lib/merchantApi';
 
 export default function MerchantSettings(props: any) {
   const { t } = useTranslation();
@@ -44,17 +40,21 @@ export default function MerchantSettings(props: any) {
 
   if (error) {
     return (
-      <div className="MerchantSettings MerchantSettings--error">
-        <div className="MerchantSettings__error">{error}</div>
-      </div>
+      <MerchantPolarisProvider>
+        <Page title={t('merchant.settings')}>
+          <Banner status="critical">{error}</Banner>
+        </Page>
+      </MerchantPolarisProvider>
     );
   }
 
   if (!merchant) {
     return (
-      <div className="MerchantSettings">
-        <div className="MerchantSettings__loading">{t('common.loading')}</div>
-      </div>
+      <MerchantPolarisProvider>
+        <Page title={t('merchant.settings')}>
+          <Spinner accessibilityLabel={t('common.loading')} size="large" />
+        </Page>
+      </MerchantPolarisProvider>
     );
   }
 
@@ -109,7 +109,7 @@ function SettingsForm({
     try {
       const data = await patchApi(`/api/merchants/${merchant.id}`, { theme: newTheme });
       onSave(data.merchant);
-    } catch (err) {
+    } catch {
       setSaveError(t('merchant.settingsSaveFailed'));
       setTheme(theme);
     } finally {
@@ -117,8 +117,7 @@ function SettingsForm({
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
     if (!businessName.trim()) {
       setSaveError(t('merchant.businessNameRequired'));
       return;
@@ -133,121 +132,97 @@ function SettingsForm({
         addressStreet: addressStreet.trim() || null,
       });
       onSave(data.merchant);
-    } catch (err) {
+    } catch {
       setSaveError(t('merchant.settingsSaveFailed'));
     } finally {
       setSaving(false);
     }
   };
 
-  const themeValue = resolveMerchantTheme(merchant.theme);
-
   return (
-    <div className={`MerchantSettings MerchantSettings--theme-${themeValue}`}>
-      <header className="MerchantSettings__header">
-        <button type="button" className="MerchantSettings__back" onClick={onBack}>
-          {t('merchant.backToOrders')}
-        </button>
-        <h1 className="MerchantSettings__title">
-          {t('merchant.settings')} <LangSwitcher />
-        </h1>
-        <div className="MerchantSettings__nav">
-          <a href={`/merchant-dashboard/${merchantUuid}/online-menus`}>{t('merchant.menus')}</a>
-          <a href={`/merchant-dashboard/${merchantUuid}/menuitems`}>{t('merchant.menu')}</a>
-        </div>
-      </header>
+    <MerchantAdminLayout
+      merchantUuid={merchantUuid}
+      title={t('merchant.settings')}
+      backLabel={t('merchant.backToOrders')}
+      onBack={onBack}
+    >
+      <Layout>
+        {saveError && (
+          <Layout.Section>
+            <Banner status="critical" onDismiss={() => setSaveError(null)}>
+              {saveError}
+            </Banner>
+          </Layout.Section>
+        )}
 
-      <form className="MerchantSettings__form" onSubmit={handleSubmit}>
-        {saveError && <div className="MerchantSettings__error">{saveError}</div>}
+        <Layout.Section>
+          <Form onSubmit={handleSubmit}>
+            <FormLayout>
+              <Card title={t('merchant.businessInfo')} sectioned>
+                <FormLayout>
+                  <TextField
+                    label={t('merchant.businessName')}
+                    value={businessName}
+                    onChange={setBusinessName}
+                    autoComplete="organization"
+                    placeholder={t('merchant.businessNamePlaceholder')}
+                    requiredIndicator
+                  />
+                  <TextField
+                    label={t('merchant.taxId')}
+                    value={taxId}
+                    onChange={setTaxId}
+                    autoComplete="off"
+                    placeholder={t('merchant.taxIdPlaceholder')}
+                  />
+                  <TextField
+                    label={t('merchant.whatsappNumber')}
+                    value={whatsappNumber}
+                    onChange={setWhatsappNumber}
+                    type="tel"
+                    autoComplete="tel"
+                    placeholder={t('merchant.whatsappNumberPlaceholder')}
+                  />
+                  <TextField
+                    label={t('merchant.businessAddress')}
+                    value={addressStreet}
+                    onChange={setAddressStreet}
+                    multiline={3}
+                    autoComplete="street-address"
+                    placeholder={t('merchant.businessAddressPlaceholder')}
+                  />
+                </FormLayout>
+              </Card>
 
-        <section className="MerchantSettings__section">
-          <h2 className="MerchantSettings__sectionTitle">{t('merchant.businessInfo')}</h2>
+              <Card title={t('merchant.appearance')} sectioned>
+                <ButtonGroup segmented>
+                  <Button
+                    pressed={theme === 'light'}
+                    onClick={() => handleThemeChange('light')}
+                    disabled={saving}
+                  >
+                    {t('merchant.themeLight')}
+                  </Button>
+                  <Button
+                    pressed={theme === 'dark'}
+                    onClick={() => handleThemeChange('dark')}
+                    disabled={saving}
+                  >
+                    {t('merchant.themeDark')}
+                  </Button>
+                </ButtonGroup>
+              </Card>
 
-          <div className="MerchantSettings__field">
-            <label htmlFor="businessName">{t('merchant.businessName')} *</label>
-            <input
-              id="businessName"
-              type="text"
-              value={businessName}
-              onChange={(e) => setBusinessName(e.target.value)}
-              required
-              className="MerchantSettings__input"
-              placeholder={t('merchant.businessNamePlaceholder')}
-            />
-          </div>
-
-          <div className="MerchantSettings__field">
-            <label htmlFor="taxId">{t('merchant.taxId')}</label>
-            <input
-              id="taxId"
-              type="text"
-              value={taxId}
-              onChange={(e) => setTaxId(e.target.value)}
-              className="MerchantSettings__input"
-              placeholder={t('merchant.taxIdPlaceholder')}
-            />
-          </div>
-
-          <div className="MerchantSettings__field">
-            <label htmlFor="whatsappNumber">{t('merchant.whatsappNumber')}</label>
-            <input
-              id="whatsappNumber"
-              type="tel"
-              value={whatsappNumber}
-              onChange={(e) => setWhatsappNumber(e.target.value)}
-              className="MerchantSettings__input"
-              placeholder={t('merchant.whatsappNumberPlaceholder')}
-            />
-          </div>
-
-          <div className="MerchantSettings__field">
-            <label htmlFor="address">{t('merchant.businessAddress')}</label>
-            <textarea
-              id="address"
-              value={addressStreet}
-              onChange={(e) => setAddressStreet(e.target.value)}
-              className="MerchantSettings__input MerchantSettings__textarea"
-              rows={3}
-              placeholder={t('merchant.businessAddressPlaceholder')}
-            />
-          </div>
-        </section>
-
-        <section className="MerchantSettings__section">
-          <h2 className="MerchantSettings__sectionTitle">{t('merchant.appearance')}</h2>
-          <div className="MerchantSettings__themeToggle">
-            <button
-              type="button"
-              className={`MerchantSettings__themeBtn ${theme === 'light' ? 'MerchantSettings__themeBtn--active' : ''}`}
-              onClick={() => handleThemeChange('light')}
-              disabled={saving}
-            >
-              {t('merchant.themeLight')}
-            </button>
-            <button
-              type="button"
-              className={`MerchantSettings__themeBtn ${theme === 'dark' ? 'MerchantSettings__themeBtn--active' : ''}`}
-              onClick={() => handleThemeChange('dark')}
-              disabled={saving}
-            >
-              {t('merchant.themeDark')}
-            </button>
-          </div>
-        </section>
-
-        <div className="MerchantSettings__formActions">
-          <button type="button" className="MerchantSettings__btn MerchantSettings__btn--secondary" onClick={onBack}>
-            {t('common.cancel')}
-          </button>
-          <button
-            type="submit"
-            className="MerchantSettings__btn MerchantSettings__btn--primary"
-            disabled={saving}
-          >
-            {saving ? t('merchant.saving') : t('common.save')}
-          </button>
-        </div>
-      </form>
-    </div>
+              <FormLayout.Group>
+                <Button onClick={onBack}>{t('common.cancel')}</Button>
+                <Button primary submit loading={saving}>
+                  {saving ? t('merchant.saving') : t('common.save')}
+                </Button>
+              </FormLayout.Group>
+            </FormLayout>
+          </Form>
+        </Layout.Section>
+      </Layout>
+    </MerchantAdminLayout>
   );
 }

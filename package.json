@@ -27,6 +27,7 @@
     "node": ">=22.14.0"
   },
   "dependencies": {
+    "@shopify/polaris": "^10.50.1",
     "camelcase-keys": "^6.2.2",
     "chai": "^4.5.0",
     "cookie-parser": "~1.4.7",
