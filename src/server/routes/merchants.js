@@ -96,6 +96,10 @@ async function updateMerchantSettingsHandler(req, res) {
 router.patch('/:merchantId', updateMerchantSettingsHandler);
 router.put('/:merchantId', updateMerchantSettingsHandler);
 
+router.get('/:merchantId/authz', (req, res) => {
+    res.json({ ok: true });
+});
+
 router.post('/:merchantId/orders/stream-token', (req, res) => {
     const merchantId = parseInt(req.params.merchantId, 10);
     if (isNaN(merchantId)) return res.status(400).json({ error: 'Invalid merchant ID' });

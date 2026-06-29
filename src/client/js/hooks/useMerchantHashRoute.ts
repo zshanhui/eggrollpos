@@ -25,11 +25,15 @@ export function useMerchantHashRoute(
     setError(null);
     setMerchant(null);
     fetchApi(`/api/merchants/${hashId}`)
-      .then((data) => {
-        if (data && data.id) setMerchant(data);
-        else setError(t('merchant.notFound'));
+      .then(async (data) => {
+        if (!data || !data.id) {
+          setError(t('merchant.notFound'));
+          return;
+        }
+        await fetchApi(`/api/merchants/${data.id}/authz`);
+        setMerchant(data);
       })
-      .catch(() => setError(t('merchant.loadFailed')));
+      .catch((err) => setError(err.message || t('merchant.loadFailed')));
   }, [hashId, t]);
 
   const merchantHashId = merchant?.hash_id || (isMerchantHashId(hashId) ? hashId : '');

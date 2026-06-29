@@ -91,6 +91,15 @@ describe('merchant Supabase auth', () => {
     expect(res.body.menuItems).to.deep.equal([]);
   });
 
+  it('allows linked users to preflight merchant dashboard authorization', async () => {
+    const res = await request(app)
+      .get(`/api/merchants/${merchantId}/authz`)
+      .set('Authorization', 'Bearer token-user-1')
+      .expect(200);
+
+    expect(res.body).to.deep.equal({ ok: true });
+  });
+
   it('rejects access to merchants the user is not linked to', async () => {
     await request(app)
       .get(`/api/merchants/${otherMerchantId}/menu-items`)
