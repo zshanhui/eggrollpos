@@ -1,6 +1,6 @@
 {
   "name": "sqc-nodejs-demo",
-  "version": "0.7.5",
+  "version": "0.7.8",
   "private": true,
   "main": "src/server/index.js",
   "scripts": {
