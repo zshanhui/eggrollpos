@@ -1,7 +1,6 @@
 
 exports.seed = function (knex) {
-  // Shared categories (merchant_id = null) — available to all merchants
-  // Eastern Express categories (merchant_id = 2) — specific to EE
+  // Must run before 03_menu_items.js — menu_items.category_id FK references this table on PostgreSQL.
   return knex('menu_categories').del()
     .then(() => knex('menu_categories').insert([
       // Shared categories

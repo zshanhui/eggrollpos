@@ -105,7 +105,7 @@ SKIP_MIGRATIONS=1
 
 Otherwise migrations run on every container start via `scripts/docker-entrypoint.sh` (also fine for Railway).
 
-On first start with an empty database, seeds run automatically (see `scripts/seed-if-empty.js`). Demo merchants include INSTEP Cafe (`mc_n1c0ffee`) and Mazu (`mc_m4zun00d`), plus published menu slug `instep-cafe-new-york-10001-lunch-menu`.
+On first start with an empty database, seeds run automatically (see `scripts/seed-if-empty.js`). If a deploy finds demo merchant `mc_n1c0ffee` but **no menu items** (common when an earlier seed failed on PostgreSQL), seeds run again to repair demo data.
 
 ### 4. Deploy
 

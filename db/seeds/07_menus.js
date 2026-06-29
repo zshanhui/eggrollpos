@@ -38,14 +38,17 @@ const menus = [
 
 const menuItems = [
   // INSTEP Cafe Lunch Menu
-  { menu_id: 1, menu_item_id: 1, sort_order: 0 },  // Drip Coffee
-  { menu_id: 1, menu_item_id: 3, sort_order: 1 },  // Avocado Toast
-  { menu_id: 1, menu_item_id: 4, sort_order: 2 },  // Breakfast Burrito
+  { menu_id: 1, menu_item_id: 1, sort_order: 0 },   // Drip Coffee
+  { menu_id: 1, menu_item_id: 2, sort_order: 1 },   // Cappuccino
+  { menu_id: 1, menu_item_id: 3, sort_order: 2 },   // Avocado Toast
+  { menu_id: 1, menu_item_id: 4, sort_order: 3 },   // Breakfast Burrito
+  { menu_id: 1, menu_item_id: 5, sort_order: 4 },   // Blueberry Muffin
+  { menu_id: 1, menu_item_id: 21, sort_order: 5 },  // Latte
 
   // Eastern Express Dinner Menu
-  { menu_id: 2, menu_item_id: 6, sort_order: 0 },  // Kung Pao Chicken
-  { menu_id: 2, menu_item_id: 7, sort_order: 1 },  // Beef Chow Fun
-  { menu_id: 2, menu_item_id: 9, sort_order: 2 },  // Spring Rolls
+  { menu_id: 2, menu_item_id: 203, sort_order: 0 }, // General Tso's Chicken
+  { menu_id: 2, menu_item_id: 238, sort_order: 1 }, // Roast Pork Egg Roll
+  { menu_id: 2, menu_item_id: 251, sort_order: 2 }, // Wonton Soup
 ];
 
 exports.seed = function (knex) {
