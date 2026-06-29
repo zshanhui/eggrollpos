@@ -13,6 +13,16 @@ https://eggrollpos-staging.up.railway.app/
 - After database migrations on staging
 - When debugging blank pages or MIME type errors in the browser
 
+## Before deploy
+
+Bump the visible deploy version (home page footer):
+
+```bash
+pnpm run version:bump
+```
+
+Increments `package.json` by **0.1.0** (e.g. `0.1.0` → `0.2.0`). Commit the change with your deploy.
+
 ## Command
 
 ```bash
