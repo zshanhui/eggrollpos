@@ -139,7 +139,7 @@
   }
 }
 
-/* Tablet+: KDS 3×5 grid (15 slots, scroll overflow) */
+/* Tablet+: KDS 3×4 grid (12 slots, scroll overflow) */
 @media (min-width: 768px) {
   .OrdersGrid {
     height: 100dvh;
@@ -162,8 +162,9 @@
 
   .OrdersGrid__cards {
     grid-template-columns: repeat(3, 1fr);
-    grid-template-rows: repeat(5, 1fr);
+    grid-template-rows: repeat(4, 1fr);
     grid-auto-rows: 1fr;
+    gap: 8px;
   }
 
   .OrdersGrid__section--ready {
@@ -179,21 +180,78 @@
   }
 
   .OrderCard {
-    padding: 10px 12px;
+    padding: 8px 10px;
     min-height: 0;
+    border-width: 2px;
+    border-radius: 10px;
   }
 
   .OrderCard__top {
-    margin-bottom: 6px;
+    margin-bottom: 4px;
+    flex-shrink: 0;
   }
 
   .OrderCard__orderNum {
-    font-size: 1.5rem;
+    font-size: clamp(1.1rem, 2.2vw, 1.35rem);
+    line-height: 1;
+  }
+
+  .OrderCard__time {
+    font-size: 0.75rem;
+  }
+
+  .OrderCard__items {
+    flex: 1 1 auto;
+    min-height: 0;
+    font-size: 0.78rem;
+    line-height: 1.25;
+  }
+
+  .OrderCard__item {
+    gap: 4px;
+    margin-bottom: 1px;
+    min-width: 0;
+  }
+
+  .OrderCard__item > span:last-child {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .OrderCard__item-qty {
+    min-width: 18px;
+    font-size: 0.78rem;
+  }
+
+  .OrderCard__customer {
+    flex-shrink: 0;
+    margin-bottom: 4px;
+    font-size: 0.82rem;
+    line-height: 1.2;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .OrderCard__bottom {
-    margin-top: 8px;
-    padding-top: 6px;
+    flex-shrink: 0;
+    margin-top: auto;
+    padding-top: 4px;
+    gap: 4px;
+  }
+
+  .OrderCard .OrderTypeTag {
+    font-size: 0.62rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+
+  .OrderCard .StatusBadge {
+    padding: 3px 7px;
+    font-size: 0.62rem;
+    border-radius: 5px;
+    letter-spacing: 0.02em;
   }
 
   .OrderDetail__meta-comment {
