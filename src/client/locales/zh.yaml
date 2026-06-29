@@ -82,7 +82,7 @@ merchant:
   loadFailed: "加载商户失败"
   checkHashId: "请检查 URL 中的商户代码 (mc_…)"
   checkUuid: "请检查 URL 中的商户代码 (mc_…)"
-  menu: "菜单"
+  menu: "菜单项"
   menus: "在线菜单"
   settings: "设置"
   businessInfo: "企业信息"

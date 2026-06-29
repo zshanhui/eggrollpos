@@ -1,6 +1,7 @@
 import React from 'react';
 import { Page } from '@shopify/polaris';
 import type { MenuActionDescriptor, PageProps } from '@shopify/polaris';
+import { useTranslation } from 'react-i18next';
 import { merchantDashboardPath } from '../../../shared/merchant_dashboard';
 import MerchantPolarisProvider from './MerchantPolarisProvider';
 
@@ -25,11 +26,12 @@ export default function MerchantAdminLayout({
   children,
   showNav = true,
 }: MerchantAdminLayoutProps) {
+  const { t } = useTranslation();
   const navActions = showNav
     ? [
-        { content: 'Menus', url: merchantDashboardPath(merchantHashId, 'online-menus') },
-        { content: 'Menu Items', url: merchantDashboardPath(merchantHashId, 'menuitems') },
-        { content: 'Settings', url: merchantDashboardPath(merchantHashId, 'settings') },
+        { content: t('merchant.menus'), url: merchantDashboardPath(merchantHashId, 'online-menus') },
+        { content: t('merchant.menu'), url: merchantDashboardPath(merchantHashId, 'menuitems') },
+        { content: t('merchant.settings'), url: merchantDashboardPath(merchantHashId, 'settings') },
       ]
     : [];
 
