@@ -1,4 +1,5 @@
 import db from './db';
+import { normalizeMenuItemImageUrl } from '../lib/s3';
 
 const T = () => db('menus');
 const JunctionT = () => db('menu_menu_items');
@@ -155,7 +156,7 @@ class Menus {
           name: r.name,
           description: r.description,
           price_cents: r.price_cents,
-          image_url: r.image_url,
+          image_url: normalizeMenuItemImageUrl(r.image_url),
           category_id: r.category_id,
           category_name: r.category_name,
           modifiers: [],

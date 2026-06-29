@@ -10,6 +10,7 @@ const leadsRouter = require("./routes/leads");
 const merchantsRouter = require("./routes/merchants");
 const ordersRouter = require("./routes/orders").default;
 const { publicRouter: menusPublicRouter } = require("./routes/menus");
+const { mediaRouter } = require("./routes/media");
 const whatsappConfig = require("./services/whatsapp/config");
 const { whatsappWebhookRouter } = require("./routes/whatsapp_webhook");
 
@@ -53,6 +54,7 @@ app.use("/api/contact", leadsRouter);
 app.use("/api/merchants", merchantsRouter);
 app.use("/api/orders", ordersRouter);
 app.use("/api/menus", menusPublicRouter);
+app.use("/media", mediaRouter);
 
 app.get("/r/:orderUuid", async (req, res) => {
   const orderUuid = req.params.orderUuid;
