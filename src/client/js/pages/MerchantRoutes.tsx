@@ -106,13 +106,16 @@ function sortFifo(a: any, b: any) {
 
 function splitActiveBoard(awaitingPreparing: any[], ready: any[], limit = KDS_FULL_ORDER_LIMIT) {
   const globalFifo = [...awaitingPreparing, ...ready].sort(sortFifo);
-  const fullIds = new Set(globalFifo.slice(0, limit).map((order) => order.orderId));
-  const pileOrders = globalFifo.slice(limit);
+  const hasOverflow = globalFifo.length > limit;
+  const visibleFullLimit = hasOverflow ? Math.max(limit - 1, 0) : limit;
+  const fullIds = new Set(globalFifo.slice(0, visibleFullLimit).map((order) => order.orderId));
+  const pileFrontOrder = hasOverflow ? globalFifo[visibleFullLimit] : null;
+  const hiddenPileOrders = hasOverflow ? globalFifo.slice(visibleFullLimit + 1) : [];
   const activeFull = awaitingPreparing.filter((order) => fullIds.has(order.orderId));
   const readyFull = ready.filter((order) => fullIds.has(order.orderId));
   const showDivider = activeFull.length > 0 && ready.length > 0;
 
-  return { activeFull, readyFull, pileOrders, showDivider };
+  return { activeFull, readyFull, pileFrontOrder, hiddenPileOrders, showDivider };
 }
 
 function todayISO() {
@@ -253,9 +256,10 @@ function OrdersListPage({ merchantId, merchantName, merchantHashId, onSelectOrde
               </div>
             )}
             {activeBoard.readyFull.map(renderOrderCard)}
-            {activeBoard.pileOrders.length > 0 && (
+            {activeBoard.pileFrontOrder && activeBoard.hiddenPileOrders.length > 0 && (
               <OrderPile
-                orders={activeBoard.pileOrders}
+                frontOrder={activeBoard.pileFrontOrder}
+                waitingCount={activeBoard.hiddenPileOrders.length}
                 highlightedIds={highlightedIds}
                 elapsedTick={elapsedTick}
                 onSelectOrder={onSelectOrder}
@@ -285,22 +289,23 @@ function OrdersListPage({ merchantId, merchantName, merchantHashId, onSelectOrde
 // ─── Order pile (overflow beyond first 10 FIFO) ───
 
 const OrderPile = React.memo(function OrderPile({
-  orders,
+  frontOrder,
+  waitingCount,
   highlightedIds,
   elapsedTick,
   onSelectOrder,
   t,
 }: {
-  orders: any[];
+  frontOrder: any;
+  waitingCount: number;
   highlightedIds: Set<number>;
   elapsedTick?: number;
   onSelectOrder: (id: number) => void;
   t: (key: string, options?: Record<string, unknown>) => string;
 }) {
-  const topOrder = orders[0];
-  const stackLayers = Math.min(orders.length - 1, 3);
+  const stackLayers = Math.min(waitingCount, 3);
 
-  const handleActivate = () => onSelectOrder(topOrder.orderId);
+  const handleActivate = () => onSelectOrder(frontOrder.orderId);
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
@@ -315,7 +320,7 @@ const OrderPile = React.memo(function OrderPile({
       onKeyDown={handleKeyDown}
       role="button"
       tabIndex={0}
-      aria-label={t('merchant.kdsOrderPile', { count: orders.length })}
+      aria-label={t('merchant.kdsOrderPile', { count: waitingCount })}
     >
       <div className="OrderPile__stack">
         {Array.from({ length: stackLayers }).map((_, index) => (
@@ -328,16 +333,16 @@ const OrderPile = React.memo(function OrderPile({
         ))}
         <div className="OrderPile__layer OrderPile__layer--front">
           <OrderCard
-            order={topOrder}
-            highlighted={highlightedIds.has(topOrder.orderId)}
+            order={frontOrder}
+            highlighted={highlightedIds.has(frontOrder.orderId)}
             elapsedTick={elapsedTick}
-            onClick={() => onSelectOrder(topOrder.orderId)}
+            onClick={() => onSelectOrder(frontOrder.orderId)}
             t={t}
             inPile
           />
         </div>
       </div>
-      <div className="OrderPile__label">{t('merchant.kdsOrderPile', { count: orders.length })}</div>
+      <div className="OrderPile__label">{t('merchant.kdsOrderPile', { count: waitingCount })}</div>
     </div>
   );
 });
