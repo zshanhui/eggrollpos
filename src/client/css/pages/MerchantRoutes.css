@@ -119,6 +119,22 @@
   align-items: center;
 }
 
+.OrdersGrid__nav-button {
+  color: #00e5ff;
+  font: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  background: transparent;
+  border: 0;
+  padding: 8px 12px;
+  min-height: 44px;
+  cursor: pointer;
+}
+
+.Merchant--theme-light .OrdersGrid__nav-button {
+  color: #555;
+}
+
 .OrdersGrid__cards {
   display: grid;
   grid-template-columns: 1fr;

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import type { OrderStreamPayload } from '../../../shared/order_events';
+import { postApi } from '../lib/merchantApi';
 
 export type ConnectionStatus = 'connecting' | 'live' | 'reconnecting';
 
@@ -14,8 +15,9 @@ export function useMerchantOrderStream(
   useEffect(() => {
     if (!merchantId) return;
 
+    let es: EventSource | null = null;
+    let closed = false;
     setConnectionStatus('connecting');
-    const es = new EventSource(`/api/merchants/${merchantId}/orders/stream`);
 
     const handleEvent = (e: MessageEvent) => {
       try {
@@ -26,13 +28,24 @@ export function useMerchantOrderStream(
       }
     };
 
-    es.addEventListener('order_created', handleEvent);
-    es.addEventListener('order_updated', handleEvent);
+    postApi(`/api/merchants/${merchantId}/orders/stream-token`, {})
+      .then((data) => {
+        if (closed) return;
+        const token = encodeURIComponent((data as { token: string }).token);
+        es = new EventSource(`/api/merchants/${merchantId}/orders/stream?token=${token}`);
 
-    es.onopen = () => setConnectionStatus('live');
-    es.onerror = () => setConnectionStatus('reconnecting');
+        es.addEventListener('order_created', handleEvent);
+        es.addEventListener('order_updated', handleEvent);
 
-    return () => es.close();
+        es.onopen = () => setConnectionStatus('live');
+        es.onerror = () => setConnectionStatus('reconnecting');
+      })
+      .catch(() => setConnectionStatus('reconnecting'));
+
+    return () => {
+      closed = true;
+      if (es) es.close();
+    };
   }, [merchantId]);
 
   return { connectionStatus };

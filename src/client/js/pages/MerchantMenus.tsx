@@ -19,7 +19,7 @@ import MerchantAdminLayout from '../components/MerchantAdminLayout';
 import MerchantPolarisProvider from '../components/MerchantPolarisProvider';
 import { useMerchantHashRoute } from '../hooks/useMerchantHashRoute';
 import { merchantDashboardPath } from '../../../shared/merchant_dashboard';
-import { deleteApi, fetchApi } from '../lib/merchantApi';
+import { deleteApi, fetchApi, patchApi } from '../lib/merchantApi';
 
 const DAYS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
 
@@ -109,12 +109,7 @@ function MenuList({
 
   const togglePublished = async (menuId: number, current: boolean) => {
     if (!merchant?.id) return;
-    await fetch(`/api/merchants/${merchant.id}/menus/${menuId}`, {
-      method: 'PATCH',
-      credentials: 'same-origin',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ isPublished: !current }),
-    });
+    await patchApi(`/api/merchants/${merchant.id}/menus/${menuId}`, { isPublished: !current });
     setMenus((prev) =>
       prev.map((m) => (m.id === menuId ? { ...m, is_published: !current } : m))
     );

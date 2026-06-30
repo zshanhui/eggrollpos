@@ -1,50 +1,61 @@
-export function fetchApi(url: string) {
-  return fetch(url, { credentials: 'same-origin' as const }).then((r) => r.json());
+import { getSupabaseAccessToken } from './supabaseAuth';
+
+async function authHeaders(extraHeaders: Record<string, string> = {}) {
+  const token = await getSupabaseAccessToken();
+  return {
+    ...extraHeaders,
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+  };
 }
 
-export function postApi(url: string, body: unknown) {
-  return fetch(url, {
+async function parseJsonResponse(r: Response) {
+  const data = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error((data as { error?: string })?.error || 'Request failed');
+  return data;
+}
+
+export async function fetchApi(url: string) {
+  const r = await fetch(url, {
+    credentials: 'same-origin' as const,
+    headers: await authHeaders({ Accept: 'application/json' }),
+  });
+  return parseJsonResponse(r);
+}
+
+export async function postApi(url: string, body: unknown) {
+  const r = await fetch(url, {
     method: 'POST',
     credentials: 'same-origin' as const,
-    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+    headers: await authHeaders({ 'Content-Type': 'application/json', Accept: 'application/json' }),
     body: JSON.stringify(body),
-  }).then(async (r) => {
-    const data = await r.json().catch(() => ({}));
-    if (!r.ok) throw new Error((data as { error?: string })?.error || 'Request failed');
-    return data;
   });
+  return parseJsonResponse(r);
 }
 
-export function putApi(url: string, body: unknown) {
-  return fetch(url, {
+export async function putApi(url: string, body: unknown) {
+  const r = await fetch(url, {
     method: 'PUT',
     credentials: 'same-origin' as const,
-    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+    headers: await authHeaders({ 'Content-Type': 'application/json', Accept: 'application/json' }),
     body: JSON.stringify(body),
-  }).then(async (r) => {
-    const data = await r.json().catch(() => ({}));
-    if (!r.ok) throw new Error((data as { error?: string })?.error || 'Request failed');
-    return data;
   });
+  return parseJsonResponse(r);
 }
 
-export function patchApi(url: string, body: unknown) {
-  return fetch(url, {
+export async function patchApi(url: string, body: unknown) {
+  const r = await fetch(url, {
     method: 'PATCH',
     credentials: 'same-origin' as const,
-    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+    headers: await authHeaders({ 'Content-Type': 'application/json', Accept: 'application/json' }),
     body: JSON.stringify(body),
-  }).then(async (r) => {
-    const data = await r.json().catch(() => ({}));
-    if (!r.ok) throw new Error((data as { error?: string })?.error || 'Request failed');
-    return data;
   });
+  return parseJsonResponse(r);
 }
 
-export function deleteApi(url: string) {
+export async function deleteApi(url: string) {
   return fetch(url, {
     method: 'DELETE',
     credentials: 'same-origin' as const,
-    headers: { Accept: 'application/json' },
+    headers: await authHeaders({ Accept: 'application/json' }),
   });
 }
