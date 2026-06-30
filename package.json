@@ -15,6 +15,7 @@
     "test": "DB_CLIENT=sqlite3 DB_FILENAME=test.db NODE_ENV=development mocha specs/**/* --exit",
     "test:pg": "NODE_ENV=development mocha specs/**/*",
     "create-merchant": "node scripts/create-merchant.js",
+    "link-merchant-user": "node scripts/link-merchant-user.js",
     "screenshots:merchant": "node scripts/capture-merchant-screenshots.js",
     "screenshots:i18n": "node scripts/capture-i18n-screenshots.js",
     "db:migrate": "knex migrate:latest --knexfile db/knexfile.js",
