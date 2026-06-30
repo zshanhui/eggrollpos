@@ -64,6 +64,7 @@ describe('link-merchant-user script helpers', () => {
 
   it('parses merchant, email, password, role, and email confirmation flags', () => {
     const args = parseArgs([
+      '--',
       'mc_n1c0ffee',
       'Owner@Example.com',
       '--password',

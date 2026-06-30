@@ -49,7 +49,9 @@ function parseArgs(argv = process.argv.slice(2)) {
 
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i];
-    if (arg === '--help' || arg === '-h') {
+    if (arg === '--') {
+      continue;
+    } else if (arg === '--help' || arg === '-h') {
       result.help = true;
     } else if (arg === '--password' && argv[i + 1]) {
       result.password = argv[++i];
