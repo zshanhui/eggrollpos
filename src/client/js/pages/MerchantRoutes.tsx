@@ -106,16 +106,13 @@ function sortFifo(a: any, b: any) {
 
 function splitActiveBoard(awaitingPreparing: any[], ready: any[], limit = KDS_FULL_ORDER_LIMIT) {
   const globalFifo = [...awaitingPreparing, ...ready].sort(sortFifo);
-  const hasOverflow = globalFifo.length > limit;
-  const visibleFullLimit = hasOverflow ? Math.max(limit - 1, 0) : limit;
-  const fullIds = new Set(globalFifo.slice(0, visibleFullLimit).map((order) => order.orderId));
-  const pileFrontOrder = hasOverflow ? globalFifo[visibleFullLimit] : null;
-  const hiddenPileOrders = hasOverflow ? globalFifo.slice(visibleFullLimit + 1) : [];
+  const fullIds = new Set(globalFifo.slice(0, limit).map((order) => order.orderId));
+  const overflowCount = Math.max(globalFifo.length - limit, 0);
   const activeFull = awaitingPreparing.filter((order) => fullIds.has(order.orderId));
   const readyFull = ready.filter((order) => fullIds.has(order.orderId));
   const showDivider = activeFull.length > 0 && ready.length > 0;
 
-  return { activeFull, readyFull, pileFrontOrder, hiddenPileOrders, showDivider };
+  return { activeFull, readyFull, overflowCount, showDivider };
 }
 
 function todayISO() {
@@ -250,22 +247,17 @@ function OrdersListPage({ merchantId, merchantName, merchantHashId, onSelectOrde
         ) : statusFilter === 'active' ? (
           <>
             {activeBoard.activeFull.map(renderOrderCard)}
+            {activeBoard.overflowCount > 0 && (
+              <div className="OrdersGrid__overflow-notice">
+                {t('merchant.kdsOrderPile', { count: activeBoard.overflowCount })}
+              </div>
+            )}
             {activeBoard.showDivider && (
               <div className="OrdersGrid__divider" role="separator" aria-label={t('merchant.kdsReadyDivider')}>
                 <span className="OrdersGrid__divider-label">{t('merchant.kdsReadyDivider')}</span>
               </div>
             )}
             {activeBoard.readyFull.map(renderOrderCard)}
-            {activeBoard.pileFrontOrder && activeBoard.hiddenPileOrders.length > 0 && (
-              <OrderPile
-                frontOrder={activeBoard.pileFrontOrder}
-                waitingCount={activeBoard.hiddenPileOrders.length}
-                highlightedIds={highlightedIds}
-                elapsedTick={elapsedTick}
-                onSelectOrder={onSelectOrder}
-                t={t}
-              />
-            )}
           </>
         ) : (
           <div className="OrdersGrid__section OrdersGrid__section--canceled">
@@ -286,75 +278,14 @@ function OrdersListPage({ merchantId, merchantName, merchantHashId, onSelectOrde
   );
 }
 
-// ─── Order pile (overflow beyond first 10 FIFO) ───
-
-const OrderPile = React.memo(function OrderPile({
-  frontOrder,
-  waitingCount,
-  highlightedIds,
-  elapsedTick,
-  onSelectOrder,
-  t,
-}: {
-  frontOrder: any;
-  waitingCount: number;
-  highlightedIds: Set<number>;
-  elapsedTick?: number;
-  onSelectOrder: (id: number) => void;
-  t: (key: string, options?: Record<string, unknown>) => string;
-}) {
-  const stackLayers = Math.min(waitingCount, 3);
-
-  const handleActivate = () => onSelectOrder(frontOrder.orderId);
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      handleActivate();
-    }
-  };
-
-  return (
-    <div
-      className="OrderPile"
-      onClick={handleActivate}
-      onKeyDown={handleKeyDown}
-      role="button"
-      tabIndex={0}
-      aria-label={t('merchant.kdsOrderPile', { count: waitingCount })}
-    >
-      <div className="OrderPile__stack">
-        {Array.from({ length: stackLayers }).map((_, index) => (
-          <div
-            key={`layer-${index}`}
-            className="OrderPile__layer OrderPile__layer--back"
-            style={{ ['--pile-layer' as string]: index + 1 }}
-            aria-hidden="true"
-          />
-        ))}
-        <div className="OrderPile__layer OrderPile__layer--front">
-          <OrderCard
-            order={frontOrder}
-            highlighted={highlightedIds.has(frontOrder.orderId)}
-            elapsedTick={elapsedTick}
-            onClick={() => onSelectOrder(frontOrder.orderId)}
-            t={t}
-            inPile
-          />
-        </div>
-      </div>
-      <div className="OrderPile__label">{t('merchant.kdsOrderPile', { count: waitingCount })}</div>
-    </div>
-  );
-});
-
 // ─── Order Card (memoized for scroll perf on low-end devices) ───
 
-const OrderCard = React.memo(function OrderCard({ order, highlighted, elapsedTick, onClick, t, inPile }: { order: any; highlighted?: boolean; elapsedTick?: number; onClick?: () => void; t: (key: string) => string; inPile?: boolean }) {
+const OrderCard = React.memo(function OrderCard({ order, highlighted, elapsedTick, onClick, t }: { order: any; highlighted?: boolean; elapsedTick?: number; onClick?: () => void; t: (key: string) => string }) {
   const status: OrderStatus = order.status;
   const elapsed = getElapsed(order.createdAt, t, elapsedTick);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (!onClick || inPile) return;
+    if (!onClick) return;
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
       onClick();
@@ -363,11 +294,11 @@ const OrderCard = React.memo(function OrderCard({ order, highlighted, elapsedTic
 
   return (
     <div
-      className={`OrderCard OrderCard--${status}${highlighted ? ' OrderCard--highlight' : ''}${inPile ? ' OrderCard--in-pile' : ''}`}
-      onClick={inPile ? undefined : onClick}
-      onKeyDown={inPile ? undefined : handleKeyDown}
-      role={inPile ? undefined : 'button'}
-      tabIndex={inPile ? -1 : 0}
+      className={`OrderCard OrderCard--${status}${highlighted ? ' OrderCard--highlight' : ''}`}
+      onClick={onClick}
+      onKeyDown={handleKeyDown}
+      role="button"
+      tabIndex={0}
       aria-label={`View order #${order.displayNumber ?? order.orderId} from ${order.customerName}`}
     >
       <div className="OrderCard__top">

@@ -294,9 +294,9 @@
     flex: 1 1 100%;
   }
 
-  .OrderPile {
-    flex: 0 0 calc((100% - 16px) / 3);
-    width: calc((100% - 16px) / 3);
+  .OrdersGrid__overflow-notice {
+    flex: 0 0 100%;
+    width: 100%;
     box-sizing: border-box;
   }
 
@@ -942,48 +942,10 @@
   color: #00a152;
 }
 
-.OrderPile {
-  position: relative;
-  cursor: pointer;
+.OrdersGrid__overflow-notice {
   box-sizing: border-box;
   width: 100%;
-  overflow: visible;
-}
-
-.OrderPile__stack {
-  position: relative;
-  margin-bottom: 20px;
-}
-
-.OrderPile__layer--back {
-  position: absolute;
-  inset: 0;
-  border-radius: 10px;
-  border: 2px solid #333;
-  background: #101010;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
-  transform:
-    translateY(calc(var(--pile-layer, 1) * 7px))
-    scale(calc(1 - (var(--pile-layer, 1) * 0.018)));
-  transform-origin: top center;
-  z-index: calc(10 - var(--pile-layer, 1));
-}
-
-.OrderPile__layer--front {
-  position: relative;
-  z-index: 20;
-}
-
-.OrderPile__layer--front .OrderCard {
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.45);
-}
-
-.OrderCard--in-pile {
-  pointer-events: none;
-}
-
-.OrderPile__label {
-  margin-top: 4px;
+  padding: 6px 8px 10px;
   text-align: center;
   color: #00e5ff;
   font-size: 0.85rem;
@@ -992,12 +954,7 @@
   letter-spacing: 0.04em;
 }
 
-.Merchant--theme-light .OrderPile__layer--back {
-  background: #ececec;
-  border-color: #ccc;
-}
-
-.Merchant--theme-light .OrderPile__label {
+.Merchant--theme-light .OrdersGrid__overflow-notice {
   color: #00838f;
 }
 
