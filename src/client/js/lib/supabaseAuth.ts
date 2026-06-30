@@ -6,13 +6,13 @@ export function getSupabaseClient(): SupabaseClient | null {
   if (client !== undefined) return client;
 
   const url = import.meta.env.VITE_SUPABASE_URL;
-  const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-  if (!url || !anonKey) {
+  const publishableKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+  if (!url || !publishableKey) {
     client = null;
     return client;
   }
 
-  client = createClient(url, anonKey);
+  client = createClient(url, publishableKey);
   return client;
 }
 

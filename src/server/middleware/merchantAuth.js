@@ -7,10 +7,7 @@ let supabaseUserResolverForTest = null;
 
 function getSupabaseConfig() {
   const url = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
-  const key =
-    process.env.SUPABASE_SERVICE_ROLE_KEY ||
-    process.env.SUPABASE_ANON_KEY ||
-    process.env.VITE_SUPABASE_ANON_KEY;
+  const key = process.env.SUPABASE_SECRET_KEY;
   return { url, key };
 }
 
@@ -105,9 +102,7 @@ function getStreamSecret() {
     process.env.MERCHANT_AUTH_STREAM_SECRET ||
     process.env.SESSION_SECRET ||
     process.env.SUPABASE_JWT_SECRET ||
-    process.env.SUPABASE_SERVICE_ROLE_KEY ||
-    process.env.SUPABASE_ANON_KEY ||
-    process.env.VITE_SUPABASE_ANON_KEY
+    process.env.SUPABASE_SECRET_KEY
   );
 }
 

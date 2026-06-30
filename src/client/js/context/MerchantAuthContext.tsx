@@ -18,7 +18,7 @@ export function MerchantAuthProvider({ children }: { children: React.ReactNode }
   const [loading, setLoading] = useState(true);
   const configError = supabase
     ? null
-    : 'Supabase Auth is not configured. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.';
+    : 'Supabase Auth is not configured. Set VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY.';
 
   useEffect(() => {
     if (!supabase) {

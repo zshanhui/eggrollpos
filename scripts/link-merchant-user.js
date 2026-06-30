@@ -81,18 +81,18 @@ function generateTemporaryPassword() {
 
 function requireSupabaseAdminConfig() {
   const url = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
-  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!url || !serviceRoleKey) {
+  const secretKey = process.env.SUPABASE_SECRET_KEY;
+  if (!url || !secretKey) {
     throw new Error(
-      'SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are required to create Supabase Auth users'
+      'SUPABASE_URL and SUPABASE_SECRET_KEY are required to create Supabase Auth users'
     );
   }
-  return { url, serviceRoleKey };
+  return { url, secretKey };
 }
 
 function createSupabaseAdminClient() {
-  const { url, serviceRoleKey } = requireSupabaseAdminConfig();
-  return createClient(url, serviceRoleKey, {
+  const { url, secretKey } = requireSupabaseAdminConfig();
+  return createClient(url, secretKey, {
     auth: {
       autoRefreshToken: false,
       persistSession: false,
