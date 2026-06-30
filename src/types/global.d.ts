@@ -2,7 +2,15 @@
 
 declare global {
   interface Window {
-    __VARS__?: any;
+    __VARS__?: {
+      serverData?: {
+        appVersion?: string;
+        supabase?: {
+          url?: string;
+          publishableKey?: string;
+        };
+      };
+    };
   }
 
   interface ImportMetaEnv {

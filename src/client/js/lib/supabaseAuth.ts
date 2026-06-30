@@ -2,11 +2,17 @@ import { createClient, type Session, type SupabaseClient } from '@supabase/supab
 
 let client: SupabaseClient | null | undefined;
 
+function getRuntimeSupabaseConfig() {
+  return window.__VARS__?.serverData?.supabase || {};
+}
+
 export function getSupabaseClient(): SupabaseClient | null {
   if (client !== undefined) return client;
 
-  const url = import.meta.env.VITE_SUPABASE_URL;
-  const publishableKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+  const runtimeConfig = getRuntimeSupabaseConfig();
+  const url = import.meta.env.VITE_SUPABASE_URL || runtimeConfig.url;
+  const publishableKey =
+    import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || runtimeConfig.publishableKey;
   if (!url || !publishableKey) {
     client = null;
     return client;
