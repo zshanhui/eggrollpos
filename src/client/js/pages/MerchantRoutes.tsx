@@ -283,17 +283,12 @@ const OrderCard = React.memo(function OrderCard({ order, highlighted, elapsedTic
         <span className="OrderCard__time">{elapsed}</span>
       </div>
       <div className="OrderCard__items">
-        {order.lineItems?.slice(0, 2).map((item: any, i: number) => (
+        {order.lineItems?.map((item: any, i: number) => (
           <div className="OrderCard__item" key={i}>
             <span className="OrderCard__item-qty">{item.quantity}×</span>
             <span>{item.name}</span>
           </div>
         ))}
-        {order.lineItems?.length > 2 && (
-          <div className="OrderCard__item OrderCard__item-more">
-            +{order.lineItems.length - 2} {t('merchant.moreItems')}
-          </div>
-        )}
       </div>
       <div className="OrderCard__customer">{order.customerName}</div>
       <div className="OrderCard__bottom">
