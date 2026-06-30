@@ -105,11 +105,9 @@ function sortFifo(a: any, b: any) {
 }
 
 function splitActiveBoard(awaitingPreparing: any[], ready: any[], limit = KDS_FULL_ORDER_LIMIT) {
-  const globalFifo = [...awaitingPreparing, ...ready].sort(sortFifo);
-  const fullIds = new Set(globalFifo.slice(0, limit).map((order) => order.orderId));
-  const overflowCount = Math.max(globalFifo.length - limit, 0);
-  const activeFull = awaitingPreparing.filter((order) => fullIds.has(order.orderId));
-  const readyFull = ready.filter((order) => fullIds.has(order.orderId));
+  const activeFull = awaitingPreparing.slice(0, limit);
+  const readyFull = ready;
+  const overflowCount = Math.max(awaitingPreparing.length - limit, 0);
   const showDivider = activeFull.length > 0 && ready.length > 0;
 
   return { activeFull, readyFull, overflowCount, showDivider };
