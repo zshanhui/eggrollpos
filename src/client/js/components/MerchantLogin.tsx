@@ -38,7 +38,21 @@ export default function MerchantLogin() {
             {configError}
           </Banner>
         )}
-        <Card title="Sign in to manage your restaurant" sectioned>
+        <Card sectioned>
+          <div style={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            alignItems: 'baseline',
+            gap: 12,
+            marginBottom: 16,
+          }}>
+            <h2 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 600 }}>
+              Sign in to manage your restaurant
+            </h2>
+            <span style={{ color: '#6d7175', fontSize: '0.9rem' }}>
+              use email: demo@eggrollpos.com and pass: eggroll123 to log into the demo account.
+            </span>
+          </div>
           <Form onSubmit={handleSubmit}>
             <FormLayout>
               {error && (

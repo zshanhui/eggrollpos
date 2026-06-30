@@ -75,6 +75,20 @@ const orangeBtnStyle: React.CSSProperties = {
   color: '#fff',
 };
 
+const heroActionsStyle: React.CSSProperties = {
+  display: 'flex',
+  flexWrap: 'wrap',
+  justifyContent: 'center',
+  gap: 12,
+};
+
+const demoBtnStyle: React.CSSProperties = {
+  fontWeight: 700,
+  background: 'rgba(255,255,255,0.12)',
+  borderColor: 'rgba(255,255,255,0.7)',
+  color: '#fff',
+};
+
 const pricingTiers = [
   {
     titleKey: 'home.pricingFreeTitle',
@@ -207,13 +221,22 @@ export default function HomeLanding() {
             {t('home.hero')}
           </h1>
           <p style={subtitleStyle}>{t('home.heroSubtext')}</p>
-          <Button
-            size="lg"
-            onClick={scrollToContact}
-            style={{ ...orangeBtnStyle, padding: '14px 40px', fontSize: '1.1rem' }}
-          >
-            {t('home.heroCTA')}
-          </Button>
+          <div style={heroActionsStyle}>
+            <Button
+              size="lg"
+              onClick={scrollToContact}
+              style={{ ...orangeBtnStyle, padding: '14px 40px', fontSize: '1.1rem' }}
+            >
+              {t('home.heroCTA')}
+            </Button>
+            <Button
+              size="lg"
+              href="/md/mc_n1c0ffee"
+              style={{ ...demoBtnStyle, padding: '14px 40px', fontSize: '1.1rem' }}
+            >
+              View Demo Dashboard
+            </Button>
+          </div>
         </Container>
       </div>
 
