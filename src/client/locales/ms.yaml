@@ -156,7 +156,7 @@ merchant:
   deleteModifierConfirm: "Padam modifier ini?"
 
 orderStatus:
-  waiting_for_acceptance: "Menunggu Penerimaan"
+  waiting_for_acceptance: "Terima Pesanan"
   accepted: "Pesanan Diterima"
   preparing: "Sedang Disediakan"
   ready_for_pickup: "Sedia untuk Ambil Sendiri"
@@ -168,8 +168,8 @@ orderStatus:
   refunded: "Bayaran Dikembalikan"
 
 orderType:
-  delivery: "🚗 Penghantaran"
-  pickup: "🏪 Ambil Sendiri"
+  delivery: "Penghantaran"
+  pickup: "Ambil Sendiri"
 
 time:
   justNow: "Baru sahaja"

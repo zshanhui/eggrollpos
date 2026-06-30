@@ -164,7 +164,7 @@ merchant:
   deleteModifierConfirm: "Delete this modifier?"
 
 orderStatus:
-  waiting_for_acceptance: "Waiting for Acceptance"
+  waiting_for_acceptance: "Accept Order"
   accepted: "Order Accepted"
   preparing: "Preparing"
   ready_for_pickup: "Ready for Pickup"
@@ -176,8 +176,8 @@ orderStatus:
   refunded: "Refunded"
 
 orderType:
-  delivery: "🚗 Delivery"
-  pickup: "🏪 Pickup"
+  delivery: "Delivery"
+  pickup: "Pickup"
 
 time:
   justNow: "Just now"
