@@ -108,7 +108,7 @@ merchant:
   reconnecting: "Reconnecting"
   moreItems: "more..."
   kdsReadyDivider: "Ready for Pickup / Delivery"
-  kdsOrderPile: "+{{count}} more orders"
+  kdsOrderPile: "{{count}} more orders waiting"
   backToOrders: "← Back to Orders"
   orderNum: "Order #{{id}}"
   customer: "Customer"
