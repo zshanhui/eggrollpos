@@ -448,8 +448,13 @@ function OrderDetailPage({ merchantId, orderId, onBack, t }: { merchantId: numbe
 
   if (!order) {
     return (
-      <div className="OrderDetail" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', color: '#666' }}>
-        {t('common.loading')}
+      <div className="OrderDetail">
+        <div className="OrderDetail__toolbar">
+          <button type="button" className="OrderDetail__back" onClick={onBack}>
+            {t('merchant.backToOrders')}
+          </button>
+        </div>
+        <div className="OrderDetail__loading">{t('common.loading')}</div>
       </div>
     );
   }
@@ -467,8 +472,8 @@ function OrderDetailPage({ merchantId, orderId, onBack, t }: { merchantId: numbe
 
   return (
     <div className="OrderDetail">
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
-        <button className="OrderDetail__back" onClick={onBack}>
+      <div className="OrderDetail__toolbar">
+        <button type="button" className="OrderDetail__back" onClick={onBack}>
           {t('merchant.backToOrders')}
         </button>
         <ConnectionIndicator status={connectionStatus} t={t} />
