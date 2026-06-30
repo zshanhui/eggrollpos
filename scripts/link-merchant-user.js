@@ -84,7 +84,7 @@ function requireSupabaseAdminConfig() {
   const secretKey = process.env.SUPABASE_SECRET_KEY;
   if (!url || !secretKey) {
     throw new Error(
-      'SUPABASE_URL and SUPABASE_SECRET_KEY are required to create Supabase Auth users'
+      'VITE_SUPABASE_URL (or SUPABASE_URL) and SUPABASE_SECRET_KEY are required to create Supabase Auth users'
     );
   }
   return { url, secretKey };
@@ -278,6 +278,7 @@ module.exports = {
   findSupabaseUserByEmail,
   linkMerchantUser,
   parseArgs,
+  requireSupabaseAdminConfig,
   resolveMerchant,
   run,
   usage,

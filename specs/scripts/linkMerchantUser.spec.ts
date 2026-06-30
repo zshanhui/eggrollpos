@@ -7,6 +7,7 @@ const {
   createOrFindSupabaseUser,
   linkMerchantUser,
   parseArgs,
+  requireSupabaseAdminConfig,
   resolveMerchant,
 } = require('../../scripts/link-merchant-user');
 
@@ -81,6 +82,30 @@ describe('link-merchant-user script helpers', () => {
       role: 'admin',
       emailConfirm: false,
     });
+  });
+
+  it('uses VITE_SUPABASE_URL as the admin script URL fallback', () => {
+    const oldSupabaseUrl = process.env.SUPABASE_URL;
+    const oldViteSupabaseUrl = process.env.VITE_SUPABASE_URL;
+    const oldSecretKey = process.env.SUPABASE_SECRET_KEY;
+
+    delete process.env.SUPABASE_URL;
+    process.env.VITE_SUPABASE_URL = 'https://project-ref.supabase.co';
+    process.env.SUPABASE_SECRET_KEY = 'sb_secret_test';
+
+    try {
+      expect(requireSupabaseAdminConfig()).to.deep.equal({
+        url: 'https://project-ref.supabase.co',
+        secretKey: 'sb_secret_test',
+      });
+    } finally {
+      if (oldSupabaseUrl === undefined) delete process.env.SUPABASE_URL;
+      else process.env.SUPABASE_URL = oldSupabaseUrl;
+      if (oldViteSupabaseUrl === undefined) delete process.env.VITE_SUPABASE_URL;
+      else process.env.VITE_SUPABASE_URL = oldViteSupabaseUrl;
+      if (oldSecretKey === undefined) delete process.env.SUPABASE_SECRET_KEY;
+      else process.env.SUPABASE_SECRET_KEY = oldSecretKey;
+    }
   });
 
   it('creates a Supabase user when email is new', async () => {

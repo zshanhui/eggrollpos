@@ -37,7 +37,9 @@ async function resolveSupabaseUser(token) {
 
   const client = getSupabaseClient();
   if (!client) {
-    const err = new Error('Supabase Auth is not configured');
+    const err = new Error(
+      'Supabase Auth is not configured. Set VITE_SUPABASE_URL and SUPABASE_SECRET_KEY.'
+    );
     err.status = 503;
     throw err;
   }
