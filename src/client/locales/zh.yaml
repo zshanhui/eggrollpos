@@ -107,6 +107,8 @@ merchant:
   connecting: "连接中"
   reconnecting: "重新连接中"
   moreItems: "更多..."
+  kdsReadyDivider: "待取餐 / 待配送"
+  kdsOrderPile: "另有 {{count}} 单"
   backToOrders: "← 返回订单"
   orderNum: "订单 #{{id}}"
   customer: "客户"
