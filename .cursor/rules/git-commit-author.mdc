@@ -1,0 +1,55 @@
+---
+description: All git commits must be attributed to Cursor Agent only
+globs:
+alwaysApply: true
+---
+
+# Git commit author policy
+
+Every commit on this project must be attributed **only** to Cursor Agent.
+
+## Git identity (this repo)
+
+Before committing, ensure local git config for this repository:
+
+```bash
+git config user.name "Cursor Agent"
+git config user.email "cursor-agent@local"
+```
+
+Do **not** set `user.name` or `user.email` to any other person or bot name.
+
+Enable the repo hook after clone:
+
+```bash
+git config core.hooksPath .githooks
+```
+
+The hook removes injected `Co-authored-by:` trailers and ensures the required footer.
+
+## Commit message
+
+Every commit message must end with this line (exact text):
+
+```
+Authored by Cursor Agent
+```
+
+Example:
+
+```
+KDS: scrollable auto-height grid on tablet
+
+- Replace fixed equal-height rows with auto-height grid
+- Make cards area vertically scrollable
+
+Authored by Cursor Agent
+```
+
+## Do not use
+
+- `Co-authored-by:` trailers with other names
+- Other author attribution lines (e.g. `Signed-off-by:`, human names, emails)
+- Commit messages without the required `Authored by Cursor Agent` footer
+
+See also: `AGENTS.md` → Git commit author policy.

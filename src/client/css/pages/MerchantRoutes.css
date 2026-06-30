@@ -52,6 +52,11 @@
 .Merchant--theme-light .ReasonModal {
   background: #fff;
   border-color: #ddd;
+  color: #1a1a1a;
+}
+
+.Merchant--theme-light .OrderDetail__back:active {
+  background: #f0f0f0;
 }
 
 .Merchant--theme-light .ReasonModal h3,
@@ -143,54 +148,165 @@
   min-height: 0;
 }
 
-/* Tablet: 2 columns */
 @media (min-width: 480px) {
-  .OrdersGrid__cards {
-    grid-template-columns: repeat(2, 1fr);
-  }
   .OrdersGrid__title {
     font-size: 1.4rem;
   }
   .OrdersGrid__filters {
     flex-wrap: nowrap;
   }
-  .OrdersGrid__ready-scroll {
-    grid-template-columns: repeat(2, 1fr);
-  }
   .OrderDetail__meta-comment {
     grid-column: span 2;
   }
 }
 
-/* Desktop: 4 columns */
-@media (min-width: 900px) {
+/* Tablet+: KDS 3-column scrollable masonry-style tickets */
+@media (min-width: 768px) {
   .OrdersGrid {
-    display: grid;
-    grid-template-rows: auto auto 1fr;
-    grid-template-columns: 1fr;
+    height: 100dvh;
+    max-height: 100dvh;
+    display: flex;
+    flex-direction: column;
     gap: 8px;
     padding: 8px 12px 12px;
+    overflow: hidden;
+    box-sizing: border-box;
   }
 
   .OrdersGrid__header {
     padding: 4px 4px 0;
+    flex-shrink: 0;
   }
 
   .OrdersGrid__filters {
-    align-self: start;
+    flex-shrink: 0;
     padding: 0 4px 4px;
     justify-content: flex-start;
   }
 
   .OrdersGrid__cards {
-    grid-template-columns: repeat(4, 1fr);
-    grid-template-rows: repeat(2, 1fr);
+    display: flex;
+    flex: 1 1 auto;
+    flex-wrap: wrap;
+    align-content: flex-start;
+    align-items: stretch;
+    gap: 8px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    min-height: 0;
+    -webkit-overflow-scrolling: touch;
   }
+
+  .OrdersGrid__section--ready {
+    display: contents;
+  }
+
   .OrdersGrid__ready-scroll {
-    grid-template-columns: repeat(4, 1fr);
+    display: contents;
   }
+
+  .OrdersGrid__section-label {
+    display: none;
+  }
+
+  .OrderCard {
+    box-sizing: border-box;
+    flex: 0 0 calc((100% - 16px) / 3);
+    width: calc((100% - 16px) / 3);
+    padding: 8px 10px;
+    min-height: 0;
+    height: auto;
+    border-width: 2px;
+    border-radius: 10px;
+    contain: none;
+  }
+
+  .OrderCard__top {
+    margin-bottom: 4px;
+    flex-shrink: 0;
+  }
+
+  .OrderCard__orderNum {
+    font-size: clamp(0.95rem, 1.8vw, 1.1rem);
+    line-height: 1;
+  }
+
+  .OrderCard__time {
+    font-size: 0.7rem;
+  }
+
+  .OrderCard__items {
+    flex: 0 0 auto;
+    min-height: auto;
+    font-size: 0.75rem;
+    line-height: 1.2;
+    margin-bottom: 2px;
+  }
+
+  .OrderCard__item {
+    gap: 4px;
+    margin-bottom: 1px;
+    min-width: 0;
+  }
+
+  .OrderCard__item > span:last-child {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .OrderCard__item-qty {
+    min-width: 18px;
+    font-size: 0.78rem;
+  }
+
+  .OrderCard__customer {
+    flex-shrink: 0;
+    margin-bottom: 2px;
+    font-size: 0.7rem;
+    line-height: 1.15;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .OrderCard__bottom {
+    flex-shrink: 0;
+    margin-top: 4px;
+    padding-top: 4px;
+    gap: 4px;
+  }
+
+  .OrderCard .OrderTypeTag {
+    font-size: 0.62rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+
+  .OrderCard .StatusBadge {
+    padding: 3px 7px;
+    font-size: 0.62rem;
+    border-radius: 5px;
+    letter-spacing: 0.02em;
+  }
+
+  .OrdersGrid__empty {
+    flex: 1 1 100%;
+  }
+
+  .OrderPile {
+    flex: 0 0 calc((100% - 16px) / 3);
+    width: calc((100% - 16px) / 3);
+    box-sizing: border-box;
+  }
+
+  .OrdersGrid__divider {
+    flex: 0 0 100%;
+    width: 100%;
+  }
+
   .OrderDetail__meta-comment {
-    grid-column: span 4;
+    grid-column: span 3;
   }
 }
 
@@ -223,7 +339,7 @@
 }
 
 .OrderCard__orderNum {
-  font-size: 1.75rem;
+  font-size: 1.35rem;
   font-weight: 800;
   color: #fff;
   letter-spacing: -0.02em;
@@ -237,18 +353,19 @@
 }
 
 .OrderCard__customer {
-  font-size: 1.05rem;
+  font-size: 0.875rem;
   color: #ddd;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
   font-weight: 600;
-  line-height: 1.3;
+  line-height: 1.25;
+  flex-shrink: 0;
 }
 
 .OrderCard__items {
-  flex: 1;
+  flex: 0 0 auto;
   color: #999;
-  font-size: 0.95rem;
-  line-height: 1.4;
+  font-size: 0.9rem;
+  line-height: 1.35;
   overflow: hidden;
 }
 
@@ -481,6 +598,28 @@
   -webkit-tap-highlight-color: transparent;
 }
 
+.OrderDetail__toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  flex-shrink: 0;
+}
+
+.OrderDetail__loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  font-size: 1.5rem;
+  color: #666;
+  min-height: 40vh;
+}
+
+.Merchant--theme-light .OrderDetail__loading {
+  color: #888;
+}
+
 .OrderDetail__back {
   background: #1a1a1a;
   border: 2px solid #444;
@@ -491,10 +630,12 @@
   cursor: pointer;
   font-size: 1.1rem;
   font-weight: 700;
-  margin-bottom: 16px;
-  width: 100%;
-  max-width: 200px;
+  margin-bottom: 0;
+  width: auto;
+  min-width: 160px;
+  max-width: 100%;
   touch-action: manipulation;
+  font-family: inherit;
 }
 
 .OrderDetail__back:active {
@@ -762,6 +903,104 @@
   padding: 48px 24px;
 }
 
+/* ===== KDS section divider & order pile ===== */
+
+.OrdersGrid__divider {
+  flex: 0 0 100%;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 4px;
+  box-sizing: border-box;
+}
+
+.OrdersGrid__divider::before,
+.OrdersGrid__divider::after {
+  content: '';
+  flex: 1;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #444 15%, #444 85%, transparent);
+}
+
+.OrdersGrid__divider-label {
+  flex-shrink: 0;
+  color: #00e676;
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+
+.Merchant--theme-light .OrdersGrid__divider::before,
+.Merchant--theme-light .OrdersGrid__divider::after {
+  background: linear-gradient(90deg, transparent, #ccc 15%, #ccc 85%, transparent);
+}
+
+.Merchant--theme-light .OrdersGrid__divider-label {
+  color: #00a152;
+}
+
+.OrderPile {
+  position: relative;
+  cursor: pointer;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 150px;
+}
+
+.OrderPile__stack {
+  position: relative;
+  min-height: 140px;
+}
+
+.OrderPile__layer--back {
+  position: absolute;
+  left: calc(var(--pile-layer, 1) * 4px);
+  right: calc(var(--pile-layer, 1) * -4px);
+  top: calc(var(--pile-layer, 1) * 8px);
+  height: calc(100% - var(--pile-layer, 1) * 8px);
+  min-height: 120px;
+  border-radius: 10px;
+  border: 2px solid #333;
+  background: #101010;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+  z-index: calc(10 - var(--pile-layer, 1));
+}
+
+.OrderPile__layer--front {
+  position: relative;
+  z-index: 20;
+}
+
+.OrderPile__layer--front .OrderCard {
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.45);
+}
+
+.OrderCard--in-pile {
+  pointer-events: none;
+}
+
+.OrderPile__label {
+  margin-top: 8px;
+  text-align: center;
+  color: #00e5ff;
+  font-size: 0.8rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.Merchant--theme-light .OrderPile__layer--back {
+  background: #ececec;
+  border-color: #ccc;
+}
+
+.Merchant--theme-light .OrderPile__label {
+  color: #00838f;
+}
+
 /* ===== Error & Loading States ===== */
 
 .Merchant__centered {
@@ -835,25 +1074,23 @@
   font-size: 0.95rem;
   font-weight: 700;
   border: 2px solid #333;
-  background: #141414;
-  color: #888;
+  background: #1a1a1a;
+  color: #666;
   cursor: pointer;
   white-space: nowrap;
   transition: none;
   touch-action: manipulation;
 }
 
-.OrdersGrid__pill--active-color {
-  color: #00E5FF;
-}
-
+.OrdersGrid__pill--active-color,
 .OrdersGrid__pill--canceled-color {
-  color: #FF1744;
+  color: #666;
 }
 
 .OrdersGrid__pill--active {
-  background: #1a1a1a;
-  border-color: currentColor;
+  background: #fff;
+  border-color: #ddd;
+  color: #1a1a1a;
 }
 
 /* ===== Sections (Awaiting / Ready / Canceled) ===== */
@@ -965,13 +1202,21 @@
 }
 
 .Merchant--theme-light .OrdersGrid__pill {
-  background: #fff;
-  border-color: #ddd;
-  color: #666;
+  background: #e0e0e0;
+  border-color: #e0e0e0;
+  color: #888;
+}
+
+.Merchant--theme-light .OrdersGrid__pill--active-color,
+.Merchant--theme-light .OrdersGrid__pill--canceled-color {
+  color: #888;
 }
 
 .Merchant--theme-light .OrdersGrid__pill--active {
-  background: #f0f0f0;
+  background: #fff;
+  border-color: #ddd;
+  color: #1a1a1a;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
 .Merchant--theme-light .OrderDetail__total {

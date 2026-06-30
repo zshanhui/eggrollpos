@@ -107,6 +107,8 @@ merchant:
   connecting: "连接中"
   reconnecting: "重新连接中"
   moreItems: "更多..."
+  kdsReadyDivider: "待取餐 / 待配送"
+  kdsOrderPile: "另有 {{count}} 单"
   backToOrders: "← 返回订单"
   orderNum: "订单 #{{id}}"
   customer: "客户"
@@ -159,7 +161,7 @@ merchant:
   deleteModifierConfirm: "确定删除此配料？"
 
 orderStatus:
-  waiting_for_acceptance: "待接单"
+  waiting_for_acceptance: "接受订单"
   accepted: "已接单"
   preparing: "制作中"
   ready_for_pickup: "待自取"
@@ -171,8 +173,8 @@ orderStatus:
   refunded: "已退款"
 
 orderType:
-  delivery: "🚗 配送"
-  pickup: "🏪 自取"
+  delivery: "配送"
+  pickup: "自取"
 
 time:
   justNow: "刚刚"
