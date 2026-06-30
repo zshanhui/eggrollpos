@@ -74,13 +74,13 @@ Copy `.env.example` for variable names. Local testing requires an HTTPS tunnel (
 
 ### Post-deploy smoke test (Railway staging)
 
-Before pushing a new build to `main`, bump the deploy version:
+Before pushing a new build to `staging`, bump the deploy version:
 
 ```bash
 pnpm run version:bump
 ```
 
-This increments `package.json` version by **0.1.0** (e.g. `0.1.0` → `0.2.0`). The version appears in the home page footer. Commit the bump, push to `main`, then run smoke tests after deploy:
+This increments `package.json` version by **0.1.0** (e.g. `0.1.0` → `0.2.0`). The version appears in the home page footer. Commit the bump, push to `staging`, then run smoke tests after deploy:
 
 ```bash
 pnpm run smoke:staging
@@ -115,10 +115,11 @@ Set `STAGING_MERCHANT_KEY` and `STAGING_MENU_SLUG` in `.env.staging.example` for
 
 **Auto-merge only PRs from the current session** — the branch you just created for the task at hand.
 
+- New pull requests should target `staging` by default. Use another base branch only when the user explicitly asks.
 - When the user asks to merge/deploy, merge **that PR only** (`gh pr ready <n> && gh pr merge <n> --merge --delete-branch`).
 - **Do not** batch-merge other open/stale PRs unless the user explicitly lists them by number.
 - If a PR has merge conflicts, stop and report — do not force-merge or revert other work to land it.
-- After merge, push is enough for Railway auto-deploy; run `pnpm run smoke:staging` when the user asks to redeploy.
+- After merge to `staging`, push is enough for Railway auto-deploy; run `pnpm run smoke:staging` when the user asks to redeploy.
 - If the user says to abort previous merges, revert only the commits they mean — confirm which PR numbers if unclear.
 
 ### Git commit author policy

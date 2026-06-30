@@ -6,12 +6,14 @@ alwaysApply: true
 
 # PR auto-merge policy
 
-When completing work and the user wants changes on main:
+New pull requests should target the `staging` branch by default.
+
+When completing work and the user wants changes deployed:
 
 1. Merge **only the PR for the branch you just pushed** in this session.
 2. Use: `gh pr ready <n> && gh pr merge <n> --merge --delete-branch`
 3. **Never** merge all open PRs unless the user gives explicit PR numbers.
 4. Skip PRs with merge conflicts — report and leave open (or close if user asks to abort).
-5. After merge, Railway deploys from `main` automatically; run `pnpm run smoke:staging` if redeploy verification is requested.
+5. After merge, Railway deploys from `staging` automatically; run `pnpm run smoke:staging` if redeploy verification is requested.
 
 See also: `AGENTS.md` → Pull request merge policy.

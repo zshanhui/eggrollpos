@@ -8,7 +8,7 @@ https://eggrollpos-staging.up.railway.app/
 
 ## When to run
 
-- After merging to `main` and Railway finishes deploy
+- After merging to `staging` and Railway finishes deploy
 - After changing frontend build, EJS shell, Dockerfile, or static asset paths
 - After database migrations on staging
 - When debugging blank pages or MIME type errors in the browser
@@ -77,7 +77,7 @@ With `STAGING_RECEIPT_UUID`:
 
 ## Agent workflow after deploy
 
-1. After pushing to `main`, wait **at least 120 seconds** for Railway to fully deploy (built into `pnpm run smoke:staging`).
+1. After pushing to `staging`, wait **at least 120 seconds** for Railway to fully deploy (built into `pnpm run smoke:staging`).
 2. Run `pnpm run smoke:staging` with staging env vars set if available.
 3. To skip the wait (e.g. re-checking an already-live deploy): `SMOKE_WAIT_SECONDS=0 pnpm run smoke:staging`
 4. If failures mention **HTML MIME type for JS** or **missing #app-root**, inspect `src/server/views/index.ejs` and Vite manifest wiring (`src/server/lib/viteAssets.js`).
