@@ -139,34 +139,38 @@
   }
 }
 
-/* Tablet+: KDS 3-column scrollable grid, variable-height tickets */
+/* Tablet+: KDS 3-column scrollable masonry-style tickets */
 @media (min-width: 768px) {
   .OrdersGrid {
     height: 100dvh;
-    display: grid;
-    grid-template-rows: auto auto minmax(0, 1fr);
-    grid-template-columns: 1fr;
+    max-height: 100dvh;
+    display: flex;
+    flex-direction: column;
     gap: 8px;
     padding: 8px 12px 12px;
     overflow: hidden;
+    box-sizing: border-box;
   }
 
   .OrdersGrid__header {
     padding: 4px 4px 0;
+    flex-shrink: 0;
   }
 
   .OrdersGrid__filters {
-    align-self: start;
+    flex-shrink: 0;
     padding: 0 4px 4px;
     justify-content: flex-start;
   }
 
   .OrdersGrid__cards {
-    grid-template-columns: repeat(3, 1fr);
-    grid-auto-rows: auto;
-    align-content: start;
-    align-items: start;
+    display: flex;
+    flex: 1 1 auto;
+    flex-wrap: wrap;
+    align-content: flex-start;
+    align-items: stretch;
     gap: 8px;
+    overflow-x: hidden;
     overflow-y: auto;
     min-height: 0;
     -webkit-overflow-scrolling: touch;
@@ -185,12 +189,15 @@
   }
 
   .OrderCard {
+    box-sizing: border-box;
+    flex: 0 0 calc((100% - 16px) / 3);
+    width: calc((100% - 16px) / 3);
     padding: 8px 10px;
-    min-height: auto;
+    min-height: 0;
     height: auto;
-    align-self: start;
     border-width: 2px;
     border-radius: 10px;
+    contain: none;
   }
 
   .OrderCard__top {
@@ -260,6 +267,10 @@
     font-size: 0.62rem;
     border-radius: 5px;
     letter-spacing: 0.02em;
+  }
+
+  .OrdersGrid__empty {
+    flex: 1 1 100%;
   }
 
   .OrderDetail__meta-comment {
