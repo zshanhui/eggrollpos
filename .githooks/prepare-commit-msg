@@ -1,0 +1,13 @@
+#!/bin/sh
+# Ensures commits follow the Cursor Agent author policy.
+COMMIT_MSG_FILE=$1
+
+# Remove any Co-authored-by trailers injected by the environment
+if [ -f "$COMMIT_MSG_FILE" ]; then
+  sed -i '/^Co-authored-by:/Id' "$COMMIT_MSG_FILE"
+  sed -i '/^Signed-off-by:/Id' "$COMMIT_MSG_FILE"
+
+  if ! grep -q '^Authored by Cursor Agent$' "$COMMIT_MSG_FILE"; then
+    printf '\nAuthored by Cursor Agent\n' >> "$COMMIT_MSG_FILE"
+  fi
+fi
