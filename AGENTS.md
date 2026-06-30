@@ -121,6 +121,33 @@ Set `STAGING_MERCHANT_KEY` and `STAGING_MENU_SLUG` in `.env.staging.example` for
 - After merge, push is enough for Railway auto-deploy; run `pnpm run smoke:staging` when the user asks to redeploy.
 - If the user says to abort previous merges, revert only the commits they mean — confirm which PR numbers if unclear.
 
+### Git commit author policy
+
+All commits on this project must be attributed **only** to Cursor Agent.
+
+**Git identity** (per repository):
+
+```bash
+git config user.name "Cursor Agent"
+git config user.email "cursor-agent@local"
+```
+
+**Commit message footer** — every commit must end with this exact line:
+
+```
+Authored by Cursor Agent
+```
+
+Do not add `Co-authored-by:` or any other author names. Optional commit template: `.gitmessage` (`git config commit.template .gitmessage`).
+
+Enable the repo hook (strips injected co-author trailers, appends footer if missing):
+
+```bash
+git config core.hooksPath .githooks
+```
+
+Cursor rule: `.cursor/rules/git-commit-author.mdc`
+
 ### Optional integrations
 
 The contact form currently logs submissions to stdout; a database-backed admin UI is planned.
