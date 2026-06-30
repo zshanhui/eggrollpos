@@ -1029,25 +1029,23 @@
   font-size: 0.95rem;
   font-weight: 700;
   border: 2px solid #333;
-  background: #141414;
-  color: #888;
+  background: #1a1a1a;
+  color: #666;
   cursor: pointer;
   white-space: nowrap;
   transition: none;
   touch-action: manipulation;
 }
 
-.OrdersGrid__pill--active-color {
-  color: #00E5FF;
-}
-
+.OrdersGrid__pill--active-color,
 .OrdersGrid__pill--canceled-color {
-  color: #FF1744;
+  color: #666;
 }
 
 .OrdersGrid__pill--active {
-  background: #1a1a1a;
-  border-color: currentColor;
+  background: #fff;
+  border-color: #ddd;
+  color: #1a1a1a;
 }
 
 /* ===== Sections (Awaiting / Ready / Canceled) ===== */
@@ -1159,13 +1157,21 @@
 }
 
 .Merchant--theme-light .OrdersGrid__pill {
-  background: #fff;
-  border-color: #ddd;
-  color: #666;
+  background: #e0e0e0;
+  border-color: #e0e0e0;
+  color: #888;
+}
+
+.Merchant--theme-light .OrdersGrid__pill--active-color,
+.Merchant--theme-light .OrdersGrid__pill--canceled-color {
+  color: #888;
 }
 
 .Merchant--theme-light .OrdersGrid__pill--active {
-  background: #f0f0f0;
+  background: #fff;
+  border-color: #ddd;
+  color: #1a1a1a;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
 .Merchant--theme-light .OrderDetail__total {
