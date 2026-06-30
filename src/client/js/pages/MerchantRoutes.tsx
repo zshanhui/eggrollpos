@@ -109,6 +109,23 @@ const FILTER_OPTIONS: { key: StatusFilter; label: string; colorClass: string }[]
   { key: 'canceled_refunded', label: 'Canceled/Refunded', colorClass: 'OrdersGrid__pill--canceled-color' },
 ];
 
+const KDS_FULL_ORDER_LIMIT = 10;
+
+function sortFifo(a: any, b: any) {
+  return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+}
+
+function splitActiveBoard(awaitingPreparing: any[], ready: any[], limit = KDS_FULL_ORDER_LIMIT) {
+  const globalFifo = [...awaitingPreparing, ...ready].sort(sortFifo);
+  const fullIds = new Set(globalFifo.slice(0, limit).map((order) => order.orderId));
+  const pileOrders = globalFifo.slice(limit);
+  const activeFull = awaitingPreparing.filter((order) => fullIds.has(order.orderId));
+  const readyFull = ready.filter((order) => fullIds.has(order.orderId));
+  const showDivider = activeFull.length > 0 && ready.length > 0;
+
+  return { activeFull, readyFull, pileOrders, showDivider };
+}
+
 function todayISO() {
   return new Date().toISOString().slice(0, 10);
 }
@@ -160,7 +177,6 @@ function OrdersListPage({ merchantId, merchantName, merchantHashId, onSelectOrde
   const orderList = orders ? Object.values(orders) as any[] : [];
 
   const { awaitingPreparing, ready, canceledRefunded } = useMemo(() => {
-    const sortFifo = (a: any, b: any) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
     const awaiting = orderList
       .filter((o: any) => AWAITING_PREPARING_STATUSES.includes(o.status))
       .sort(sortFifo);
@@ -175,15 +191,26 @@ function OrdersListPage({ merchantId, merchantName, merchantHashId, onSelectOrde
     };
   }, [orderList]);
 
+  const activeBoard = useMemo(
+    () => splitActiveBoard(awaitingPreparing, ready),
+    [awaitingPreparing, ready],
+  );
+
   const filteredOrders = useMemo(() => {
     if (statusFilter === 'active') return [...awaitingPreparing, ...ready];
     return canceledRefunded;
   }, [statusFilter, awaitingPreparing, ready, canceledRefunded]);
 
-  const displayActive = useMemo(() => {
-    if (statusFilter !== 'active') return [];
-    return [...awaitingPreparing, ...ready];
-  }, [statusFilter, awaitingPreparing, ready]);
+  const renderOrderCard = (order: any) => (
+    <OrderCard
+      key={order.orderId}
+      order={order}
+      highlighted={highlightedIds.has(order.orderId)}
+      elapsedTick={elapsedTick}
+      onClick={() => onSelectOrder(order.orderId)}
+      t={t}
+    />
+  );
 
   return (
     <div className="OrdersGrid OrdersGrid--with-header">
@@ -227,16 +254,24 @@ function OrdersListPage({ merchantId, merchantName, merchantHashId, onSelectOrde
             {orderList.length === 0 ? t('merchant.noOrders') : t('merchant.noMatchingOrders')}
           </div>
         ) : statusFilter === 'active' ? (
-          displayActive.map((order: any) => (
-            <OrderCard
-              key={order.orderId}
-              order={order}
-              highlighted={highlightedIds.has(order.orderId)}
-              elapsedTick={elapsedTick}
-              onClick={() => onSelectOrder(order.orderId)}
-              t={t}
-            />
-          ))
+          <>
+            {activeBoard.activeFull.map(renderOrderCard)}
+            {activeBoard.showDivider && (
+              <div className="OrdersGrid__divider" role="separator" aria-label={t('merchant.kdsReadyDivider')}>
+                <span className="OrdersGrid__divider-label">{t('merchant.kdsReadyDivider')}</span>
+              </div>
+            )}
+            {activeBoard.readyFull.map(renderOrderCard)}
+            {activeBoard.pileOrders.length > 0 && (
+              <OrderPile
+                orders={activeBoard.pileOrders}
+                highlightedIds={highlightedIds}
+                elapsedTick={elapsedTick}
+                onSelectOrder={onSelectOrder}
+                t={t}
+              />
+            )}
+          </>
         ) : (
           <div className="OrdersGrid__section OrdersGrid__section--canceled">
             {canceledRefunded.map((order: any) => (
@@ -256,13 +291,74 @@ function OrdersListPage({ merchantId, merchantName, merchantHashId, onSelectOrde
   );
 }
 
+// ─── Order pile (overflow beyond first 10 FIFO) ───
+
+const OrderPile = React.memo(function OrderPile({
+  orders,
+  highlightedIds,
+  elapsedTick,
+  onSelectOrder,
+  t,
+}: {
+  orders: any[];
+  highlightedIds: Set<number>;
+  elapsedTick?: number;
+  onSelectOrder: (id: number) => void;
+  t: (key: string, options?: Record<string, unknown>) => string;
+}) {
+  const topOrder = orders[0];
+  const stackLayers = Math.min(orders.length - 1, 3);
+
+  const handleActivate = () => onSelectOrder(topOrder.orderId);
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      handleActivate();
+    }
+  };
+
+  return (
+    <div
+      className="OrderPile"
+      onClick={handleActivate}
+      onKeyDown={handleKeyDown}
+      role="button"
+      tabIndex={0}
+      aria-label={t('merchant.kdsOrderPile', { count: orders.length })}
+    >
+      <div className="OrderPile__stack">
+        {Array.from({ length: stackLayers }).map((_, index) => (
+          <div
+            key={`layer-${index}`}
+            className="OrderPile__layer OrderPile__layer--back"
+            style={{ ['--pile-layer' as string]: index + 1 }}
+            aria-hidden="true"
+          />
+        ))}
+        <div className="OrderPile__layer OrderPile__layer--front">
+          <OrderCard
+            order={topOrder}
+            highlighted={highlightedIds.has(topOrder.orderId)}
+            elapsedTick={elapsedTick}
+            onClick={() => onSelectOrder(topOrder.orderId)}
+            t={t}
+            inPile
+          />
+        </div>
+      </div>
+      <div className="OrderPile__label">{t('merchant.kdsOrderPile', { count: orders.length })}</div>
+    </div>
+  );
+});
+
 // ─── Order Card (memoized for scroll perf on low-end devices) ───
 
-const OrderCard = React.memo(function OrderCard({ order, highlighted, elapsedTick, onClick, t }: { order: any; highlighted?: boolean; elapsedTick?: number; onClick: () => void; t: (key: string) => string }) {
+const OrderCard = React.memo(function OrderCard({ order, highlighted, elapsedTick, onClick, t, inPile }: { order: any; highlighted?: boolean; elapsedTick?: number; onClick?: () => void; t: (key: string) => string; inPile?: boolean }) {
   const status: OrderStatus = order.status;
   const elapsed = getElapsed(order.createdAt, t, elapsedTick);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (!onClick || inPile) return;
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
       onClick();
@@ -271,11 +367,11 @@ const OrderCard = React.memo(function OrderCard({ order, highlighted, elapsedTic
 
   return (
     <div
-      className={`OrderCard OrderCard--${status}${highlighted ? ' OrderCard--highlight' : ''}`}
-      onClick={onClick}
-      onKeyDown={handleKeyDown}
-      role="button"
-      tabIndex={0}
+      className={`OrderCard OrderCard--${status}${highlighted ? ' OrderCard--highlight' : ''}${inPile ? ' OrderCard--in-pile' : ''}`}
+      onClick={inPile ? undefined : onClick}
+      onKeyDown={inPile ? undefined : handleKeyDown}
+      role={inPile ? undefined : 'button'}
+      tabIndex={inPile ? -1 : 0}
       aria-label={`View order #${order.displayNumber ?? order.orderId} from ${order.customerName}`}
     >
       <div className="OrderCard__top">

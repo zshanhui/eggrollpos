@@ -273,6 +273,17 @@
     flex: 1 1 100%;
   }
 
+  .OrderPile {
+    flex: 0 0 calc((100% - 16px) / 3);
+    width: calc((100% - 16px) / 3);
+    box-sizing: border-box;
+  }
+
+  .OrdersGrid__divider {
+    flex: 0 0 100%;
+    width: 100%;
+  }
+
   .OrderDetail__meta-comment {
     grid-column: span 3;
   }
@@ -845,6 +856,104 @@
   font-size: 1.25rem;
   font-weight: 700;
   padding: 48px 24px;
+}
+
+/* ===== KDS section divider & order pile ===== */
+
+.OrdersGrid__divider {
+  flex: 0 0 100%;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 4px;
+  box-sizing: border-box;
+}
+
+.OrdersGrid__divider::before,
+.OrdersGrid__divider::after {
+  content: '';
+  flex: 1;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #444 15%, #444 85%, transparent);
+}
+
+.OrdersGrid__divider-label {
+  flex-shrink: 0;
+  color: #00e676;
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+
+.Merchant--theme-light .OrdersGrid__divider::before,
+.Merchant--theme-light .OrdersGrid__divider::after {
+  background: linear-gradient(90deg, transparent, #ccc 15%, #ccc 85%, transparent);
+}
+
+.Merchant--theme-light .OrdersGrid__divider-label {
+  color: #00a152;
+}
+
+.OrderPile {
+  position: relative;
+  cursor: pointer;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 150px;
+}
+
+.OrderPile__stack {
+  position: relative;
+  min-height: 140px;
+}
+
+.OrderPile__layer--back {
+  position: absolute;
+  left: calc(var(--pile-layer, 1) * 4px);
+  right: calc(var(--pile-layer, 1) * -4px);
+  top: calc(var(--pile-layer, 1) * 8px);
+  height: calc(100% - var(--pile-layer, 1) * 8px);
+  min-height: 120px;
+  border-radius: 10px;
+  border: 2px solid #333;
+  background: #101010;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+  z-index: calc(10 - var(--pile-layer, 1));
+}
+
+.OrderPile__layer--front {
+  position: relative;
+  z-index: 20;
+}
+
+.OrderPile__layer--front .OrderCard {
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.45);
+}
+
+.OrderCard--in-pile {
+  pointer-events: none;
+}
+
+.OrderPile__label {
+  margin-top: 8px;
+  text-align: center;
+  color: #00e5ff;
+  font-size: 0.8rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.Merchant--theme-light .OrderPile__layer--back {
+  background: #ececec;
+  border-color: #ccc;
+}
+
+.Merchant--theme-light .OrderPile__label {
+  color: #00838f;
 }
 
 /* ===== Error & Loading States ===== */

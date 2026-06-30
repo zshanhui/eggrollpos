@@ -106,6 +106,8 @@ merchant:
   connecting: "Menyambung"
   reconnecting: "Menyambung semula"
   moreItems: "lagi..."
+  kdsReadyDivider: "Sedia untuk Ambil / Penghantaran"
+  kdsOrderPile: "+{{count}} pesanan lagi"
   backToOrders: "← Kembali ke Pesanan"
   orderNum: "Pesanan #{{id}}"
   customer: "Pelanggan"
