@@ -22,6 +22,7 @@ const {
     deleteMenuItemImage,
     deleteMenuItemImageByUrl,
 } = require('../services/menu_item_images');
+const { buildKitchenTicket, KitchenTicketError } = require('../services/kitchen_ticket');
 
 /**
  * @typedef {import('../../shared/merchants').MerchantRow} MerchantRow
@@ -142,6 +143,23 @@ router.get('/:merchantId/orders/:orderId', async (req, res) => {
         res.json(order);
     } else {
         res.sendStatus(404);
+    }
+});
+
+router.get('/:merchantId/orders/:orderId/kitchen-ticket', async (req, res) => {
+    const merchantId = parseInt(req.params.merchantId, 10);
+    const orderId = parseInt(req.params.orderId, 10);
+    if (isNaN(merchantId) || isNaN(orderId)) {
+        return res.status(400).json({ error: 'Invalid merchant or order ID' });
+    }
+    try {
+        const kitchenTicket = await buildKitchenTicket(merchantId, orderId);
+        res.json({ kitchenTicket });
+    } catch (err) {
+        if (err instanceof KitchenTicketError || (err && err.status === 404 && err.name === 'KitchenTicketError')) {
+            return res.status(err.status).json({ error: err.message });
+        }
+        res.status(500).json({ error: err.message || 'Failed to build kitchen ticket' });
     }
 });
 

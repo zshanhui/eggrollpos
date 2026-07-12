@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Status, STATUS_LABELS, getNextStatus, canCancel } from '../../../shared/orders';
 import type { OrderStatus, OrderType } from '../../../shared/orders';
 import { resolveMerchantTheme } from '../../../shared/merchants';
-import { merchantDashboardPath } from '../../../shared/merchant_dashboard';
+import { merchantDashboardPath, merchantKitchenTicketPath } from '../../../shared/merchant_dashboard';
 import type { OrderStreamPayload } from '../../../shared/order_events';
 import { useMerchantHashRoute } from '../hooks/useMerchantHashRoute';
 import { useMerchantOrderStream, useElapsedTick, type ConnectionStatus } from '../hooks/useMerchantOrderStream';
@@ -52,6 +52,7 @@ export default function MerchantRoutes(props: any) {
       ) : (
         <OrderDetailPage
           merchantId={merchant.id}
+          merchantHashId={merchantHashId}
           orderId={selectedOrderId}
           onBack={() => setSelectedOrderId(null)}
           t={t}
@@ -397,7 +398,7 @@ const OrderCard = React.memo(function OrderCard({ order, highlighted, elapsedTic
 
 // ─── Order Detail Page ───
 
-function OrderDetailPage({ merchantId, orderId, onBack, t }: { merchantId: number; orderId: number; onBack: () => void; t: (key: string) => string }) {
+function OrderDetailPage({ merchantId, merchantHashId, orderId, onBack, t }: { merchantId: number; merchantHashId: string; orderId: number; onBack: () => void; t: (key: string) => string }) {
   const [order, setOrder] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [reasonModal, setReasonModal] = useState<boolean>(false);
@@ -548,6 +549,14 @@ function OrderDetailPage({ merchantId, orderId, onBack, t }: { merchantId: numbe
       )}
 
       <div className="OrderDetail__actions">
+        <a
+          className="OrderDetail__action-btn OrderDetail__action-btn--secondary"
+          href={merchantKitchenTicketPath(merchantHashId, order.id, true)}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {t('kitchenTicket.print')}
+        </a>
         {nextLabel && (
           <button
             className="OrderDetail__action-btn OrderDetail__action-btn--primary"

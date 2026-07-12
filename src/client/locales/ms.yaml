@@ -188,6 +188,12 @@ receipts:
   receipt: "Resit"
   serviceBy: "Perkhidmatan oleh PLATFORM_NAME"
 
+kitchenTicket:
+  title: "Tiket Dapur"
+  print: "Cetak Tiket Dapur"
+  note: "Nota"
+  loadFailed: "Gagal memuatkan tiket dapur"
+
 menus:
   loading: "Memuatkan..."
   orderTotal: "Jumlah Pesanan"

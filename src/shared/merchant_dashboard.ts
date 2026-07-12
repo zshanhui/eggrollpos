@@ -13,3 +13,9 @@ export function merchantDashboardPath(hashId: string, segment?: string): string 
   if (!segment) return base;
   return `${base}/${segment.replace(/^\//, '')}`;
 }
+
+/** Kitchen ticket print page for an order (append ?print=1 to auto-open print dialog). */
+export function merchantKitchenTicketPath(hashId: string, orderId: number, autoPrint = false): string {
+  const path = merchantDashboardPath(hashId, `kitchen-ticket/${orderId}`);
+  return autoPrint ? `${path}?print=1` : path;
+}

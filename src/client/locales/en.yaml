@@ -196,6 +196,12 @@ receipts:
   receipt: "Receipt"
   serviceBy: "Service by PLATFORM_NAME"
 
+kitchenTicket:
+  title: "Kitchen Ticket"
+  print: "Print Kitchen Ticket"
+  note: "Note"
+  loadFailed: "Failed to load kitchen ticket"
+
 menus:
   loading: "Loading..."
   orderTotal: "Order Total"

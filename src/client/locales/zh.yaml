@@ -191,6 +191,12 @@ receipts:
   receipt: "收据"
   serviceBy: "由 PLATFORM_NAME 提供服务"
 
+kitchenTicket:
+  title: "厨房小票"
+  print: "打印厨房小票"
+  note: "备注"
+  loadFailed: "加载厨房小票失败"
+
 menus:
   loading: "加载中..."
   orderTotal: "订单合计"
