@@ -28,11 +28,12 @@ describe('order_events', () => {
     const res = createMockResponse();
     subscribeMerchantOrders(42, res);
 
-    publishOrderEvent({ type: 'order_created', orderId: 7, merchantId: 42 });
+    publishOrderEvent({ type: 'order_created', orderId: 7, merchantId: 42, orderUuid: 'order-uuid-7' });
 
     const payload = res._chunks.find((c) => c.includes('order_created'));
     expect(payload).to.include('event: order_created');
     expect(payload).to.include('"orderId":7');
+    expect(payload).to.include('"orderUuid":"order-uuid-7"');
 
     res._close();
   });

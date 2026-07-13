@@ -5,6 +5,7 @@ import {
   Button,
   ButtonGroup,
   Card,
+  Checkbox,
   Form,
   FormLayout,
   Layout,
@@ -14,7 +15,7 @@ import {
   TextField,
 } from '@shopify/polaris';
 import type { MerchantRow } from '../../../shared/merchants';
-import { resolveMerchantTheme } from '../../../shared/merchants';
+import { resolveMerchantTheme, isKitchenAutoPrintEnabled } from '../../../shared/merchants';
 import { merchantDashboardPath } from '../../../shared/merchant_dashboard';
 import MerchantAdminLayout from '../components/MerchantAdminLayout';
 import LanguageSelector from '../components/LanguageSelector';
@@ -78,6 +79,7 @@ function SettingsForm({
   const [whatsappNumber, setWhatsappNumber] = useState(merchant.whatsapp_number || '');
   const [addressStreet, setAddressStreet] = useState(merchant.address_street || '');
   const [theme, setTheme] = useState<'light' | 'dark'>(() => resolveMerchantTheme(merchant.theme));
+  const [kitchenAutoPrint, setKitchenAutoPrint] = useState(() => isKitchenAutoPrintEnabled(merchant));
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
 
@@ -87,6 +89,7 @@ function SettingsForm({
     setWhatsappNumber(merchant.whatsapp_number || '');
     setAddressStreet(merchant.address_street || '');
     setTheme(resolveMerchantTheme(merchant.theme));
+    setKitchenAutoPrint(isKitchenAutoPrintEnabled(merchant));
   }, [merchant]);
 
   useEffect(() => {
@@ -103,6 +106,21 @@ function SettingsForm({
     } catch {
       setSaveError(t('merchant.settingsSaveFailed'));
       setTheme(theme);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleKitchenAutoPrintChange = async (enabled: boolean) => {
+    setKitchenAutoPrint(enabled);
+    setSaving(true);
+    setSaveError(null);
+    try {
+      const data = await patchApi(`/api/merchants/${merchant.id}`, { kitchenAutoPrint: enabled });
+      onSave(data.merchant);
+    } catch {
+      setSaveError(t('merchant.settingsSaveFailed'));
+      setKitchenAutoPrint(!enabled);
     } finally {
       setSaving(false);
     }
@@ -181,6 +199,18 @@ function SettingsForm({
                     multiline={3}
                     autoComplete="street-address"
                     placeholder={t('merchant.businessAddressPlaceholder')}
+                  />
+                </FormLayout>
+              </Card>
+
+              <Card title={t('merchant.kitchenPrinting')} sectioned>
+                <FormLayout>
+                  <Checkbox
+                    label={t('merchant.kitchenAutoPrint')}
+                    helpText={t('merchant.kitchenAutoPrintHelp')}
+                    checked={kitchenAutoPrint}
+                    onChange={handleKitchenAutoPrintChange}
+                    disabled={saving}
                   />
                 </FormLayout>
               </Card>

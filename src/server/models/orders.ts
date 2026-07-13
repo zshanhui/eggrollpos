@@ -179,6 +179,7 @@ class Order {
         type: 'order_updated',
         orderId: row.id,
         merchantId: row.merchant_id,
+        orderUuid: row.uuid,
       });
     }
     return row;

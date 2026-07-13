@@ -32,6 +32,7 @@ export interface MerchantRow {
   timezone: string | null;
   hash_id: string | null;
   zomato_id: number | null;
+  kitchen_auto_print: boolean | number | null;
   created_at: string | null;
 }
 
@@ -69,4 +70,13 @@ export interface MerchantUpdateParams {
   whatsapp_number?: string | null;
   theme?: MerchantTheme | null;
   timezone?: string | null;
+  kitchen_auto_print?: boolean;
+}
+
+/** True when merchant has kitchen auto-print enabled (handles SQLite 0/1). */
+export function isKitchenAutoPrintEnabled(
+  merchant: Pick<MerchantRow, 'kitchen_auto_print'> | null | undefined
+): boolean {
+  const value = merchant?.kitchen_auto_print;
+  return value === true || value === 1;
 }

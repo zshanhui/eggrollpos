@@ -4,9 +4,11 @@ export interface OrderEvent {
   type: OrderEventType;
   orderId: number;
   merchantId: number;
+  orderUuid?: string;
 }
 
 export interface OrderStreamPayload {
   type: OrderEventType;
   orderId: number;
+  orderUuid?: string;
 }

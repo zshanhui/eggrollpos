@@ -66,6 +66,7 @@ function normalizeMerchantSettingsBody(body) {
         whatsappNumber: body.whatsappNumber ?? body.whatsapp_number,
         addressStreet: body.addressStreet ?? body.address_street,
         theme: body.theme,
+        kitchenAutoPrint: body.kitchenAutoPrint ?? body.kitchen_auto_print,
     };
 }
 
@@ -74,7 +75,7 @@ async function updateMerchantSettingsHandler(req, res) {
     if (isNaN(merchantId)) return res.status(400).json({ error: 'Invalid merchant ID' });
     const merchant = await Merchants.get(merchantId);
     if (!merchant) return res.status(404).json({ error: 'Merchant not found' });
-    const { businessName, taxId, whatsappNumber, addressStreet, theme } = normalizeMerchantSettingsBody(req.body);
+    const { businessName, taxId, whatsappNumber, addressStreet, theme, kitchenAutoPrint } = normalizeMerchantSettingsBody(req.body);
     const updates = {};
     if (businessName !== undefined) updates.business_name = String(businessName).trim();
     if (taxId !== undefined) updates.tax_id = taxId ? String(taxId).trim() : null;
@@ -85,6 +86,9 @@ async function updateMerchantSettingsHandler(req, res) {
             return res.status(400).json({ error: 'theme must be "light" or "dark"' });
         }
         updates.theme = theme;
+    }
+    if (kitchenAutoPrint !== undefined) {
+        updates.kitchen_auto_print = Boolean(kitchenAutoPrint);
     }
     if (Object.keys(updates).length === 0) {
         return res.json({ merchant });

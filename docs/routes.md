@@ -54,7 +54,7 @@ Mounted when `WHATSAPP_VERIFY_TOKEN` or `WHATSAPP_ENABLED` is set (see `.env.exa
 
 | Method | Path | Purpose |
 |--------|------|---------|
-| `PATCH` `PUT` | `/:merchantId` | Update settings (businessName, taxId, whatsappNumber, addressStreet, theme) |
+| `PATCH` `PUT` | `/:merchantId` | Update settings (businessName, taxId, whatsappNumber, addressStreet, theme, kitchenAutoPrint) |
 
 **Orders**
 

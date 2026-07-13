@@ -154,6 +154,7 @@ export async function submitMenuCheckout(
     type: 'order_created',
     orderId: order.id,
     merchantId,
+    orderUuid,
   });
 
   return {

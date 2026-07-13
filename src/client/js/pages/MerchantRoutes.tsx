@@ -2,11 +2,12 @@ import React, { useEffect, useState, useCallback, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next';
 import { Status, STATUS_LABELS, getNextStatus, canCancel } from '../../../shared/orders';
 import type { OrderStatus, OrderType } from '../../../shared/orders';
-import { resolveMerchantTheme } from '../../../shared/merchants';
+import { resolveMerchantTheme, isKitchenAutoPrintEnabled } from '../../../shared/merchants';
 import { merchantDashboardPath, merchantKitchenTicketPath } from '../../../shared/merchant_dashboard';
 import type { OrderStreamPayload } from '../../../shared/order_events';
 import { useMerchantHashRoute } from '../hooks/useMerchantHashRoute';
 import { useMerchantOrderStream, useElapsedTick, type ConnectionStatus } from '../hooks/useMerchantOrderStream';
+import { useKitchenAutoPrintHandler } from '../hooks/useKitchenAutoPrint';
 import { useMerchantAuth } from '../context/MerchantAuthContext';
 import { fetchApi, postApi } from '../lib/merchantApi';
 import '../../css/pages/MerchantRoutes.css';
@@ -46,6 +47,7 @@ export default function MerchantRoutes(props: any) {
           merchantId={merchant.id}
           merchantName={merchant.business_name}
           merchantHashId={merchantHashId}
+          kitchenAutoPrintEnabled={isKitchenAutoPrintEnabled(merchant)}
           onSelectOrder={setSelectedOrderId}
           t={t}
         />
@@ -123,7 +125,7 @@ function todayISO() {
   return new Date().toISOString().slice(0, 10);
 }
 
-function OrdersListPage({ merchantId, merchantName, merchantHashId, onSelectOrder, t }: { merchantId: number; merchantName: string; merchantHashId: string; onSelectOrder: (id: number) => void; t: (key: string) => string }) {
+function OrdersListPage({ merchantId, merchantName, merchantHashId, kitchenAutoPrintEnabled, onSelectOrder, t }: { merchantId: number; merchantName: string; merchantHashId: string; kitchenAutoPrintEnabled: boolean; onSelectOrder: (id: number) => void; t: (key: string) => string }) {
   const [orders, setOrders] = useState<any>(null);
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('active');
   const [highlightedIds, setHighlightedIds] = useState<Set<number>>(() => new Set());
@@ -131,6 +133,7 @@ function OrdersListPage({ merchantId, merchantName, merchantHashId, onSelectOrde
   const { signOut } = useMerchantAuth();
   const isMobile = useIsMobile();
   const elapsedTick = useElapsedTick();
+  const handleKitchenAutoPrint = useKitchenAutoPrintHandler(merchantHashId, kitchenAutoPrintEnabled);
 
   const loadOrders = useCallback(() => {
     const params = new URLSearchParams();
@@ -162,9 +165,10 @@ function OrdersListPage({ merchantId, merchantName, merchantHashId, onSelectOrde
   const handleStreamEvent = useCallback((event: OrderStreamPayload) => {
     if (event.type === 'order_created') {
       highlightOrder(event.orderId);
+      handleKitchenAutoPrint(event);
     }
     loadOrders();
-  }, [highlightOrder, loadOrders]);
+  }, [highlightOrder, handleKitchenAutoPrint, loadOrders]);
 
   const { connectionStatus } = useMerchantOrderStream(merchantId, handleStreamEvent);
 
