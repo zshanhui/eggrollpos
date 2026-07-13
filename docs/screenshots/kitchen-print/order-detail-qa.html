@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Order detail QA</title>
+  <link rel="stylesheet" href="../../../src/client/css/pages/MerchantRoutes.css" />
+  <style>body { margin: 0; background: #121212; }</style>
+</head>
+<body class="Merchant Merchant--theme-dark">
+  <div class="OrderDetail">
+    <div class="OrderDetail__toolbar">
+      <button type="button" class="OrderDetail__back">← Back to Orders</button>
+    </div>
+    <div class="OrderDetail__header">
+      <span class="OrderDetail__orderNum">Order #3</span>
+      <div class="OrderDetail__status">
+        <span class="OrderTypeTag OrderTypeTag--pickup">Pickup</span>
+        <span class="StatusBadge StatusBadge--waiting_for_acceptance">New Order</span>
+      </div>
+    </div>
+    <div class="OrderDetail__actions">
+      <a class="OrderDetail__action-btn OrderDetail__action-btn--secondary" href="#">Print Kitchen Ticket</a>
+      <button type="button" class="OrderDetail__action-btn OrderDetail__action-btn--primary">→ Accept Order</button>
+    </div>
+  </div>
+</body>
+</html>

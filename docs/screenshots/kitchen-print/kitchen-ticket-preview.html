@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Kitchen ticket QA</title>
+  <style>/* Kitchen ticket — optimized for 80mm thermal printers via browser print */
+
+.KitchenTicketPrint {
+  margin: 0;
+  padding: 16px;
+  background: #e8e8e8;
+  min-height: 100vh;
+  font-family: system-ui, sans-serif;
+}
+
+.KitchenTicketPrint__toolbar {
+  max-width: 320px;
+  margin: 0 auto 16px;
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.KitchenTicketPrint__btn {
+  padding: 10px 20px;
+  font-size: 16px;
+  font-weight: 600;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  background: #1a1a1a;
+  color: #fff;
+}
+
+.KitchenTicketPrint__btn--secondary {
+  background: #fff;
+  color: #1a1a1a;
+  border: 1px solid #ccc;
+}
+
+.KitchenTicketPrint__paper {
+  width: 80mm;
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 4mm 3mm;
+  background: #fff;
+  color: #000;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 14px;
+  line-height: 1.35;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+}
+
+.KitchenTicketPrint__merchant {
+  text-align: center;
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0 0 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.KitchenTicketPrint__rule {
+  border: none;
+  border-top: 2px dashed #000;
+  margin: 8px 0;
+}
+
+.KitchenTicketPrint__header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-weight: 700;
+  font-size: 16px;
+  margin-bottom: 4px;
+}
+
+.KitchenTicketPrint__order-num {
+  font-size: 20px;
+}
+
+.KitchenTicketPrint__order-type {
+  font-size: 14px;
+  text-transform: uppercase;
+}
+
+.KitchenTicketPrint__time {
+  font-size: 13px;
+  margin: 0 0 4px;
+}
+
+.KitchenTicketPrint__items {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.KitchenTicketPrint__item {
+  margin: 10px 0;
+}
+
+.KitchenTicketPrint__item-line {
+  display: flex;
+  gap: 6px;
+  font-weight: 700;
+  font-size: 16px;
+}
+
+.KitchenTicketPrint__item-qty {
+  flex-shrink: 0;
+  min-width: 2.5em;
+}
+
+.KitchenTicketPrint__modifiers {
+  margin: 4px 0 0 2.5em;
+  padding: 0;
+  list-style: none;
+  font-weight: 400;
+  font-size: 14px;
+}
+
+.KitchenTicketPrint__modifier::before {
+  content: '+ ';
+}
+
+.KitchenTicketPrint__note {
+  margin: 8px 0 0;
+  font-size: 14px;
+}
+
+.KitchenTicketPrint__note-label {
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 12px;
+}
+
+.KitchenTicketPrint__customer {
+  margin: 8px 0 0;
+  font-size: 14px;
+}
+
+.KitchenTicketPrint__loading,
+.KitchenTicketPrint__error {
+  text-align: center;
+  padding: 48px 16px;
+  font-size: 16px;
+}
+
+.KitchenTicketPrint__error {
+  color: #b00020;
+}
+
+@media print {
+  .KitchenTicketPrint {
+    padding: 0;
+    background: #fff;
+    min-height: auto;
+  }
+
+  .KitchenTicketPrint__toolbar {
+    display: none !important;
+  }
+
+  .KitchenTicketPrint__paper {
+    width: 80mm;
+    max-width: none;
+    margin: 0;
+    padding: 0;
+    box-shadow: none;
+  }
+}
+
+@page {
+  size: 80mm auto;
+  margin: 2mm;
+}
+</style>
+</head>
+<body class="KitchenTicketPrint">
+  <div class="KitchenTicketPrint__toolbar">
+    <button type="button" class="KitchenTicketPrint__btn">Print Kitchen Ticket</button>
+    <button type="button" class="KitchenTicketPrint__btn KitchenTicketPrint__btn--secondary">← Back to Orders</button>
+  </div>
+  <article class="KitchenTicketPrint__paper">
+    <h1 class="KitchenTicketPrint__merchant">INSTEP Cafe</h1>
+    <hr class="KitchenTicketPrint__rule" />
+    <div class="KitchenTicketPrint__header-row">
+      <span class="KitchenTicketPrint__order-num">Order #1</span>
+      <span class="KitchenTicketPrint__order-type">Pickup</span>
+    </div>
+    <p class="KitchenTicketPrint__time">7/13/2026, 7:12:14 AM</p>
+    <hr class="KitchenTicketPrint__rule" />
+    <ul class="KitchenTicketPrint__items">
+        <li class="KitchenTicketPrint__item">
+          <div class="KitchenTicketPrint__item-line">
+            <span class="KitchenTicketPrint__item-qty">2×</span>
+            <span>Egg Roll</span>
+          </div>
+          
+        </li></ul>
+    <hr class="KitchenTicketPrint__rule" />
+       <p class="KitchenTicketPrint__note"><span class="KitchenTicketPrint__note-label">Note:</span> No peanuts</p>
+    <hr class="KitchenTicketPrint__rule" /><p class="KitchenTicketPrint__customer">Kitchen QA Customer</p>
+    <hr class="KitchenTicketPrint__rule" />
+  </article>
+</body>
+</html>

@@ -18,6 +18,7 @@
     "link-merchant-user": "node scripts/link-merchant-user.js",
     "screenshots:merchant": "node scripts/capture-merchant-screenshots.js",
     "screenshots:kitchen-print": "node scripts/capture-kitchen-print-screenshots.js",
+    "qa:kitchen-print-visual": "DB_CLIENT=sqlite3 DB_FILENAME=qa-kitchen.db npx tsx scripts/qa-kitchen-print-visual.js",
     "screenshots:i18n": "node scripts/capture-i18n-screenshots.js",
     "db:migrate": "knex migrate:latest --knexfile db/knexfile.js",
     "db:migrate:rollback": "knex migrate:rollback --knexfile db/knexfile.js",
