@@ -96,6 +96,9 @@ merchant:
   businessAddress: "Business Address"
   businessAddressPlaceholder: "Full address"
   appearance: "Appearance"
+  kitchenPrinting: "Kitchen printing"
+  kitchenAutoPrint: "Auto-print kitchen tickets on new orders"
+  kitchenAutoPrintHelp: "When enabled, a kitchen ticket opens in the print dialog each time a new order arrives on the KDS. Keep this dashboard tab open. Manual reprint is always available from order detail."
   theme: "Theme"
   language: "Language"
   themeLight: "Light"
@@ -195,6 +198,12 @@ receipts:
   logo: "LOGO"
   receipt: "Receipt"
   serviceBy: "Service by PLATFORM_NAME"
+
+kitchenTicket:
+  title: "Kitchen Ticket"
+  print: "Print Kitchen Ticket"
+  note: "Note"
+  loadFailed: "Failed to load kitchen ticket"
 
 menus:
   loading: "Loading..."

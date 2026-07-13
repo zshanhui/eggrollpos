@@ -96,6 +96,9 @@ merchant:
   businessAddress: "Alamat Perniagaan"
   businessAddressPlaceholder: "Alamat penuh"
   appearance: "Penampilan"
+  kitchenPrinting: "Percetakan dapur"
+  kitchenAutoPrint: "Cetak tiket dapur automatik untuk pesanan baharu"
+  kitchenAutoPrintHelp: "Apabila diaktifkan, dialog cetak tiket dapur dibuka setiap kali pesanan baharu tiba di KDS. Pastikan tab papan pemuka ini kekal dibuka. Cetak semula manual masih tersedia dari butiran pesanan."
   theme: "Tema"
   language: "Bahasa"
   themeLight: "Cerah"
@@ -187,6 +190,12 @@ receipts:
   logo: "LOGO"
   receipt: "Resit"
   serviceBy: "Perkhidmatan oleh PLATFORM_NAME"
+
+kitchenTicket:
+  title: "Tiket Dapur"
+  print: "Cetak Tiket Dapur"
+  note: "Nota"
+  loadFailed: "Gagal memuatkan tiket dapur"
 
 menus:
   loading: "Memuatkan..."

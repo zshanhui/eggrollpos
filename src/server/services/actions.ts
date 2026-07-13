@@ -168,6 +168,7 @@ export async function createOrder({ merchantId, customerName, customerPhone, ord
     type: 'order_created',
     orderId: order.id,
     merchantId: merchant.id,
+    orderUuid,
   });
 
   return { orderUuid, orderId: order.id };

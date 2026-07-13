@@ -96,6 +96,9 @@ merchant:
   businessAddress: "企业地址"
   businessAddressPlaceholder: "完整地址"
   appearance: "外观"
+  kitchenPrinting: "厨房打印"
+  kitchenAutoPrint: "新订单自动打印厨房小票"
+  kitchenAutoPrintHelp: "开启后，KDS 收到新订单时会自动打开厨房小票打印对话框。请保持此仪表盘标签页打开。仍可在订单详情中手动补打。"
   theme: "主题"
   language: "语言"
   themeLight: "浅色"
@@ -190,6 +193,12 @@ receipts:
   logo: "LOGO"
   receipt: "收据"
   serviceBy: "由 PLATFORM_NAME 提供服务"
+
+kitchenTicket:
+  title: "厨房小票"
+  print: "打印厨房小票"
+  note: "备注"
+  loadFailed: "加载厨房小票失败"
 
 menus:
   loading: "加载中..."

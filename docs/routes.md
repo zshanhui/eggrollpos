@@ -54,7 +54,7 @@ Mounted when `WHATSAPP_VERIFY_TOKEN` or `WHATSAPP_ENABLED` is set (see `.env.exa
 
 | Method | Path | Purpose |
 |--------|------|---------|
-| `PATCH` `PUT` | `/:merchantId` | Update settings (businessName, taxId, whatsappNumber, addressStreet, theme) |
+| `PATCH` `PUT` | `/:merchantId` | Update settings (businessName, taxId, whatsappNumber, addressStreet, theme, kitchenAutoPrint) |
 
 **Orders**
 
@@ -62,6 +62,7 @@ Mounted when `WHATSAPP_VERIFY_TOKEN` or `WHATSAPP_ENABLED` is set (see `.env.exa
 |--------|------|---------|
 | `GET` | `/:merchantId/orders` | List orders (query: `startdate`, `enddate`, `status`, `limit`, `offset`) |
 | `GET` | `/:merchantId/orders/:orderId` | Single order detail |
+| `GET` | `/:merchantId/orders/:orderUuid/kitchenticket` | Kitchen ticket JSON for printing |
 | `POST` | `/:merchantId/orders` | Advance status / cancel / refund |
 
 **Menu**
@@ -163,6 +164,8 @@ Defined in `src/client/js/App.tsx`. All routes are code-split via `Lazy` wrapper
 | `/md/:hashId/menuitems/add` | `MerchantMenuItems` | Add menu item |
 | `/md/:hashId/menuitems/:menuItemId/edit` | `MerchantMenuItems` | Edit menu item |
 | `/md/:hashId/settings` | `MerchantSettings` | Business info + theme |
+| `/md/:hashId/kitchenticket/:orderUuid` | `KitchenTicketPrint` | Kitchen ticket print view (`?print=1` opens print dialog) |
+| `/md/:hashId/kt/:orderUuid` | `KitchenTicketPrint` | Short alias for kitchen ticket print view |
 | `/md/:hashId/online-menus` | `MerchantMenus` | Online menus list |
 | `/online-ordering/:slug` | `OnlineMenu` | Customer-facing menu (by menu slug) |
 | `/online-ordering/:slug/checkout` | `Checkout` | Online checkout (contact, payment, WhatsApp opt-in) |

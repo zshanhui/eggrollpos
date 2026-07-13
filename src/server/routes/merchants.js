@@ -22,6 +22,7 @@ const {
     deleteMenuItemImage,
     deleteMenuItemImageByUrl,
 } = require('../services/menu_item_images');
+const { buildKitchenTicket, KitchenTicketError } = require('../services/kitchen_ticket');
 
 /**
  * @typedef {import('../../shared/merchants').MerchantRow} MerchantRow
@@ -65,6 +66,7 @@ function normalizeMerchantSettingsBody(body) {
         whatsappNumber: body.whatsappNumber ?? body.whatsapp_number,
         addressStreet: body.addressStreet ?? body.address_street,
         theme: body.theme,
+        kitchenAutoPrint: body.kitchenAutoPrint ?? body.kitchen_auto_print,
     };
 }
 
@@ -73,7 +75,7 @@ async function updateMerchantSettingsHandler(req, res) {
     if (isNaN(merchantId)) return res.status(400).json({ error: 'Invalid merchant ID' });
     const merchant = await Merchants.get(merchantId);
     if (!merchant) return res.status(404).json({ error: 'Merchant not found' });
-    const { businessName, taxId, whatsappNumber, addressStreet, theme } = normalizeMerchantSettingsBody(req.body);
+    const { businessName, taxId, whatsappNumber, addressStreet, theme, kitchenAutoPrint } = normalizeMerchantSettingsBody(req.body);
     const updates = {};
     if (businessName !== undefined) updates.business_name = String(businessName).trim();
     if (taxId !== undefined) updates.tax_id = taxId ? String(taxId).trim() : null;
@@ -84,6 +86,9 @@ async function updateMerchantSettingsHandler(req, res) {
             return res.status(400).json({ error: 'theme must be "light" or "dark"' });
         }
         updates.theme = theme;
+    }
+    if (kitchenAutoPrint !== undefined) {
+        updates.kitchen_auto_print = Boolean(kitchenAutoPrint);
     }
     if (Object.keys(updates).length === 0) {
         return res.json({ merchant });
@@ -142,6 +147,23 @@ router.get('/:merchantId/orders/:orderId', async (req, res) => {
         res.json(order);
     } else {
         res.sendStatus(404);
+    }
+});
+
+router.get('/:merchantId/orders/:orderUuid/kitchenticket', async (req, res) => {
+    const merchantId = parseInt(req.params.merchantId, 10);
+    const orderUuid = String(req.params.orderUuid || '').trim();
+    if (isNaN(merchantId) || !orderUuid) {
+        return res.status(400).json({ error: 'Invalid merchant or order UUID' });
+    }
+    try {
+        const kitchenTicket = await buildKitchenTicket(merchantId, orderUuid);
+        res.json({ kitchenTicket });
+    } catch (err) {
+        if (err instanceof KitchenTicketError || (err && err.status === 404 && err.name === 'KitchenTicketError')) {
+            return res.status(err.status).json({ error: err.message });
+        }
+        res.status(500).json({ error: err.message || 'Failed to build kitchen ticket' });
     }
 });
 

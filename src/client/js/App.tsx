@@ -24,6 +24,7 @@ const Pages = {
   Menus: (props: PageProps) => <Lazy {...props} module={import('./pages/Menus')} />,
   OnlineMenu: (props: PageProps) => <Lazy {...props} module={import('./pages/OnlineMenu')} />,
   Checkout: (props: PageProps) => <Lazy {...props} module={import('./pages/Checkout')} />,
+  KitchenTicketPrint: (props: PageProps) => <Lazy {...props} module={import('./pages/KitchenTicketPrint')} />,
 }
 
 const MERCHANT_DASHBOARD_ROUTES = [
@@ -35,6 +36,8 @@ const MERCHANT_DASHBOARD_ROUTES = [
   { path: '/:hashId/online-menus/add', exact: true, component: Pages.MerchantMenus },
   { path: '/:hashId/online-menus/:menuId/edit', exact: true, component: Pages.MerchantMenus },
   { path: '/:hashId/online-menus', exact: true, component: Pages.MerchantMenus },
+  { path: '/:hashId/kitchenticket/:orderUuid', exact: true, component: Pages.KitchenTicketPrint },
+  { path: '/:hashId/kt/:orderUuid', exact: true, component: Pages.KitchenTicketPrint },
 ] as const;
 
 function App() {

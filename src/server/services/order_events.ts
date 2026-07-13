@@ -42,6 +42,7 @@ export function publishOrderEvent(event: OrderEvent): void {
   const data = JSON.stringify({
     type: event.type,
     orderId: event.orderId,
+    ...(event.orderUuid ? { orderUuid: event.orderUuid } : {}),
   });
 
   for (const res of subs) {
