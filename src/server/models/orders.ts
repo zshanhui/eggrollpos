@@ -221,6 +221,36 @@ class Order {
     }, {deep: true});
   }
 
+  static async getDetailWithUuid(uuid: string) {
+    const dateExpr = isSqlite() ? 'date(orders.created_at)' : '(orders.created_at)::date';
+    const dateExprO2 = isSqlite() ? 'date(o2.created_at)' : '(o2.created_at)::date';
+
+    const order = await Table()
+      .select(
+        'orders.*',
+        'customers.name as customer_name',
+        'customers.mobile_phone',
+        'merchants.business_name as merchant_name',
+        db.raw(`(SELECT COUNT(*) FROM orders o2 WHERE o2.merchant_id = orders.merchant_id AND ${dateExprO2} = ${dateExpr} AND o2.id <= orders.id) as display_number`)
+      )
+      .join('customers', {'orders.customer_id': 'customers.id'})
+      .join('merchants', {'orders.merchant_id': 'merchants.id'})
+      .where('orders.uuid', uuid)
+      .first();
+
+    if (!order) return null;
+
+    const lineItems = await LineItemsTable()
+      .select('line_items.*', 'menu_items.name', 'menu_items.description', 'menu_items.price_cents')
+      .join('menu_items', {'line_items.menu_item_id': 'menu_items.id'})
+      .where('line_items.order_id', order.id);
+
+    return camelcaseKeys({
+      ...order,
+      line_items: lineItems,
+    }, {deep: true});
+  }
+
   static async lineItems(id: number) {
     return await Table()
       .select()

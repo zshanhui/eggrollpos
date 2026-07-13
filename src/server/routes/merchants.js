@@ -146,14 +146,14 @@ router.get('/:merchantId/orders/:orderId', async (req, res) => {
     }
 });
 
-router.get('/:merchantId/orders/:orderId/kitchen-ticket', async (req, res) => {
+router.get('/:merchantId/orders/:orderUuid/kitchenticket', async (req, res) => {
     const merchantId = parseInt(req.params.merchantId, 10);
-    const orderId = parseInt(req.params.orderId, 10);
-    if (isNaN(merchantId) || isNaN(orderId)) {
-        return res.status(400).json({ error: 'Invalid merchant or order ID' });
+    const orderUuid = String(req.params.orderUuid || '').trim();
+    if (isNaN(merchantId) || !orderUuid) {
+        return res.status(400).json({ error: 'Invalid merchant or order UUID' });
     }
     try {
-        const kitchenTicket = await buildKitchenTicket(merchantId, orderId);
+        const kitchenTicket = await buildKitchenTicket(merchantId, orderUuid);
         res.json({ kitchenTicket });
     } catch (err) {
         if (err instanceof KitchenTicketError || (err && err.status === 404 && err.name === 'KitchenTicketError')) {

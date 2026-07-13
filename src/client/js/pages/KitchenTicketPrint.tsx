@@ -71,12 +71,12 @@ function KitchenTicketBody({ ticket, t }: { ticket: KitchenTicket; t: (key: stri
 }
 
 export default function KitchenTicketPrint(props: {
-  match: { params: { hashId: string; orderId: string } };
+  match: { params: { hashId: string; orderUuid: string } };
   history: { push: (path: string) => void };
 }) {
   const { t } = useTranslation();
   const hashId = props.match.params.hashId;
-  const orderId = parseInt(props.match.params.orderId, 10);
+  const orderUuid = props.match.params.orderUuid;
   const autoPrint = useQueryFlag('print');
   const { merchant, error: merchantError } = useMerchantHashRoute(hashId, t);
   const [ticket, setTicket] = useState<KitchenTicket | null>(null);
@@ -84,10 +84,10 @@ export default function KitchenTicketPrint(props: {
   const [printed, setPrinted] = useState(false);
 
   useEffect(() => {
-    if (!merchant || Number.isNaN(orderId)) return;
+    if (!merchant || !orderUuid) return;
     let cancelled = false;
 
-    fetchApi(`/api/merchants/${merchant.id}/orders/${orderId}/kitchen-ticket`)
+    fetchApi(`/api/merchants/${merchant.id}/orders/${encodeURIComponent(orderUuid)}/kitchenticket`)
       .then((data: { kitchenTicket: KitchenTicket }) => {
         if (!cancelled) setTicket(data.kitchenTicket);
       })
@@ -98,7 +98,7 @@ export default function KitchenTicketPrint(props: {
     return () => {
       cancelled = true;
     };
-  }, [merchant, orderId, t]);
+  }, [merchant, orderUuid, t]);
 
   useEffect(() => {
     if (!ticket || !autoPrint || printed) return;

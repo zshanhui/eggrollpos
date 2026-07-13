@@ -551,7 +551,7 @@ function OrderDetailPage({ merchantId, merchantHashId, orderId, onBack, t }: { m
       <div className="OrderDetail__actions">
         <a
           className="OrderDetail__action-btn OrderDetail__action-btn--secondary"
-          href={merchantKitchenTicketPath(merchantHashId, order.id, true)}
+          href={merchantKitchenTicketPath(merchantHashId, order.uuid, true)}
           target="_blank"
           rel="noopener noreferrer"
         >

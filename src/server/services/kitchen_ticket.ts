@@ -22,9 +22,9 @@ async function loadLineItemModifiers(lineItemId: number): Promise<KitchenTicketM
 
 export async function buildKitchenTicket(
   merchantId: number,
-  orderId: number
+  orderUuid: string
 ): Promise<KitchenTicket> {
-  const detail = await Orders.getDetailWithID(orderId);
+  const detail = await Orders.getDetailWithUuid(orderUuid);
   if (!detail) {
     throw new KitchenTicketError(404, 'Order not found');
   }

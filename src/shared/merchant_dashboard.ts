@@ -15,7 +15,13 @@ export function merchantDashboardPath(hashId: string, segment?: string): string 
 }
 
 /** Kitchen ticket print page for an order (append ?print=1 to auto-open print dialog). */
-export function merchantKitchenTicketPath(hashId: string, orderId: number, autoPrint = false): string {
-  const path = merchantDashboardPath(hashId, `kitchen-ticket/${orderId}`);
+export function merchantKitchenTicketPath(hashId: string, orderUuid: string, autoPrint = false): string {
+  const path = merchantDashboardPath(hashId, `kitchenticket/${orderUuid}`);
+  return autoPrint ? `${path}?print=1` : path;
+}
+
+/** Short alias for the kitchen ticket print page. */
+export function merchantKitchenTicketShortPath(hashId: string, orderUuid: string, autoPrint = false): string {
+  const path = merchantDashboardPath(hashId, `kt/${orderUuid}`);
   return autoPrint ? `${path}?print=1` : path;
 }

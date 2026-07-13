@@ -16,6 +16,7 @@ describe('kitchen ticket', () => {
   let merchantId: number;
   let otherMerchantId: number;
   let orderId: number;
+  let orderUuid: string;
   let menuItemId: number;
   let modifierId: number;
   let lineItemId: number;
@@ -82,6 +83,7 @@ describe('kitchen ticket', () => {
       uuid: 'kt-order-0001-0001-0001-000000000001',
       comments: 'No peanuts',
     });
+    orderUuid = 'kt-order-0001-0001-0001-000000000001';
 
     [lineItemId] = await db('line_items').insert({
       order_id: orderId,
@@ -99,9 +101,10 @@ describe('kitchen ticket', () => {
   });
 
   it('buildKitchenTicket returns modifiers and order metadata', async () => {
-    const ticket = await buildKitchenTicket(merchantId, orderId);
+    const ticket = await buildKitchenTicket(merchantId, orderUuid);
 
     expect(ticket.merchantName).to.equal('Kitchen Ticket Cafe');
+    expect(ticket.orderUuid).to.equal(orderUuid);
     expect(ticket.customerName).to.equal('Alice Customer');
     expect(ticket.comments).to.equal('No peanuts');
     expect(ticket.orderType).to.equal('pickup');
@@ -144,7 +147,7 @@ describe('kitchen ticket', () => {
 
   it('rejects tickets for orders on another merchant', async () => {
     try {
-      await buildKitchenTicket(otherMerchantId, orderId);
+      await buildKitchenTicket(otherMerchantId, orderUuid);
       expect.fail('expected KitchenTicketError');
     } catch (err) {
       expect(err).to.be.instanceOf(KitchenTicketError);
@@ -152,20 +155,20 @@ describe('kitchen ticket', () => {
     }
   });
 
-  it('GET /api/merchants/:id/orders/:orderId/kitchen-ticket requires auth', async () => {
+  it('GET /api/merchants/:id/orders/:orderUuid/kitchenticket requires auth', async () => {
     await request(app)
-      .get(`/api/merchants/${merchantId}/orders/${orderId}/kitchen-ticket`)
+      .get(`/api/merchants/${merchantId}/orders/${orderUuid}/kitchenticket`)
       .expect(401);
   });
 
-  it('GET /api/merchants/:id/orders/:orderId/kitchen-ticket returns JSON for linked user', async () => {
+  it('GET /api/merchants/:id/orders/:orderUuid/kitchenticket returns JSON for linked user', async () => {
     const res = await request(app)
-      .get(`/api/merchants/${merchantId}/orders/${orderId}/kitchen-ticket`)
+      .get(`/api/merchants/${merchantId}/orders/${orderUuid}/kitchenticket`)
       .set('Authorization', 'Bearer token-user-1')
       .expect(200);
 
     expect(res.body.kitchenTicket).to.be.an('object');
-    expect(res.body.kitchenTicket.orderId).to.equal(orderId);
+    expect(res.body.kitchenTicket.orderUuid).to.equal(orderUuid);
     expect(res.body.kitchenTicket.lineItems[0].modifiers[0].name).to.equal('Extra spicy');
   });
 });

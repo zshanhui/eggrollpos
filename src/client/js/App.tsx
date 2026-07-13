@@ -36,7 +36,8 @@ const MERCHANT_DASHBOARD_ROUTES = [
   { path: '/:hashId/online-menus/add', exact: true, component: Pages.MerchantMenus },
   { path: '/:hashId/online-menus/:menuId/edit', exact: true, component: Pages.MerchantMenus },
   { path: '/:hashId/online-menus', exact: true, component: Pages.MerchantMenus },
-  { path: '/:hashId/kitchen-ticket/:orderId', exact: true, component: Pages.KitchenTicketPrint },
+  { path: '/:hashId/kitchenticket/:orderUuid', exact: true, component: Pages.KitchenTicketPrint },
+  { path: '/:hashId/kt/:orderUuid', exact: true, component: Pages.KitchenTicketPrint },
 ] as const;
 
 function App() {
