@@ -1,6 +1,5 @@
 const express = require('express');
 const router = express.Router();
-const _ = require('lodash');
 const Actions = require('../services/actions');
 const Orders = require('../models/orders').default;
 const Merchants = require('../models/merchants').default;

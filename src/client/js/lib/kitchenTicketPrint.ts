@@ -1,4 +1,4 @@
-import { merchantKitchenTicketPath } from '../../shared/merchant_dashboard';
+import { merchantKitchenTicketPath } from '../../../shared/merchant_dashboard';
 
 const IFRAME_CLEANUP_MS = 60_000;
 

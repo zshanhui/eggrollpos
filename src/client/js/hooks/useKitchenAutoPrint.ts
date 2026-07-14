@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
-import type { OrderStreamPayload } from '../../shared/order_events';
-import { shouldAutoPrintKitchenTicket } from '../../shared/kitchen_print';
+import type { OrderStreamPayload } from '../../../shared/order_events';
+import { shouldAutoPrintKitchenTicket } from '../../../shared/kitchen_print';
 import { triggerKitchenTicketAutoPrint } from '../lib/kitchenTicketPrint';
 
 /**
