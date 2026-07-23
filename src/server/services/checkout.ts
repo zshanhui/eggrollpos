@@ -10,26 +10,11 @@ import {
   normalizePhoneE164,
 } from '../../shared/contact';
 import type { MenuCheckoutRequest, MenuCheckoutResponse, MockPaymentMethod } from '../../shared/checkout';
+import { computeCurrentlyOpen } from '../../shared/business_hours';
+import { DEFAULT_SALES_TAX_RATE } from '../../shared/constants';
 import { publishOrderEvent } from './order_events';
 
 const VALID_PAYMENT: MockPaymentMethod[] = ['mock_pay_at_pickup', 'mock_card'];
-
-function computeCurrentlyOpen(
-  businessHours: Record<string, { open: string | null; close: string | null }> | null
-): boolean {
-  if (!businessHours) return true;
-  const now = new Date();
-  const pad = (n: number) => String(n).padStart(2, '0');
-  const currentTime = `${pad(now.getUTCHours())}:${pad(now.getUTCMinutes())}`;
-  const days = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
-  const today = days[now.getUTCDay()];
-  const hours = businessHours[today];
-  if (!hours || hours.open === null || hours.close === null) return false;
-  if (hours.open <= hours.close) {
-    return currentTime >= hours.open && currentTime < hours.close;
-  }
-  return currentTime >= hours.open || currentTime < hours.close;
-}
 
 export class CheckoutError extends Error {
   status: number;
@@ -48,7 +33,7 @@ export async function submitMenuCheckout(
     throw new CheckoutError(404, 'Menu not found');
   }
 
-  if (!computeCurrentlyOpen(menuRow.business_hours)) {
+  if (!computeCurrentlyOpen(menuRow.business_hours, menuRow.merchant__timezone)) {
     throw new CheckoutError(400, 'This menu is currently closed');
   }
 
@@ -148,7 +133,10 @@ export async function submitMenuCheckout(
     payment_method: paymentMethod,
   });
 
-  const totals = await Orders.calculateSubtotal({ id: order.id, taxRate: 0.07 });
+  const totals = await Orders.calculateSubtotal({
+    id: order.id,
+    taxRate: DEFAULT_SALES_TAX_RATE,
+  });
 
   publishOrderEvent({
     type: 'order_created',

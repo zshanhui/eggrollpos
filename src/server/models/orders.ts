@@ -2,6 +2,7 @@ import db from './db';
 import { v4 as uuidv4 } from 'uuid';
 import camelcaseKeys from 'camelcase-keys';
 import { Status, OrderStatus, OrderType } from '../../shared/orders';
+import { DEFAULT_SALES_TAX_RATE } from '../../shared/constants';
 import { isSqlite } from '../db/dialect';
 import { extractReturningRow } from '../db/insert-id';
 import { publishOrderEvent } from '../services/order_events';
@@ -192,11 +193,11 @@ class Order {
       .first();
   }
 
-  static async getDetailWithID(id: number) {
+  static async getDetailWithID(id: number, merchantId?: number) {
     const dateExpr = isSqlite() ? 'date(orders.created_at)' : '(orders.created_at)::date';
     const dateExprO2 = isSqlite() ? 'date(o2.created_at)' : '(o2.created_at)::date';
 
-    const order = await Table()
+    let query = Table()
       .select(
         'orders.*',
         'customers.name as customer_name',
@@ -206,8 +207,13 @@ class Order {
       )
       .join('customers', {'orders.customer_id': 'customers.id'})
       .join('merchants', {'orders.merchant_id': 'merchants.id'})
-      .where('orders.id', id)
-      .first();
+      .where('orders.id', id);
+
+    if (merchantId != null) {
+      query = query.andWhere('orders.merchant_id', merchantId);
+    }
+
+    const order = await query.first();
 
     if (!order) return null;
 
@@ -260,17 +266,16 @@ class Order {
       .where('orders.id', id);
   }
 
-  static async calculateTotals(id: number) {
-    const lines = await this.lineItems(id);
-    const TAX = .07;
+  static async calculateTotals(id: number, taxRate: number = DEFAULT_SALES_TAX_RATE) {
     let subTotal = 0;
+    const lines = await this.lineItems(id);
     lines.forEach((line: any) => {
       subTotal += (parseInt(line.price_cents) * line.quantity);
     });
 
     return {
       subTotal,
-      totalWithTax: subTotal + (subTotal * TAX),
+      totalWithTax: subTotal + (subTotal * taxRate),
     };
   }
 

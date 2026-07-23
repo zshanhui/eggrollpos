@@ -83,6 +83,23 @@ export function canCancel(status: OrderStatus): boolean {
   return !["canceled", "refunded"].includes(status);
 }
 
+/**
+ * Refund is available for any non-terminal order (same gate as cancel).
+ * The merchant UI cancel action posts `refunded` with a reason.
+ */
+export function canRefund(status: OrderStatus): boolean {
+  return canCancel(status);
+}
+
+/** True when `requested` is the single allowed forward transition for this order. */
+export function isValidStatusTransition(
+  currentStatus: OrderStatus,
+  requested: OrderStatus,
+  orderType: OrderType
+): boolean {
+  return getNextStatus(currentStatus, orderType) === requested;
+}
+
 export function getTimeUntilPickup(
   confirmedAt: string | null | undefined,
   pickupIn: number | null | undefined
