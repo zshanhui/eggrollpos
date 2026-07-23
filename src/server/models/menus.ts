@@ -40,7 +40,8 @@ class Menus {
         'merchants.address_state as merchant__address_state',
         'merchants.address_postal_code as merchant__address_postal_code',
         'merchants.type as merchant__type',
-        'merchants.description as merchant__description'
+        'merchants.description as merchant__description',
+        'merchants.timezone as merchant__timezone'
       )
       .where('menus.slug', slug)
       .where('menus.is_published', true)

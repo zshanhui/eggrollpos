@@ -8,12 +8,13 @@ import {
   type OnlineCart,
 } from '../lib/onlineCart';
 import { submitMenuCheckout, type MockPaymentMethod } from '../api/checkout';
+import { DEFAULT_SALES_TAX_RATE } from '../../../shared/constants';
 
 function formatPrice(cents: number): string {
   return `$${(cents / 100).toFixed(2)}`;
 }
 
-const TAX_RATE = 0.07;
+const TAX_RATE = DEFAULT_SALES_TAX_RATE;
 
 export default function Checkout(props: any) {
   const { t } = useTranslation();

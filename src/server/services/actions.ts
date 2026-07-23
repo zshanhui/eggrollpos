@@ -6,6 +6,7 @@ import MenuItems from '../models/menu_items';
 import Receipts from '../models/receipts';
 import { Status } from '../../shared/orders';
 import type { OrderType } from '../../shared/orders';
+import { DEFAULT_SALES_TAX_RATE } from '../../shared/constants';
 import { publishOrderEvent } from './order_events';
 
 interface CreateOrderItem {
@@ -113,7 +114,7 @@ export async function createReceipt({ orderId, paymentMethod }: { orderId: numbe
 
   const orderCostParams = {
     id: orderId,
-    taxRate: 0.07
+    taxRate: DEFAULT_SALES_TAX_RATE,
   };
 
   const params = await Orders.calculateSubtotal(orderCostParams);

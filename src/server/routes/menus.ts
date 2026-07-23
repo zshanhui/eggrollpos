@@ -1,31 +1,8 @@
-import { Router, type Request, type Response } from 'express';
+import { Router } from 'express';
 import Menus from '../models/menus';
 import { submitMenuCheckout, CheckoutError } from '../services/checkout';
 import type { MenuCheckoutRequest } from '../../shared/checkout';
-
-// ─── currently_open ───
-
-function computeCurrentlyOpen(
-  businessHours: Record<string, { open: string | null; close: string | null }> | null
-): boolean {
-  if (!businessHours) return true;
-
-  const now = new Date();
-  const pad = (n: number) => String(n).padStart(2, '0');
-  const currentTime = `${pad(now.getUTCHours())}:${pad(now.getUTCMinutes())}`;
-
-  const days = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
-  const today = days[now.getUTCDay()];
-  const hours = businessHours[today];
-
-  if (!hours || hours.open === null || hours.close === null) return false;
-
-  if (hours.open <= hours.close) {
-    return currentTime >= hours.open && currentTime < hours.close;
-  }
-  // Overnight window (e.g., 22:00 – 02:00)
-  return currentTime >= hours.open || currentTime < hours.close;
-}
+import { computeCurrentlyOpen } from '../../shared/business_hours';
 
 // ─── body normalization ───
 
@@ -188,7 +165,10 @@ publicRouter.get('/:slug', async (req, res) => {
       description: result.description,
       is_published: result.is_published,
       business_hours: result.business_hours,
-      currently_open: computeCurrentlyOpen(result.business_hours),
+      currently_open: computeCurrentlyOpen(
+        result.business_hours,
+        result.merchant__timezone
+      ),
       merchant: {
         id: result.merchant__id,
         business_name: result.merchant__business_name,
@@ -197,6 +177,7 @@ publicRouter.get('/:slug', async (req, res) => {
         address_state: result.merchant__address_state,
         address_postal_code: result.merchant__address_postal_code,
         type: result.merchant__type,
+        timezone: result.merchant__timezone || 'UTC',
       },
       categories: Array.from(categoriesMap.values()),
       uncategorized,
