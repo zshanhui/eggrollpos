@@ -2,22 +2,23 @@
 
 Audit date: 2026-07-14. Ranked by value-add × risk reduction × leverage.
 
-## 1. Merchant order authorization + status machine (P0)
+## 1. Merchant order authorization + status machine (P0) ✅ DONE
 
 **Value:** Security + correctness. Highest ROI.
 
 **Problem:** `GET/POST /api/merchants/:merchantId/orders*` in `src/server/routes/merchants.js` load/update orders by numeric ID without verifying `merchant_id`. Status updates ignore `getNextStatus` / `canCancel` from `src/shared/orders.ts` (imported but unused; `canRefund` does not even exist).
 
-**Change:**
-- Scope all order reads/writes by `merchant_id`
-- Enforce allowed transitions server-side
-- Add regression tests for IDOR and illegal status jumps
+**Change (landed):**
+- Scope all order reads/writes by `merchant_id` (`Orders.getDetailWithID(id, merchantId)`)
+- Enforce `getNextStatus` / `canCancel` / `canRefund` / `isValidStatusTransition` server-side
+- Converted related JS → TS: `merchants.ts`, `merchantAuth.ts`, `menu_items.ts`, `modifiers.ts`
+- Regression tests: `specs/routes/merchant_orders.spec.ts`
 
-**Primary files:** `src/server/routes/merchants.js`, `src/server/models/orders.ts`, new `specs/routes/merchant_orders.spec.js`
+**Primary files:** `src/server/routes/merchants.ts`, `src/server/models/orders.ts`, `src/shared/orders.ts`
 
 ---
 
-## 2. Timezone-aware business hours + shared tax/config (P0)
+## 2. Timezone-aware business hours + shared tax/config (P0) ✅ DONE
 
 **Value:** Wrong open/closed and tax in production ordering.
 
@@ -25,11 +26,13 @@ Audit date: 2026-07-14. Ranked by value-add × risk reduction × leverage.
 - Duplicate `computeCurrentlyOpen()` in `menus.ts` and `checkout.ts` uses UTC (`getUTCHours`), not merchant local time — `date-fns-tz` is installed but unused
 - Hardcoded `0.07` tax in `actions.ts`, `checkout.ts`, and `Checkout.tsx`; `src/server/constants.js` is dead
 
-**Change:**
-- Extract shared `computeCurrentlyOpen(hours, timezone)` using `date-fns-tz`
-- Centralize sales tax (merchant/settings or revived constants) and use it on server + client
+**Change (landed):**
+- Shared `computeCurrentlyOpen(hours, timezone)` in `src/shared/business_hours.ts` (date-fns-tz)
+- Shared tax/constants in `src/shared/constants.ts`; deleted dead `src/server/constants.js`
+- Seeds store local wall-clock hours + merchant IANA timezones
+- Tests: `specs/shared/business_hours.spec.ts`
 
-**Primary files:** `src/shared/checkout.ts` (or new helper), `src/server/routes/menus.ts`, `src/server/services/checkout.ts`, `src/server/services/actions.ts`, `src/client/js/pages/Checkout.tsx`
+**Primary files:** `src/shared/business_hours.ts`, `src/shared/constants.ts`, `src/server/routes/menus.ts`, `src/server/services/checkout.ts`, `src/server/services/actions.ts`, `src/client/js/pages/Checkout.tsx`
 
 ---
 
