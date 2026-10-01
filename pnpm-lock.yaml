@@ -66,8 +66,8 @@ importers:
         specifier: ^11.7.6
         version: 11.7.6
       morgan:
-        specifier: ~1.11.0
-        version: 1.11.0
+        specifier: ~1.12.1
+        version: 1.12.1
       pg:
         specifier: ^8.21.0
         version: 8.21.0
@@ -1060,6 +1060,7 @@ packages:
 
   '@shopify/polaris@10.50.1':
     resolution: {integrity: sha512-7wd79OG0UGbBzWQyGJ4OgaEkN9TTLHmnNKFxw3WJmSGxNiVHOkChjiN6VaH0Gvlp0mWRvKsTTK4T4zML2esHJA==}
+    deprecated: 'Polaris React is deprecated and no longer maintained. For building Shopify admin experiences, use Polaris web components: https://shopify.dev/docs/api/polaris — archived docs for this package: https://shopify.github.io/polaris-react-archive/'
     peerDependencies:
       react: ^16.14.0 || ^17.0.0 || ^18.0.0
       react-dom: ^16.14.0 || ^17.0.0 || ^18.0.0
@@ -2383,8 +2384,8 @@ packages:
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
     hasBin: true
 
-  morgan@1.11.0:
-    resolution: {integrity: sha512-zSkVu3t18r39pw4ixfBKvfZi3y2UOqr7d4WYwcj3m8nXpEQK4rPO6GLzs/CExoRgmX3y9EjmmcXqv6jq0SK46g==}
+  morgan@1.12.1:
+    resolution: {integrity: sha512-tljKC0ex20AjO58Ob/eZ53JloycbVswbVNCHx6V6VLGzqt/w8dIynVGL0G8qVjNKwiA7sYSogCrN6QtJ82IV+g==}
     engines: {node: '>= 0.8.0'}
 
   ms@2.0.0:
@@ -5367,7 +5368,7 @@ snapshots:
       yargs-parser: 21.1.1
       yargs-unparser: 2.0.0
 
-  morgan@1.11.0:
+  morgan@1.12.1:
     dependencies:
       basic-auth: 2.0.1
       debug: 2.6.9
